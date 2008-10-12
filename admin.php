@@ -243,15 +243,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _printPageIndex() {
-        foreach ($this->pageIndex as $p) {
-            ptln('  ' . $p . '<br />');
-        }
-    }
-
-    /**
-     *
-     */
     function _printMatches() {
         foreach ($this->match as $page => $match) {
             foreach ($match as $info) {
@@ -279,7 +270,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     }
 
     /**
-     *
+     * Prepare wiki text to be displayed as html
      */
     function _prepareText($text, $highlight = FALSE) {
         $html = htmlspecialchars($text);
