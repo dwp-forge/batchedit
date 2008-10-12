@@ -10,6 +10,10 @@
     margin-bottom: 0.5em;
 }
 
+#batchedit div.file label {
+    font-weight: bold;
+}
+
 #batchedit div.file table {
     margin: 0;
 }
@@ -22,8 +26,8 @@
     padding: 0.3em;
 }
 
-#batchedit div.file label {
-    font-weight: bold;
+#batchedit div.file table span.applied {
+    background-color: #6f9;
 }
 
 #batchedit div.mainform {

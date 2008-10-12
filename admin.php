@@ -69,7 +69,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                     break;
 
                 case 'apply':
-                    $this->_preview();
+                    $this->_apply();
                     break;
 
                 default:
@@ -198,6 +198,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $info['offest'] = $match[$i][0][1];
             $info['before'] = $this->_getBeforeContext($text, $match[$i]);
             $info['after'] = $this->_getAfterContext($text, $match[$i]);
+            $info['apply'] = FALSE;
 
             $this->match[$page][$i] = $info;
         }
@@ -243,17 +244,62 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
+    function _apply() {
+        $this->_initRegexp();
+        $this->_loadPageIndex();
+        $this->_findMatches();
+
+        if (isset($_REQUEST['apply'])) {
+            if (!is_array($_REQUEST['apply'])) {
+                throw new Exception('err_invcmd');
+            }
+
+            $this->_markRequested(array_keys($_REQUEST['apply']));
+            $this->_applyMatches();
+        }
+    }
+
+    /**
+     *
+     */
+    function _markRequested($request) {
+        foreach ($request as $r) {
+            list($page, $offset) = explode('#', $r);
+
+            if (array_key_exists($page, $this->match)) {
+                $count = count($this->match[$page]);
+
+                for ($i = 0; $i < $count; $i++) {
+                    if ($this->match[$page][$i]['offest'] == $offset) {
+                        $this->match[$page][$i]['apply'] = TRUE;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    function _applyMatches() {
+    }
+
+    /**
+     *
+     */
     function _printMatches() {
         foreach ($this->match as $page => $match) {
             foreach ($match as $info) {
-                $original = $this->_prepareText($info['original'], TRUE);
-                $replaced = $this->_prepareText($info['replaced'], TRUE);
+                $original = $this->_prepareText($info['original'], 'search_hit');
+                $replaced = $this->_prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
                 $before = $this->_prepareText($info['before']);
                 $after = $this->_prepareText($info['after']);
                 $id = $page . '#' . $info['offest'];
 
                 ptln('<div class="file">');
-                ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
+                if (!$info['apply']) {
+                    ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
+                }
                 ptln('<label for="' . $id . '">' . $id . '</label>');
                 ptln('<table><tr>');
                 ptln('<td class="text">');
@@ -272,12 +318,12 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      * Prepare wiki text to be displayed as html
      */
-    function _prepareText($text, $highlight = FALSE) {
+    function _prepareText($text, $highlight = '') {
         $html = htmlspecialchars($text);
         $html = str_replace( "\n", '<br />', $html);
 
-        if ($highlight) {
-            $html = '<strong class="search_hit">' . $html . '</strong>';
+        if ($highlight != '') {
+            $html = '<span class="' . $highlight . '">' . $html . '</span>';
         }
 
         return $html;
