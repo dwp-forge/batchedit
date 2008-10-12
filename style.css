@@ -14,9 +14,12 @@
     margin: 0;
 }
 
-#batchedit div.file pre {
-    margin: 0;
+#batchedit div.file table td.text {
+    font-family: monospace;
     font-size: 8pt;
+    width: 49%;
+    border: 1px dashed __border__;
+    padding: 0.3em;
 }
 
 #batchedit div.file label {

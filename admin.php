@@ -255,27 +255,41 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     function _printMatches() {
         foreach ($this->match as $page => $match) {
             foreach ($match as $info) {
-                $original = '<strong class="search_hit">' . htmlspecialchars($info['original']) . '</strong>';
-                $replaced = '<strong class="search_hit">' . htmlspecialchars($info['replaced']) . '</strong>';
-                $before = htmlspecialchars($info['before']);
-                $after = htmlspecialchars($info['after']);
+                $original = $this->_prepareText($info['original'], TRUE);
+                $replaced = $this->_prepareText($info['replaced'], TRUE);
+                $before = $this->_prepareText($info['before']);
+                $after = $this->_prepareText($info['after']);
                 $id = $page . '#' . $info['offest'];
 
                 ptln('<div class="file">');
                 ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
                 ptln('<label for="' . $id . '">' . $id . '</label>');
                 ptln('<table><tr>');
-                ptln('<td style="width: 49%"><pre>');
+                ptln('<td class="text">');
                 ptln($before . $original . $after);
-                ptln('</pre></td>');
+                ptln('</td>');
                 ptln('<td style="width: 2%; font-size: 200%">&gt;</td>');
-                ptln('<td style="width: 49%"><pre>');
+                ptln('<td class="text">');
                 ptln($before . $replaced . $after);
-                ptln('</pre></td>');
+                ptln('</td>');
                 ptln('</tr></table>');
                 ptln('</div>');
             }
         }
+    }
+
+    /**
+     *
+     */
+    function _prepareText($text, $highlight = FALSE) {
+        $html = htmlspecialchars($text);
+        $html = str_replace( "\n", '<br />', $html);
+
+        if ($highlight) {
+            $html = '<strong class="search_hit">' . $html . '</strong>';
+        }
+
+        return $html;
     }
 
     /**
