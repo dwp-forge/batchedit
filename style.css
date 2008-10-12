@@ -1,0 +1,36 @@
+/* plugin:batchedit */
+#batchedit table {
+    width: 100%;
+}
+
+#batchedit div.file {
+    background-color: __background_alt__;
+    border: 1px dashed __border__;
+    padding: 0.3em;
+    margin-bottom: 0.5em;
+}
+
+#batchedit div.file table {
+    margin: 0;
+}
+
+#batchedit div.file pre {
+    margin: 0;
+    font-size: 8pt;
+}
+
+#batchedit div.file label {
+    font-weight: bold;
+}
+
+#batchedit div.mainform {
+    margin-top: 1em;
+}
+
+#batchedit div.mainform input.edit {
+    font-family: monospace;
+    font-size: 10pt;
+    width: 70%;
+}
+
+/* /plugin:batchedit */
