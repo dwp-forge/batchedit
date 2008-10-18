@@ -28,4 +28,4 @@ $lang['btn_apply'] = 'Apply';
 $lang['lbl_ns'] = 'Namespace';
 $lang['lbl_regexp'] = 'Regular expression';
 $lang['lbl_replace'] = 'Replacement';
-$lang['lbl_comment'] = 'Comment';
+$lang['lbl_summary'] = 'Summary';

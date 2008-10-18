@@ -353,7 +353,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->_printFormEdit('lbl_ns', 'namespace');
         $this->_printFormEdit('lbl_regexp', 'regexp');
         $this->_printFormEdit('lbl_replace', 'replace');
-        $this->_printFormEdit('lbl_comment', 'comment');
+        $this->_printFormEdit('lbl_summary', 'summary');
         ptln('  </table>');
 
         ptln('  <input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
