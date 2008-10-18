@@ -46,6 +46,27 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     }
 
     /**
+     *
+     */
+    function getLang($id) {
+        $string = parent::getLang($id);
+
+        if (func_num_args() > 1) {
+            $search = array();
+            $replace = array();
+
+            for ($i = 1; $i < func_num_args(); $i++) {
+                $search[$i-1] = '{' . $i . '}';
+                $replace[$i-1] = func_get_arg($i);
+            }
+
+            $string = str_replace($search, $replace, $string);
+        }
+
+        return $string;
+    }
+
+    /**
      * Handle user request
      */
     function handle() {
