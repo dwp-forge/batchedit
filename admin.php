@@ -17,6 +17,7 @@ require_once(DOKU_PLUGIN.'admin.php');
 class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     var $error;
+    var $warning;
     var $command;
     var $regexp;
     var $pageIndex;
@@ -24,6 +25,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     function admin_plugin_batchedit() {
         $this->error = '';
+        $this->warning = array();
         $this->command = 'hello';
         $this->regexp = '';
         $this->replacement = '';
@@ -113,9 +115,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         ptln('<!-- batchedit -->');
         ptln('<div id="batchedit">');
 
-        if ($this->error != '') {
-            $this->_printError();
-        }
+        $this->_printMessages();
 
         ptln('<form action="' . wl($ID) . '" method="post">');
 
@@ -348,6 +348,34 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         return $html;
+    }
+
+    /**
+     *
+     */
+    function _printMessages() {
+        if ((count($this->warning) > 0) || ($this->error != '')) {
+            ptln('<div id="messages">');
+
+            $this->_printWarnings();
+
+            if ($this->error != '') {
+                $this->_printError();
+            }
+
+            ptln('</div>');
+        }
+    }
+
+    /**
+     *
+     */
+    function _printWarnings() {
+        foreach($this->warning as $w) {
+            ptln('<div class="notify">');
+            ptln('<b>Warning:</b> ' . $w);
+            ptln('</div>');
+        }
     }
 
     /**

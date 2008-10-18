@@ -3,6 +3,10 @@
     width: 100%;
 }
 
+#batchedit div#messages {
+    margin-bottom: 0.5em;
+}
+
 #batchedit div.file {
     background-color: __background_alt__;
     border: 1px dashed __border__;
