@@ -14,10 +14,9 @@ $lang['direction']  = 'ltr';
 // if set here, the plugin doesn't need to override the getMenuText() method
 $lang['menu'] = 'Batch Edit';
 
-$lang['err_invcmd'] = 'Invalid request.';
+$lang['err_invreq'] = 'Invalid request.';
 $lang['err_noregexp'] = 'Regular expression is not specified.';
 $lang['err_invregexp'] = 'Invalid regular expression.';
-$lang['err_noreplace'] = 'Replacement string is not specified.';
 $lang['err_emptyidx'] = 'The page index is empty.';
 $lang['err_idxaccess'] = 'Cannot access the page index.';
 $lang['err_pregfailed'] = 'Regular expression matching has failed.';

@@ -80,11 +80,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         try
         {
-            if (!is_array($_REQUEST['cmd'])) {
-                throw new Exception('err_invcmd');
-            }
-
-            $this->command = key($_REQUEST['cmd']);
+            $this->_parseRequest();
 
             switch ($this->command) {
                 case 'preview':
@@ -93,10 +89,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
                 case 'apply':
                     $this->_apply();
-                    break;
-
-                default:
-                    throw new Exception('err_invcmd');
                     break;
             }
         }
@@ -141,35 +133,67 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _preview() {
-        $this->_initRegexp();
-        $this->_loadPageIndex();
-        $this->_findMatches();
+    function _parseRequest() {
+        $this->command = $this->_getCommand();
+        $this->regexp = $this->_getRegexp();
+        $this->replacement = $this->_getReplacement();
     }
 
     /**
      *
      */
-    function _initRegexp() {
+    function _getCommand() {
+        if (!is_array($_REQUEST['cmd'])) {
+            throw new Exception('err_invreq');
+        }
+
+        $command = key($_REQUEST['cmd']);
+
+        if (($command != 'preview') && ($command != 'apply')) {
+            throw new Exception('err_invreq');
+        }
+
+        return $command;
+    }
+
+    /**
+     *
+     */
+    function _getRegexp() {
         if (!isset($_REQUEST['regexp'])) {
+            throw new Exception('err_invreq');
+        }
+
+        $regexp = trim($_REQUEST['regexp']);
+
+        if ($regexp == '') {
             throw new Exception('err_noregexp');
         }
 
-        $this->regexp = trim($_REQUEST['regexp']);
-
-        if ($this->regexp == '') {
-            throw new Exception('err_noregexp');
-        }
-
-        if (preg_match('/^([\/|!#-]).+?\1[imsxeADSUXJu]?$/', $this->regexp) != 1) {
+        if (preg_match('/^([\/|!#-]).+?\1[imsxeADSUXJu]?$/', $regexp) != 1) {
             throw new Exception('err_invregexp');
         }
 
+        return $regexp;
+    }
+
+    /**
+     *
+     */
+    function _getReplacement() {
         if (!isset($_REQUEST['replace'])) {
-            throw new Exception('err_noreplace');
+            throw new Exception('err_invreq');
         }
 
-        $this->replacement = $_REQUEST['replace'];
+        return $_REQUEST['replace'];
+    }
+
+    /**
+     *
+     */
+    function _preview() {
+        $this->_loadPageIndex();
+        $this->_findMatches();
     }
 
     /**
@@ -266,7 +290,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     function _apply() {
-        $this->_initRegexp();
         $this->_loadPageIndex();
         $this->_findMatches();
 
