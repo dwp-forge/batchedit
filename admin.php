@@ -30,6 +30,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->regexp = '';
         $this->replacement = '';
         $this->summary = '';
+        $this->minorEdit = FALSE;
         $this->pageIndex = array();
         $this->match = array();
         $this->indent = 0;
@@ -42,7 +43,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2008-09-13',
+            'date'   => '2008-10-19',
             'name'   => 'BatchEdit',
             'desc'   => 'Edit wiki pages with regexp replacement.',
             'url'    => 'http://www.dokuwiki.org/plugin:adminskeleton',
@@ -244,7 +245,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     function _findPageMatches($page) {
-        $text = io_readFile(wikiFN($page));
+        $text = rawWiki($page);
         $count = preg_match_all($this->regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count === FALSE) {
@@ -330,6 +331,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 for ($i = 0; $i < $count; $i++) {
                     if ($this->match[$page][$i]['offest'] == $offset) {
                         $this->match[$page][$i]['apply'] = TRUE;
+                        break;
                     }
                 }
             }
@@ -340,6 +342,89 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     function _applyMatches() {
+        $page = array_keys($this->match);
+        foreach ($page as $p) {
+            if ($this->_requiresChanges($p)) {
+                if ($this->_isEditAllowed($p)) {
+                    $this->_editPage($p);
+                }
+                else {
+                    $this->_unmarkDenied($p);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    function _requiresChanges($page) {
+        $result = FALSE;
+
+        foreach ($this->match[$page] as $info) {
+            if ($info['apply']) {
+                $result = TRUE;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
+    function _isEditAllowed($page) {
+        $allowed = TRUE;
+
+        if (auth_quickaclcheck($page) < AUTH_EDIT) {
+            $this->warning[] = $this->getLang('war_norights', $page);
+            $allowed = FALSE;
+        }
+
+        if ($allowed) {
+            $lockedBy = checklock($page);
+            if ($lockedBy != FALSE) {
+                $this->warning[] = $this->getLang('war_pagelock', $page, $lockedBy);
+                $allowed = FALSE;
+            }
+        }
+
+        return $allowed;
+    }
+
+    /**
+     *
+     */
+    function _editPage($page) {
+        lock($page);
+
+        $text = rawWiki($page);
+        $offset = 0;
+
+        foreach ($this->match[$page] as $info) {
+            if ($info['apply']) {
+                $originalLength = strlen($info['original']);
+                $before = substr($text, 0, $info['offest'] + $offset);
+                $after = substr($text, $info['offest'] + $offset + $originalLength);
+                $text = $before . $info['replaced'] . $after;
+                $offset += strlen($info['replaced']) - $originalLength;
+            }
+        }
+
+        saveWikiText($page, $text, $this->summary, $this->minorEdit);
+        unlock($page);
+    }
+
+    /**
+     *
+     */
+    function _unmarkDenied($page) {
+        $count = count($this->match[$page]);
+
+        for ($i = 0; $i < $count; $i++) {
+            $this->match[$page][$i]['apply'] = FALSE;
+        }
     }
 
     /**
