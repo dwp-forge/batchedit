@@ -21,6 +21,7 @@ $lang['err_emptyidx'] = 'The page index is empty.';
 $lang['err_idxaccess'] = 'Cannot access the page index.';
 $lang['err_pregfailed'] = 'Regular expression matching has failed.';
 
+$lang['war_nomatches'] = 'No matches are found.';
 $lang['war_norights'] = 'You have no rights to edit page {1}.';
 $lang['war_pagelock'] = 'Page {1} is locked by {2}.';
 

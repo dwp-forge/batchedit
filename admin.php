@@ -239,6 +239,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $page = trim($p);
             $this->_findPageMatches($page);
         }
+
+        if (count($this->match) == 0) {
+            $this->warning[] = $this->getLang('war_nomatches');
+        }
     }
 
     /**
