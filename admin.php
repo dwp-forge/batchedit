@@ -19,14 +19,20 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     var $error;
     var $warning;
     var $command;
+    var $namespace;
     var $regexp;
+    var $replacement;
+    var $summary;
+    var $minorEdit;
     var $pageIndex;
     var $match;
+    var $indent;
 
     function admin_plugin_batchedit() {
         $this->error = '';
         $this->warning = array();
         $this->command = 'hello';
+        $this->namespace = '';
         $this->regexp = '';
         $this->replacement = '';
         $this->summary = '';
@@ -43,7 +49,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2008-10-19',
+            'date'   => '2008-10-25',
             'name'   => 'BatchEdit',
             'desc'   => 'Edit wiki pages with regexp replacement.',
             'url'    => 'http://www.dokuwiki.org/plugin:adminskeleton',
@@ -138,6 +144,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     function _parseRequest() {
         $this->command = $this->_getCommand();
+        $this->namespace = $this->_getNamespace();
         $this->regexp = $this->_getRegexp();
         $this->replacement = $this->_getReplacement();
         $this->summary = $this->_getSummary();
@@ -158,6 +165,29 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         return $command;
+    }
+
+    /**
+     *
+     */
+    function _getNamespace() {
+        if (!isset($_REQUEST['namespace'])) {
+            throw new Exception('err_invreq');
+        }
+
+        $namespace = trim($_REQUEST['namespace']);
+
+        if ($namespace != '') {
+            global $ID;
+
+            $namespace = resolve_id(getNS($ID), $namespace . ':');
+
+            if ($namespace != '') {
+                $namespace .= ':';
+            }
+        }
+
+        return $namespace;
     }
 
     /**
@@ -235,9 +265,19 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     function _findMatches() {
+        if ($this->namespace != '') {
+            $pattern = '/^' . $this->namespace . '/';
+        }
+        else {
+            $pattern = '';
+        }
+
         foreach ($this->pageIndex as $p) {
             $page = trim($p);
-            $this->_findPageMatches($page);
+
+            if (($pattern == '') || (preg_match($pattern, $page) == 1)) {
+                $this->_findPageMatches($page);
+            }
         }
 
         if (count($this->match) == 0) {
