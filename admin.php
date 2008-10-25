@@ -492,7 +492,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 $this->_ptln('<td class="text">', +2);
                 $this->_ptln($before . $original . $after);
                 $this->_ptln('</td>', -2);
-                $this->_ptln('<td style="width: 2%; font-size: 200%">&gt;</td>');
+                $this->_ptln('<td class="arrow">&rang;</td>');
                 $this->_ptln('<td class="text">', +2);
                 $this->_ptln($before . $replaced . $after);
                 $this->_ptln('</td>', -2);
