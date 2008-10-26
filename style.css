@@ -23,7 +23,7 @@
 }
 
 #batchedit div.file table td.text {
-    font-family: monospace;
+    font-family: "Courier New", monospace;
     font-size: 8pt;
     text-align: left;
     white-space: pre-wrap;
@@ -33,8 +33,9 @@
 }
 
 #batchedit div.file table td.arrow {
-    font-size: 200%;
-    text-align: center;
+    background-image: url(images/arrow.png);
+    background-repeat: no-repeat;
+    background-position: center;
     width: 2%;
 }
 
@@ -47,7 +48,7 @@
 }
 
 #batchedit div.mainform input.edit {
-    font-family: monospace;
+    font-family: "Courier New", monospace;
     font-size: 10pt;
     width: 70%;
 }
