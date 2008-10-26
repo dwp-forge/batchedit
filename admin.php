@@ -49,7 +49,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2008-10-25',
+            'date'   => '2008-10-27',
             'name'   => 'BatchEdit',
             'desc'   => 'Edit wiki pages with regexp replacement.',
             'url'    => 'http://www.dokuwiki.org/plugin:adminskeleton',
