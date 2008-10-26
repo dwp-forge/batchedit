@@ -148,6 +148,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->regexp = $this->_getRegexp();
         $this->replacement = $this->_getReplacement();
         $this->summary = $this->_getSummary();
+        $this->minorEdit = isset($_REQUEST['minor']);
     }
 
     /**
@@ -556,7 +557,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     function _printMainForm() {
 
-        $this->_ptln('<div class="mainform">', +2);
+        $this->_ptln('<div id="mainform">', +2);
 
         // Output hidden values to ensure dokuwiki will return back to this plugin
         $this->_ptln('<input type="hidden" name="do"   value="admin" />');
@@ -585,9 +586,37 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $value = $_REQUEST[$name];
         }
 
-        $this->_ptln( '<tr><td style="width: 5%; padding-right: 1em;"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td><td>', +2);
-        $this->_ptln( '<input type="text" class="edit" name="' . $name . '" value="' . $value . '" />');
-        $this->_ptln( '</td></tr>', -2);
+        $this->_ptln( '<tr>', +2);
+        $this->_ptln( '<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
+        $this->_ptln( '<td class="edit"><input type="text" class="edit" name="' . $name . '" value="' . $value . '" /></td>');
+
+        switch ($name) {
+            case 'summary':
+                $this->_ptln( '<td style="padding-left: 2em">', +2);
+                $this->_printCheckBox('lbl_minor', 'minor');
+                $this->_ptln( '</td>', -2);
+                break;
+
+            default:
+                $this->_ptln( '<td></td>');
+                break;
+        }
+
+        $this->_ptln( '</tr>', -2);
+    }
+
+    /**
+     *
+     */
+    function _printCheckBox($title, $name) {
+        $html = '<input type="checkbox" id="' . $name . '" name="' . $name . '" value="on"';
+
+        if (isset($_REQUEST[$name])) {
+            $html .= ' checked="checked"';
+        }
+
+        $this->_ptln($html . ' />');
+        $this->_ptln('<label for="' . $name . '">' . $this->getLang($title) . '</label>');
     }
 
     /**

@@ -32,3 +32,4 @@ $lang['lbl_ns'] = 'Namespace';
 $lang['lbl_regexp'] = 'Regular expression';
 $lang['lbl_replace'] = 'Replacement';
 $lang['lbl_summary'] = 'Summary';
+$lang['lbl_minor'] = 'Minor changes';

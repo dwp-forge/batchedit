@@ -43,14 +43,23 @@
     background-color: #6f9;
 }
 
-#batchedit div.mainform {
+#batchedit div#mainform {
     margin-top: 1em;
 }
 
-#batchedit div.mainform input.edit {
+#batchedit div#mainform table td.title {
+    width: 5%;
+    padding-right: 1em;
+}
+
+#batchedit div#mainform table td.edit {
+    width: 60%;
+}
+
+#batchedit div#mainform input.edit {
     font-family: "Courier New", monospace;
     font-size: 10pt;
-    width: 70%;
+    width: 100%;
 }
 
 /* /plugin:batchedit */
