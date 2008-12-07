@@ -49,7 +49,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2008-10-27',
+            'date'   => '2008-12-07',
             'name'   => 'BatchEdit',
             'desc'   => 'Edit wiki pages with regexp replacement.',
             'url'    => 'http://www.dokuwiki.org/plugin:adminskeleton',
@@ -205,7 +205,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             throw new Exception('err_noregexp');
         }
 
-        if (preg_match('/^([\/|!#-]).+?\1[imsxeADSUXJu]?$/', $regexp) != 1) {
+        if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/', $regexp) != 1) {
             throw new Exception('err_invregexp');
         }
 
