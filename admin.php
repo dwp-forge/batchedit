@@ -1,19 +1,18 @@
 <?php
+
 /**
- * Plugin BatchEdit
+ * BatchEdit Plugin
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Mykola Ostrovskyy <spambox03@mail.ru>
  */
 
-if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../').'/');
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'admin.php');
+/* Must be run within Dokuwiki */
+if(!defined('DOKU_INC')) die();
 
-/**
- * All DokuWiki plugins to extend the admin function
- * need to inherit from this class
- */
+if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+require_once(DOKU_PLUGIN . 'admin.php');
+
 class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     var $error;
@@ -87,8 +86,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             return;
         }
 
-        try
-        {
+        try {
             $this->_parseRequest();
 
             switch ($this->command) {
@@ -101,8 +99,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                     break;
             }
         }
-        catch ( Exception $error )
-        {
+        catch (Exception $error) {
             $this->error = $this->getLang($error->getMessage());
         }
     }
