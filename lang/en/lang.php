@@ -33,3 +33,6 @@ $lang['lbl_regexp'] = 'Regular expression';
 $lang['lbl_replace'] = 'Replacement';
 $lang['lbl_summary'] = 'Summary';
 $lang['lbl_minor'] = 'Minor changes';
+
+$lang['lnk_view'] = 'Go to this page';
+$lang['lnk_edit'] = 'Edit this page';

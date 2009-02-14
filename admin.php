@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BatchEdit Plugin
+ * Plugin BatchEdit
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Mykola Ostrovskyy <spambox03@mail.ru>
@@ -48,7 +48,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2009-01-31',
+            'date'   => '2009-02-14',
             'name'   => 'BatchEdit',
             'desc'   => 'Edit wiki pages using regular expressions.',
             'url'    => 'http://www.dokuwiki.org/plugin:batchedit',
@@ -473,12 +473,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     function _printMatches() {
+        $view = $this->getLang('lnk_view');
+        $edit = $this->getLang('lnk_edit');
         foreach ($this->match as $page => $match) {
             foreach ($match as $info) {
                 $original = $this->_prepareText($info['original'], 'search_hit');
                 $replaced = $this->_prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
                 $before = $this->_prepareText($info['before']);
                 $after = $this->_prepareText($info['after']);
+                $link = wl($page);
                 $id = $page . '#' . $info['offest'];
 
                 $this->_ptln('<div class="file">', +2);
@@ -486,6 +489,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                     $this->_ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
                 }
                 $this->_ptln('<label for="' . $id . '">' . $id . '</label>');
+                $this->_ptln('<a class="view" href="' . $link . '" title="' . $view . '"></a>');
+                $this->_ptln('<a class="edit" href="' . $link . '&do=edit" title="' . $edit . '"></a>');
                 $this->_ptln('<table><tr>', +2);
                 $this->_ptln('<td class="text">' . $before . $original . $after . '</td>');
                 $this->_ptln('<td class="arrow"></td>');

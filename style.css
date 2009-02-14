@@ -18,6 +18,18 @@
     font-weight: bold;
 }
 
+#batchedit div.file a.view {
+    background: transparent url(../../images/fileicons/txt.png) 0px 1px no-repeat;
+    padding: 1px 0px 1px 19px;
+    margin-left: 5px;
+}
+
+#batchedit div.file a.edit {
+    background: transparent url(../../images/pencil.png) 1px 1px no-repeat;
+    padding: 1px 0px 1px 18px;
+    margin-left: 5px;
+}
+
 #batchedit div.file table {
     margin: 0;
 }
