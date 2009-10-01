@@ -288,7 +288,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     function _findPageMatches($page) {
         $text = rawWiki($page);
-        $count = preg_match_all($this->regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+        $count = @preg_match_all($this->regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count === FALSE) {
             throw new Exception('err_pregfailed');
