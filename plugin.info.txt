@@ -1,0 +1,7 @@
+base   batchedit
+author Mykola Ostrovskyy
+email  spambox03@mail.ru
+date   2014-05-24
+name   BatchEdit Plugin
+desc   Edit wiki pages using regular expressions.
+url    http://www.dokuwiki.org/plugin:batchedit

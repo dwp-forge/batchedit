@@ -42,20 +42,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     }
 
     /**
-     * Return some info
-     */
-    public function getInfo() {
-        return array(
-            'author' => 'Mykola Ostrovskyy',
-            'email'  => 'spambox03@mail.ru',
-            'date'   => '2009-02-14',
-            'name'   => 'BatchEdit',
-            'desc'   => 'Edit wiki pages using regular expressions.',
-            'url'    => 'http://www.dokuwiki.org/plugin:batchedit',
-        );
-    }
-
-    /**
      *
      */
     public function getLang($id) {
