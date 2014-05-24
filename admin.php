@@ -217,7 +217,18 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             throw new Exception('err_invreq');
         }
 
-        return $_REQUEST['replace'];
+        $unescape = function($matches) {
+            if (strlen($matches[1]) % 2) {
+                $unescaped = array('n' => "\n", 'r' => "\r", 't' => "\t");
+
+                return substr($matches[1], 1) . $unescaped[$matches[2]];
+            }
+            else {
+                return $matches[0];
+            }
+        };
+
+        return preg_replace_callback('/(\\\\+)([nrt])/', $unescape, $_REQUEST['replace']);
     }
 
     /**
