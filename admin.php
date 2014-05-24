@@ -15,19 +15,19 @@ require_once(DOKU_PLUGIN . 'admin.php');
 
 class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
-    var $error;
-    var $warning;
-    var $command;
-    var $namespace;
-    var $regexp;
-    var $replacement;
-    var $summary;
-    var $minorEdit;
-    var $pageIndex;
-    var $match;
-    var $indent;
+    private $error;
+    private $warning;
+    private $command;
+    private $namespace;
+    private $regexp;
+    private $replacement;
+    private $summary;
+    private $minorEdit;
+    private $pageIndex;
+    private $match;
+    private $indent;
 
-    function admin_plugin_batchedit() {
+    public function __construct() {
         $this->error = '';
         $this->warning = array();
         $this->command = 'hello';
@@ -44,7 +44,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      * Return some info
      */
-    function getInfo() {
+    public function getInfo() {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
@@ -58,7 +58,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function getLang($id) {
+    public function getLang($id) {
         $string = parent::getLang($id);
 
         if (func_num_args() > 1) {
@@ -79,7 +79,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      * Handle user request
      */
-    function handle() {
+    public function handle() {
 
         if (!isset($_REQUEST['cmd'])) {
             // First time - nothing to do
@@ -87,15 +87,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         try {
-            $this->_parseRequest();
+            $this->parseRequest();
 
             switch ($this->command) {
                 case 'preview':
-                    $this->_preview();
+                    $this->preview();
                     break;
 
                 case 'apply':
-                    $this->_apply();
+                    $this->apply();
                     break;
             }
         }
@@ -107,29 +107,29 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      * Output appropriate html
      */
-    function html() {
+    public function html() {
         global $ID;
 
         ptln('<!-- batchedit -->');
         ptln('<div id="batchedit">');
 
-        $this->_printMessages();
+        $this->printMessages();
 
         ptln('<form action="' . wl($ID) . '" method="post">');
 
         if ($this->error == '') {
             switch ($this->command) {
                 case 'preview':
-                    $this->_printMatches();
+                    $this->printMatches();
                     break;
 
                 case 'apply':
-                    $this->_printMatches();
+                    $this->printMatches();
                     break;
             }
         }
 
-        $this->_printMainForm();
+        $this->printMainForm();
 
         ptln('</form>');
         ptln('</div>');
@@ -139,19 +139,19 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _parseRequest() {
-        $this->command = $this->_getCommand();
-        $this->namespace = $this->_getNamespace();
-        $this->regexp = $this->_getRegexp();
-        $this->replacement = $this->_getReplacement();
-        $this->summary = $this->_getSummary();
+    private function parseRequest() {
+        $this->command = $this->getCommand();
+        $this->namespace = $this->getNamespace();
+        $this->regexp = $this->getRegexp();
+        $this->replacement = $this->getReplacement();
+        $this->summary = $this->getSummary();
         $this->minorEdit = isset($_REQUEST['minor']);
     }
 
     /**
      *
      */
-    function _getCommand() {
+    private function getCommand() {
         if (!is_array($_REQUEST['cmd'])) {
             throw new Exception('err_invreq');
         }
@@ -168,7 +168,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _getNamespace() {
+    private function getNamespace() {
         if (!isset($_REQUEST['namespace'])) {
             throw new Exception('err_invreq');
         }
@@ -191,7 +191,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _getRegexp() {
+    private function getRegexp() {
         if (!isset($_REQUEST['regexp'])) {
             throw new Exception('err_invreq');
         }
@@ -212,7 +212,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _getReplacement() {
+    private function getReplacement() {
         if (!isset($_REQUEST['replace'])) {
             throw new Exception('err_invreq');
         }
@@ -234,7 +234,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _getSummary() {
+    private function getSummary() {
         if (!isset($_REQUEST['summary'])) {
             throw new Exception('err_invreq');
         }
@@ -245,15 +245,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _preview() {
-        $this->_loadPageIndex();
-        $this->_findMatches();
+    private function preview() {
+        $this->loadPageIndex();
+        $this->findMatches();
     }
 
     /**
      *
      */
-    function _loadPageIndex() {
+    private function loadPageIndex() {
         global $conf;
 
         if (@file_exists($conf['indexdir'] . '/page.idx')) {
@@ -273,7 +273,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _findMatches() {
+    private function findMatches() {
         if ($this->namespace != '') {
             $pattern = '/^' . $this->namespace . '/';
         }
@@ -285,7 +285,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $page = trim($p);
 
             if (($pattern == '') || (preg_match($pattern, $page) == 1)) {
-                $this->_findPageMatches($page);
+                $this->findPageMatches($page);
             }
         }
 
@@ -297,7 +297,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _findPageMatches($page) {
+    private function findPageMatches($page) {
         $text = rawWiki($page);
         $count = @preg_match_all($this->regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
@@ -309,8 +309,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $info['original'] = $match[$i][0][0];
             $info['replaced'] = preg_replace($this->regexp, $this->replacement, $info['original']);
             $info['offest'] = $match[$i][0][1];
-            $info['before'] = $this->_getBeforeContext($text, $match[$i]);
-            $info['after'] = $this->_getAfterContext($text, $match[$i]);
+            $info['before'] = $this->getBeforeContext($text, $match[$i]);
+            $info['after'] = $this->getAfterContext($text, $match[$i]);
             $info['apply'] = FALSE;
 
             $this->match[$page][$i] = $info;
@@ -320,7 +320,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _getBeforeContext($text, $match) {
+    private function getBeforeContext($text, $match) {
         $length = 50;
         $offset = $match[0][1] - $length;
 
@@ -342,7 +342,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _getAfterContext($text, $match) {
+    private function getAfterContext($text, $match) {
         $offset = $match[0][1] + strlen($match[0][0]);
         $text = substr($text, $offset, 50);
         $count = preg_match_all('/\n/', $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
@@ -357,24 +357,24 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _apply() {
-        $this->_loadPageIndex();
-        $this->_findMatches();
+    private function apply() {
+        $this->loadPageIndex();
+        $this->findMatches();
 
         if (isset($_REQUEST['apply'])) {
             if (!is_array($_REQUEST['apply'])) {
                 throw new Exception('err_invcmd');
             }
 
-            $this->_markRequested(array_keys($_REQUEST['apply']));
-            $this->_applyMatches();
+            $this->markRequested(array_keys($_REQUEST['apply']));
+            $this->applyMatches();
         }
     }
 
     /**
      *
      */
-    function _markRequested($request) {
+    private function markRequested($request) {
         foreach ($request as $r) {
             list($page, $offset) = explode('#', $r);
 
@@ -394,15 +394,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _applyMatches() {
+    private function applyMatches() {
         $page = array_keys($this->match);
         foreach ($page as $p) {
-            if ($this->_requiresChanges($p)) {
-                if ($this->_isEditAllowed($p)) {
-                    $this->_editPage($p);
+            if ($this->requiresChanges($p)) {
+                if ($this->isEditAllowed($p)) {
+                    $this->editPage($p);
                 }
                 else {
-                    $this->_unmarkDenied($p);
+                    $this->unmarkDenied($p);
                 }
             }
         }
@@ -411,7 +411,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _requiresChanges($page) {
+    private function requiresChanges($page) {
         $result = FALSE;
 
         foreach ($this->match[$page] as $info) {
@@ -427,7 +427,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _isEditAllowed($page) {
+    private function isEditAllowed($page) {
         $allowed = TRUE;
 
         if (auth_quickaclcheck($page) < AUTH_EDIT) {
@@ -449,7 +449,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _editPage($page) {
+    private function editPage($page) {
         lock($page);
 
         $text = rawWiki($page);
@@ -472,7 +472,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _unmarkDenied($page) {
+    private function unmarkDenied($page) {
         $count = count($this->match[$page]);
 
         for ($i = 0; $i < $count; $i++) {
@@ -483,31 +483,31 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _printMatches() {
+    private function printMatches() {
         $view = $this->getLang('lnk_view');
         $edit = $this->getLang('lnk_edit');
         foreach ($this->match as $page => $match) {
             foreach ($match as $info) {
-                $original = $this->_prepareText($info['original'], 'search_hit');
-                $replaced = $this->_prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
-                $before = $this->_prepareText($info['before']);
-                $after = $this->_prepareText($info['after']);
+                $original = $this->prepareText($info['original'], 'search_hit');
+                $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
+                $before = $this->prepareText($info['before']);
+                $after = $this->prepareText($info['after']);
                 $link = wl($page);
                 $id = $page . '#' . $info['offest'];
 
-                $this->_ptln('<div class="file">', +2);
+                $this->ptln('<div class="file">', +2);
                 if (!$info['apply']) {
-                    $this->_ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
+                    $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
                 }
-                $this->_ptln('<label for="' . $id . '">' . $id . '</label>');
-                $this->_ptln('<a class="view" href="' . $link . '" title="' . $view . '"></a>');
-                $this->_ptln('<a class="edit" href="' . $link . '&do=edit" title="' . $edit . '"></a>');
-                $this->_ptln('<table><tr>', +2);
-                $this->_ptln('<td class="text">' . $before . $original . $after . '</td>');
-                $this->_ptln('<td class="arrow"></td>');
-                $this->_ptln('<td class="text">' . $before . $replaced . $after . '</td>');
-                $this->_ptln('</tr></table>', -2);
-                $this->_ptln('</div>', -2);
+                $this->ptln('<label for="' . $id . '">' . $id . '</label>');
+                $this->ptln('<a class="view" href="' . $link . '" title="' . $view . '"></a>');
+                $this->ptln('<a class="edit" href="' . $link . '&do=edit" title="' . $edit . '"></a>');
+                $this->ptln('<table><tr>', +2);
+                $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
+                $this->ptln('<td class="arrow"></td>');
+                $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
+                $this->ptln('</tr></table>', -2);
+                $this->ptln('</div>', -2);
                 ptln('');
             }
         }
@@ -516,7 +516,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      * Prepare wiki text to be displayed as html
      */
-    function _prepareText($text, $highlight = '') {
+    private function prepareText($text, $highlight = '') {
         $html = htmlspecialchars($text);
         $html = str_replace( "\n", '<br />', $html);
 
@@ -530,17 +530,17 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _printMessages() {
+    private function printMessages() {
         if ((count($this->warning) > 0) || ($this->error != '')) {
-            $this->_ptln('<div id="messages">', +2);
+            $this->ptln('<div id="messages">', +2);
 
-            $this->_printWarnings();
+            $this->printWarnings();
 
             if ($this->error != '') {
-                $this->_printError();
+                $this->printError();
             }
 
-            $this->_ptln('</div>', -2);
+            $this->ptln('</div>', -2);
             ptln('');
         }
     }
@@ -548,94 +548,94 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    function _printWarnings() {
+    private function printWarnings() {
         foreach($this->warning as $w) {
-            $this->_ptln('<div class="notify">', +2);
-            $this->_ptln('<b>Warning:</b> ' . $w);
-            $this->_ptln('</div>', -2);
+            $this->ptln('<div class="notify">', +2);
+            $this->ptln('<b>Warning:</b> ' . $w);
+            $this->ptln('</div>', -2);
         }
     }
 
     /**
      *
      */
-    function _printError() {
-        $this->_ptln('<div class="error">', +2);
-        $this->_ptln('<b>Error:</b> ' . $this->error);
-        $this->_ptln('</div>', -2);
+    private function printError() {
+        $this->ptln('<div class="error">', +2);
+        $this->ptln('<b>Error:</b> ' . $this->error);
+        $this->ptln('</div>', -2);
     }
 
     /**
      *
      */
-    function _printMainForm() {
+    private function printMainForm() {
 
-        $this->_ptln('<div id="mainform">', +2);
+        $this->ptln('<div id="mainform">', +2);
 
         // Output hidden values to ensure dokuwiki will return back to this plugin
-        $this->_ptln('<input type="hidden" name="do"   value="admin" />');
-        $this->_ptln('<input type="hidden" name="page" value="' . $this->getPluginName() . '" />');
+        $this->ptln('<input type="hidden" name="do"   value="admin" />');
+        $this->ptln('<input type="hidden" name="page" value="' . $this->getPluginName() . '" />');
 
-        $this->_ptln('<table>', +2);
-        $this->_printFormEdit('lbl_ns', 'namespace');
-        $this->_printFormEdit('lbl_regexp', 'regexp');
-        $this->_printFormEdit('lbl_replace', 'replace');
-        $this->_printFormEdit('lbl_summary', 'summary');
-        $this->_ptln('</table>', -2);
+        $this->ptln('<table>', +2);
+        $this->printFormEdit('lbl_ns', 'namespace');
+        $this->printFormEdit('lbl_regexp', 'regexp');
+        $this->printFormEdit('lbl_replace', 'replace');
+        $this->printFormEdit('lbl_summary', 'summary');
+        $this->ptln('</table>', -2);
 
-        $this->_ptln('<input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
-        $this->_ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
+        $this->ptln('<input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
+        $this->ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
 
-        $this->_ptln('</div>', -2);
+        $this->ptln('</div>', -2);
     }
 
     /**
      *
      */
-    function _printFormEdit($title, $name) {
+    private function printFormEdit($title, $name) {
         $value = '';
 
         if (isset($_REQUEST[$name])) {
             $value = $_REQUEST[$name];
         }
 
-        $this->_ptln( '<tr>', +2);
-        $this->_ptln( '<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
-        $this->_ptln( '<td class="edit"><input type="text" class="edit" name="' . $name . '" value="' . $value . '" /></td>');
+        $this->ptln( '<tr>', +2);
+        $this->ptln( '<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
+        $this->ptln( '<td class="edit"><input type="text" class="edit" name="' . $name . '" value="' . $value . '" /></td>');
 
         switch ($name) {
             case 'summary':
-                $this->_ptln( '<td style="padding-left: 2em">', +2);
-                $this->_printCheckBox('lbl_minor', 'minor');
-                $this->_ptln( '</td>', -2);
+                $this->ptln( '<td style="padding-left: 2em">', +2);
+                $this->printCheckBox('lbl_minor', 'minor');
+                $this->ptln( '</td>', -2);
                 break;
 
             default:
-                $this->_ptln( '<td></td>');
+                $this->ptln( '<td></td>');
                 break;
         }
 
-        $this->_ptln( '</tr>', -2);
+        $this->ptln( '</tr>', -2);
     }
 
     /**
      *
      */
-    function _printCheckBox($title, $name) {
+    private function printCheckBox($title, $name) {
         $html = '<input type="checkbox" id="' . $name . '" name="' . $name . '" value="on"';
 
         if (isset($_REQUEST[$name])) {
             $html .= ' checked="checked"';
         }
 
-        $this->_ptln($html . ' />');
-        $this->_ptln('<label for="' . $name . '">' . $this->getLang($title) . '</label>');
+        $this->ptln($html . ' />');
+        $this->ptln('<label for="' . $name . '">' . $this->getLang($title) . '</label>');
     }
 
     /**
      *
      */
-    function _ptln($string, $indentDelta = 0) {
+    private function ptln($string, $indentDelta = 0) {
         if ($indentDelta < 0) {
             $this->indent += $indentDelta;
         }
