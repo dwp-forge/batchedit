@@ -28,6 +28,9 @@ $lang['war_pagelock'] = 'Page {1} is locked by {2}.';
 $lang['btn_preview'] = 'Preview';
 $lang['btn_apply'] = 'Apply';
 
+$lang['inf_regexp'] = 'Example: /(Wiki)/m';
+$lang['inf_replace'] = 'Example: Doku$1';
+
 $lang['lbl_ns'] = 'Namespace';
 $lang['lbl_regexp'] = 'Regular expression';
 $lang['lbl_replace'] = 'Replacement';

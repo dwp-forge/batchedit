@@ -595,6 +595,13 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 $this->printCheckBox('lbl_minor', 'minor');
                 $this->ptln('</td>', -2);
                 break;
+
+            case 'regexp':
+                $this->ptln('<td style="padding-left: 2em">' . $this->getLang('inf_regexp') . '</td>');
+                break;
+
+            case 'replace':
+                $this->ptln('<td style="padding-left: 2em">' . $this->getLang('inf_replace') . '</td>');
                 break;
 
             default:
