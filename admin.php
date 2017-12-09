@@ -504,7 +504,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function prepareText($text, $highlight = '') {
         $html = htmlspecialchars($text);
-        $html = str_replace( "\n", '<br />', $html);
+        $html = str_replace("\n", '<br />', $html);
 
         if ($highlight != '') {
             $html = '<span class="' . $highlight . '">' . $html . '</span>';
@@ -585,23 +585,24 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $value = $_REQUEST[$name];
         }
 
-        $this->ptln( '<tr>', +2);
-        $this->ptln( '<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
-        $this->ptln( '<td class="edit"><input type="text" class="edit" name="' . $name . '" value="' . $value . '" /></td>');
+        $this->ptln('<tr>', +2);
+        $this->ptln('<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
+        $this->ptln('<td class="edit"><input type="text" class="edit" name="' . $name . '" value="' . $value . '" /></td>');
 
         switch ($name) {
             case 'summary':
-                $this->ptln( '<td style="padding-left: 2em">', +2);
+                $this->ptln('<td style="padding-left: 2em">', +2);
                 $this->printCheckBox('lbl_minor', 'minor');
-                $this->ptln( '</td>', -2);
+                $this->ptln('</td>', -2);
+                break;
                 break;
 
             default:
-                $this->ptln( '<td></td>');
+                $this->ptln('<td></td>');
                 break;
         }
 
-        $this->ptln( '</tr>', -2);
+        $this->ptln('</tr>', -2);
     }
 
     /**
