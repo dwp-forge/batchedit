@@ -1,6 +1,11 @@
 /* plugin:batchedit */
 #batchedit table {
     width: 100%;
+    border: 0;
+}
+
+#batchedit table td {
+    border: 0;
 }
 
 #batchedit div#messages {
