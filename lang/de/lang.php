@@ -1,0 +1,40 @@
+<?php
+/**
+ * German language file
+ *
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
+
+// settings must be present and set appropriately for the language
+$lang['encoding']   = 'utf-8';
+$lang['direction']  = 'ltr';
+
+// for admin plugins, the menu prompt to be displayed in the admin menu
+// if set here, the plugin doesn't need to override the getMenuText() method
+$lang['menu'] = 'Suchen&Ersetzen';
+
+$lang['err_invreq'] = 'Ungültige Anfrage.';
+$lang['err_noregexp'] = 'Kein Suchbegriff.';
+$lang['err_invregexp'] = 'Ungültiger Suchbegriff.';
+$lang['err_emptyidx'] = 'Seitenindex ist leer.';
+$lang['err_idxaccess'] = 'Seitenindex kann nicht geladen werden.';
+$lang['err_pregfailed'] = 'Suchbegriff fehlerhaft.';
+
+$lang['war_nomatches'] = 'Keine Suchergebnisse gefunden.';
+$lang['war_norights'] = 'Keine Berechtigungen um Seite {1} zu bearbeiten.';
+$lang['war_pagelock'] = 'Seite {1} wird gerade bearbeitet von {2}.';
+
+$lang['btn_preview'] = 'Vorschau';
+$lang['btn_apply'] = 'OK';
+
+$lang['inf_regexp'] = 'Beispiel: /(Wiki)/m';
+$lang['inf_replace'] = 'Beispiel: Doku$1';
+
+$lang['lbl_ns'] = 'Namespace';
+$lang['lbl_regexp'] = 'Suchbegriff (/suche/)';
+$lang['lbl_replace'] = 'Ersetzen durch';
+$lang['lbl_summary'] = 'Zusammenfassung';
+$lang['lbl_minor'] = 'Kleine Änderung';
+
+$lang['lnk_view'] = 'Zu dieser Seite';
+$lang['lnk_edit'] = 'Seite bearbeiten';
