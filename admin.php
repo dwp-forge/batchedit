@@ -497,8 +497,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 ptln('');
             }
         }
-        $this->ptln('<label id="checkall"><input type="checkbox" /> Check All</label>');
-        $this->ptln('<script>jQuery("#checkall").click(function(){var isCheckAll = jQuery("#checkall input").prop("checked");jQuery(".file input").prop("checked", isCheckAll);})</script>');
+        if ($this->match) {
+            $this->ptln('<label id="checkall"><input type="checkbox" /> Check All</label>');
+            $this->ptln('<script>jQuery("#checkall").click(function(){var isCheckAll = jQuery("#checkall input").prop("checked");jQuery(".file input").prop("checked", isCheckAll);})</script>');
+        }
     }
 
     /**
