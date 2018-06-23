@@ -472,16 +472,39 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function printMatches() {
         $view = $this->getLang('lnk_view');
         $edit = $this->getLang('lnk_edit');
+        $counter = 0;
+        $totalMatches = 0;
+        foreach($this->match as $match) {
+            $totalMatches += count($match);
+        }
+        $this->ptln('<div id="summary-top">', +2);
+        $this->ptln('<h3>Total matches: ' . $totalMatches . '</b></h3>');
+        $this->ptln('<label class="checkall-files" id="checkall-top"><input type="checkbox" /> Check All</label>');
+        $this->ptln('<a class="arrow-down" href="#mainform"><b>&darr;</b></a>');
+        $this->ptln('<br></div>', -2);
+        //$this->ptln('<script>jQuery(".checkall-files").click(function(){var isCheckAll = jQuery(".checkall-files input").prop("checked");jQuery(".file input").prop("checked", isCheckAll);})</script>');
         foreach ($this->match as $page => $match) {
+            $counter++;
+
+            $this->ptln('<div class="file" id="file-'.$counter.'">', +2);
+            $this->ptln('<div class="file-head">', +2);
+            $this->ptln('<h3>' . $page . ' - <small>' . count($match) .' matches</small></h3>');
+
+            $this->ptln('<a class="arrow-down" href="#mainform"><b>&darr;</b></a>');
+            $this->ptln('<label class="checkall" id="checkall-'.$counter.'"><input type="checkbox" /> Check All</label>');
+
+            $this->ptln('<script>jQuery("#checkall-'.$counter.'").click(function(){var isCheckAll = jQuery("#checkall-'.$counter.' > input").prop("checked");jQuery("#file-'.$counter.' input").prop("checked", isCheckAll);})</script>');
+            $this->ptln('</div>', -2);
+            $this->ptln('<div class="file-body">', +2);
             foreach ($match as $info) {
-                $original = $this->prepareText($info['original'], 'search_hit');
+                $original = $this->prepareText($info['original'], $info['apply'] ? 'overwritten' : 'search_hit');
                 $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
                 $before = $this->prepareText($info['before']);
                 $after = $this->prepareText($info['after']);
                 $link = wl($page);
                 $id = $page . '#' . $info['offest'];
 
-                $this->ptln('<div class="file">', +2);
+                $this->ptln('<div class="matchbox">', +2);
                 if (!$info['apply']) {
                     $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
                 }
@@ -496,6 +519,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 $this->ptln('</div>', -2);
                 ptln('');
             }
+            $this->ptln('</div>', -2);
+            $this->ptln('</div>', -2);
+            ptln('<hr>');
         }
     }
 
@@ -561,7 +587,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         // Output hidden values to ensure dokuwiki will return back to this plugin
         $this->ptln('<input type="hidden" name="do"   value="admin" />');
         $this->ptln('<input type="hidden" name="page" value="' . $this->getPluginName() . '" />');
-
+        
+        if ($this->match) {
+            $this->ptln('<label class="checkall-files" id="checkall-bottom"><input type="checkbox" /> Check All</label>');
+        }
         $this->ptln('<table>', +2);
         $this->printFormEdit('lbl_ns', 'namespace');
         $this->printFormEdit('lbl_regexp', 'regexp');
@@ -573,6 +602,20 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
 
         $this->ptln('</div>', -2);
+
+        if ($this->match) {
+            echo '<script>';
+            echo 'console.log("checkyoself");';
+            echo 'function checkAll(which){';
+            echo '  console.log(which);';
+            echo '  var isCheckAll=jQuery("#checkall-"+which+" input").prop("checked");';
+            echo '  console.log(isCheckAll);';
+            echo '  jQuery(".file input").prop("checked", isCheckAll);';
+            echo '  jQuery(".checkall-files input").prop("checked", isCheckAll);';
+            echo '}';
+            echo 'jQuery(".checkall-files#checkall-top").click(function(){checkAll("top")});';
+            echo 'jQuery(".checkall-files#checkall-bottom").click(function(){checkAll("bottom")});</script>';
+        }
     }
 
     /**
