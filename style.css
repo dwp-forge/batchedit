@@ -12,34 +12,60 @@
     margin-bottom: 0.5em;
 }
 
+
+#batchedit div#summary-top {
+    position: relative;
+    padding: 0.25em;
+    height: 6em;
+}
+
 #batchedit div.file {
+    position: relative;
+}
+
+#batchedit div.file div.file-head {
+    margin: -0.15em;
+    padding: 0.5em;
+    border-top: 3px solid #eb7;
+    border-right: 3px solid #eb7;
+    border-left: 3px solid #eb7;
+    
+    border-radius: 5px;
+}
+#batchedit div.file div.file-body {
+    margin: -0.15em;
+    border: 3px solid #eb7;
+    border-radius: 5px;
+}
+
+#batchedit div.matchbox {
     background-color: __background_alt__;
     border: 1px dashed __border__;
     padding: 0.3em;
     margin-bottom: 0.5em;
 }
 
-#batchedit div.file label {
+#batchedit div.matchbox label {
     font-weight: bold;
 }
 
-#batchedit div.file a.view {
+#batchedit div.matchbox a.view {
     background: transparent url(../../images/fileicons/txt.png) 0px 1px no-repeat;
     padding: 1px 0px 1px 19px;
     margin-left: 5px;
 }
 
-#batchedit div.file a.edit {
+#batchedit div.matchbox a.edit {
     background: transparent url(../../images/pencil.png) 1px 1px no-repeat;
     padding: 1px 0px 1px 18px;
     margin-left: 5px;
 }
 
-#batchedit div.file table {
+#batchedit div.matchbox table {
     margin: 0;
 }
 
-#batchedit div.file table td.text {
+#batchedit div.matchbox table td.text {
     font-family: "Courier New", monospace;
     font-size: 8pt;
     text-align: left;
@@ -49,15 +75,28 @@
     padding: 0.3em;
 }
 
-#batchedit div.file table td.arrow {
+#batchedit a.arrow-down {
+    color: #0000ff;
+    position: absolute;
+    right: 0.75em;
+    top: 0em;
+    font-size: 2em;
+    line-height: 2.5em;
+}
+
+#batchedit div.matchbox table td.arrow {
     background-image: url(images/arrow.png);
     background-repeat: no-repeat;
     background-position: center;
     width: 2%;
 }
 
-#batchedit div.file table span.applied {
+#batchedit div.matchbox table span.applied {
     background-color: #6f9;
+}
+
+#batchedit div.matchbox table span.overwritten {
+    background-color: #f76;
 }
 
 #batchedit div#mainform {
