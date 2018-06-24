@@ -477,8 +477,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         foreach($this->match as $match) {
             $totalMatches += count($match);
         }
+        $totalPages = count($this->match);
         $this->ptln('<div id="summary-top">', +2);
-        $this->ptln('<h3>Total matches: ' . $totalMatches . '</b></h3>');
+        $this->ptln('<h3>Total matches: ' . $totalMatches . ' matches</b> on <b>' . $totalPages . ' pages</b></h3>');
         $this->ptln('<label class="checkall-files" id="checkall-top"><input type="checkbox" /> Check All</label>');
         $this->ptln('<a class="arrow-down" href="#mainform"><b>&darr;</b></a>');
         $this->ptln('<br></div>', -2);
