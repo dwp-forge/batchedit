@@ -52,14 +52,25 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $replace = array();
 
             for ($i = 1; $i < func_num_args(); $i++) {
-                $search[$i-1] = '{' . $i . '}';
-                $replace[$i-1] = func_get_arg($i);
+                $search[$i - 1] = '{' . $i . '}';
+                $replace[$i - 1] = func_get_arg($i);
             }
 
             $string = str_replace($search, $replace, $string);
         }
 
         return $string;
+    }
+
+    /**
+     *
+     */
+    public function getLangPlural($id, $quantity) {
+        if ($quantity == 1) {
+            return $this->getLang($id . '_1', $quantity);
+        }
+
+        return $this->getLang($id . '_n', $quantity);
     }
 
     /**
@@ -470,32 +481,47 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function printMatches() {
-        $view = $this->getLang('lnk_view');
-        $edit = $this->getLang('lnk_edit');
         foreach ($this->match as $page => $match) {
-            foreach ($match as $info) {
-                $original = $this->prepareText($info['original'], 'search_hit');
-                $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
-                $before = $this->prepareText($info['before']);
-                $after = $this->prepareText($info['after']);
-                $link = wl($page);
-                $id = $page . '#' . $info['offest'];
+            $matches = count($match);
 
-                $this->ptln('<div class="file">', +2);
-                if (!$info['apply']) {
-                    $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
-                }
-                $this->ptln('<label for="' . $id . '">' . $id . '</label>');
-                $this->ptln('<a class="view" href="' . $link . '" title="' . $view . '"></a>');
-                $this->ptln('<a class="edit" href="' . $link . '&do=edit" title="' . $edit . '"></a>');
-                $this->ptln('<table><tr>', +2);
-                $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
-                $this->ptln('<td class="arrow"></td>');
-                $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
-                $this->ptln('</tr></table>', -2);
-                $this->ptln('</div>', -2);
-                ptln('');
+            $this->ptln('<div class="file" id="' . $page . '">', +2);
+            $this->ptln('<div class="stats">', +2);
+            $this->ptln($page . ' &ndash; ' . $this->getLangPlural('lbl_match', $matches));
+            $this->ptln('</div>', -2);
+
+            $this->printPageMatches($page, $match);
+
+            $this->ptln('</div>', -2);
+        }
+    }
+
+    /**
+     *
+     */
+    private function printPageMatches($page, $match) {
+        foreach ($match as $info) {
+            $original = $this->prepareText($info['original'], 'search_hit');
+            $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
+            $before = $this->prepareText($info['before']);
+            $after = $this->prepareText($info['after']);
+            $link = wl($page);
+            $id = $page . '#' . $info['offest'];
+
+            $this->ptln('<div class="match">', +2);
+
+            if (!$info['apply']) {
+                $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
             }
+
+            $this->ptln('<label for="' . $id . '">' . $id . '</label>');
+            $this->ptln('<a class="view" href="' . $link . '" title="' . $this->getLang('lnk_view') . '"></a>');
+            $this->ptln('<a class="edit" href="' . $link . '&do=edit" title="' . $this->getLang('lnk_edit') . '"></a>');
+            $this->ptln('<table><tr>', +2);
+            $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
+            $this->ptln('<td class="arrow"></td>');
+            $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
+            $this->ptln('</tr></table>', -2);
+            $this->ptln('</div>', -2);
         }
     }
 

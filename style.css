@@ -1,11 +1,14 @@
 /* plugin:batchedit */
 
 #batchedit div.file {
-    background-color: __background_alt__;
-    border: 1px dashed __border__;
+    border-left: 1px solid __border__;
 }
 
-#batchedit div.file table td.text {
+#batchedit div.match {
+    background-color: __background_alt__;
+}
+
+#batchedit div.match table td.text {
     border: 1px dashed __border__;
 }
 

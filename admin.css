@@ -12,31 +12,42 @@
 }
 
 #batchedit div.file {
+    padding-left: 0.5em;
+    margin-bottom: 1.5em;
+}
+
+#batchedit div.file div.stats {
+    font-size: 120%;
+	font-weight: bold;
+    margin-bottom: 1em;
+}
+
+#batchedit div.match {
     padding: 0.3em;
     margin-bottom: 0.5em;
 }
 
-#batchedit div.file label {
+#batchedit div.match label {
     font-weight: bold;
 }
 
-#batchedit div.file a.view {
+#batchedit div.match a.view {
     background: transparent url(../../images/fileicons/txt.png) 0px 1px no-repeat;
     padding: 1px 0px 1px 19px;
     margin-left: 5px;
 }
 
-#batchedit div.file a.edit {
+#batchedit div.match a.edit {
     background: transparent url(../../images/pencil.png) 1px 1px no-repeat;
     padding: 1px 0px 1px 18px;
     margin-left: 5px;
 }
 
-#batchedit div.file table {
-    margin: 0;
+#batchedit div.match table {
+    margin: 0.3em 0 0 0;
 }
 
-#batchedit div.file table td.text {
+#batchedit div.match table td.text {
     font-family: "Courier New", monospace;
     font-size: 8pt;
     text-align: left;
@@ -45,14 +56,14 @@
     padding: 0.3em;
 }
 
-#batchedit div.file table td.arrow {
+#batchedit div.match table td.arrow {
     background-image: url(images/arrow.png);
     background-repeat: no-repeat;
     background-position: center;
     width: 2%;
 }
 
-#batchedit div.file table span.applied {
+#batchedit div.match table span.applied {
     background-color: #6f9;
 }
 
