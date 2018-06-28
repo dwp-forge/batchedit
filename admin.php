@@ -485,6 +485,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function printMatches() {
         foreach ($this->match as $page => $match) {
             $matches = count($match);
+            $link = wl($page);
 
             $this->ptln('<div class="file" id="' . $page . '">', +2);
             $this->ptln('<div class="stats">', +2);
@@ -492,6 +493,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $this->ptln('</div>', -2);
 
             $this->ptln('<div class="actions">', +2);
+            $this->printAction($link, 'lnk_view', 'file-document');
+            $this->printAction($link . '&do=edit', 'lnk_edit', 'pencil');
             $this->printAction('#mainform', 'lnk_mainform', 'arrow-down');
             $this->ptln('</div>', -2);
 
@@ -521,7 +524,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
             $before = $this->prepareText($info['before']);
             $after = $this->prepareText($info['after']);
-            $link = wl($page);
             $id = $page . '#' . $info['offest'];
 
             $this->ptln('<div class="match">', +2);
@@ -531,8 +533,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             }
 
             $this->ptln('<label for="' . $id . '">' . $id . '</label>');
-            $this->ptln('<a class="view" href="' . $link . '" title="' . $this->getLang('lnk_view') . '"></a>');
-            $this->ptln('<a class="edit" href="' . $link . '&do=edit" title="' . $this->getLang('lnk_edit') . '"></a>');
             $this->ptln('<table><tr>', +2);
             $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
             $this->ptln('<td class="arrow"></td>');

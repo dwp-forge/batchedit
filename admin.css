@@ -21,6 +21,7 @@
 #batchedit .action svg {
     width: 24px;
     height: 24px;
+    margin-left: 4px;
     fill: #ccc;
 }
 
@@ -47,18 +48,6 @@
 
 #batchedit div.match label {
     font-weight: bold;
-}
-
-#batchedit div.match a.view {
-    background: transparent url(../../images/fileicons/txt.png) 0px 1px no-repeat;
-    padding: 1px 0px 1px 19px;
-    margin-left: 5px;
-}
-
-#batchedit div.match a.edit {
-    background: transparent url(../../images/pencil.png) 1px 1px no-repeat;
-    padding: 1px 0px 1px 18px;
-    margin-left: 5px;
 }
 
 #batchedit div.match table {
