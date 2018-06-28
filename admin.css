@@ -44,7 +44,11 @@
 #batchedit div.file div.stats {
     font-size: 120%;
 	font-weight: bold;
-    margin-bottom: 1em;
+    margin-bottom: 0.7em;
+}
+
+#batchedit div.file .apply:hover {
+    color: #2b73b7;
 }
 
 #batchedit div.match {
@@ -56,7 +60,7 @@
     font-weight: bold;
 }
 
-#batchedit div.match .apply:hover .match-id {
+#batchedit div.match .apply:hover {
     color: #2b73b7;
 }
 

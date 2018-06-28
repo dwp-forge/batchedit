@@ -484,24 +484,54 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function printMatches() {
         foreach ($this->match as $page => $match) {
-            $matches = count($match);
-            $link = wl($page);
-
-            $this->ptln('<div class="file" id="' . $page . '">', +2);
-            $this->ptln('<div class="stats">', +2);
-            $this->ptln($page . ' &ndash; ' . $this->getLangPlural('lbl_match', $matches));
-            $this->ptln('</div>', -2);
-
-            $this->ptln('<div class="actions">', +2);
-            $this->printAction($link, 'lnk_view', 'file-document');
-            $this->printAction($link . '&do=edit', 'lnk_edit', 'pencil');
-            $this->printAction('#mainform', 'lnk_mainform', 'arrow-down');
-            $this->ptln('</div>', -2);
-
+            $this->ptln('<div class="file">', +2);
+            $this->printPageStats($page, $match);
+            $this->printPageActions($page);
             $this->printPageMatches($page, $match);
-
             $this->ptln('</div>', -2);
         }
+    }
+
+    /**
+     *
+     */
+    private function printPageStats($page, $match) {
+        $stats = $page . ' &ndash; ' . $this->getLangPlural('lbl_match', count($match));
+        $apply = false;
+
+        foreach ($match as $info) {
+            if (!$info['apply']) {
+                $apply = true;
+                break;
+            }
+        }
+
+        $this->ptln('<div class="stats">', +2);
+
+        if ($apply) {
+            $this->ptln('<span class="apply" title="' . $this->getLang('lbl_apply_file') . '">', +2);
+            $this->ptln('<input type="checkbox" id="' . $page . '" />');
+            $this->ptln('<label class="match-id" for="' . $page . '">' . $stats . '</label>');
+            $this->ptln('</span>', -2);
+        }
+        else {
+            $this->ptln('<div>' . $stats . '</div>');
+        }
+
+        $this->ptln('</div>', -2);
+    }
+
+    /**
+     *
+     */
+    private function printPageActions($page) {
+        $link = wl($page);
+
+        $this->ptln('<div class="actions">', +2);
+        $this->printAction($link, 'lnk_view', 'file-document');
+        $this->printAction($link . '&do=edit', 'lnk_edit', 'pencil');
+        $this->printAction('#mainform', 'lnk_mainform', 'arrow-down');
+        $this->ptln('</div>', -2);
     }
 
     /**
