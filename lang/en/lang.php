@@ -38,6 +38,7 @@ $lang['lbl_summary'] = 'Summary';
 $lang['lbl_minor'] = 'Minor changes';
 $lang['lbl_match_1'] = '{1} match';
 $lang['lbl_match_n'] = '{1} matches';
+$lang['lbl_apply_match'] = 'Apply this match';
 
 $lang['lnk_mainform'] = 'Go to bottom';
 $lang['lnk_view'] = 'Go to this page';

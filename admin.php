@@ -520,26 +520,44 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function printPageMatches($page, $match) {
         foreach ($match as $info) {
-            $original = $this->prepareText($info['original'], 'search_hit');
-            $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
-            $before = $this->prepareText($info['before']);
-            $after = $this->prepareText($info['after']);
-            $id = $page . '#' . $info['offest'];
-
             $this->ptln('<div class="match">', +2);
-
-            if (!$info['apply']) {
-                $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
-            }
-
-            $this->ptln('<label for="' . $id . '">' . $id . '</label>');
-            $this->ptln('<table><tr>', +2);
-            $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
-            $this->ptln('<td class="arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
-            $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
-            $this->ptln('</tr></table>', -2);
+            $this->printMatchHeader($page, $info);
+            $this->printMatchTable($info);
             $this->ptln('</div>', -2);
         }
+    }
+
+    /**
+     *
+     */
+    private function printMatchHeader($page, $info) {
+        $id = $page . '#' . $info['offest'];
+
+        if (!$info['apply']) {
+            $this->ptln('<span class="apply" title="' . $this->getLang('lbl_apply_match') . '">', +2);
+            $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
+            $this->ptln('<label class="match-id" for="' . $id . '">' . $id . '</label>');
+            $this->ptln('</span>', -2);
+        }
+        else {
+            $this->ptln('<div class="match-id">' . $id . '</div>');
+        }
+    }
+
+    /**
+     *
+     */
+    private function printMatchTable($info) {
+        $original = $this->prepareText($info['original'], 'search_hit');
+        $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
+        $before = $this->prepareText($info['before']);
+        $after = $this->prepareText($info['after']);
+
+        $this->ptln('<table><tr>', +2);
+        $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
+        $this->ptln('<td class="arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
+        $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
+        $this->ptln('</tr></table>', -2);
     }
 
     /**

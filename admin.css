@@ -52,8 +52,12 @@
     margin-bottom: 0.5em;
 }
 
-#batchedit div.match label {
+#batchedit div.match .match-id {
     font-weight: bold;
+}
+
+#batchedit div.match .apply:hover .match-id {
+    color: #2b73b7;
 }
 
 #batchedit div.match table {
