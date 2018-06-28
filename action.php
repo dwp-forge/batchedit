@@ -36,6 +36,7 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
      */
     private function addAdminIncludes($event) {
         $this->addTemplateHeaderInclude($event, 'admin.css');
+        $this->addTemplateHeaderInclude($event, 'admin.js');
     }
 
     /**
@@ -49,6 +50,11 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
             case 'css':
                 $type = 'link';
                 $data = array('type' => 'text/css', 'rel' => 'stylesheet', 'href' => $fileName);
+                break;
+
+            case 'js':
+                $type = 'script';
+                $data = array('type' => 'text/javascript', 'charset' => 'utf-8', 'src' => $fileName, '_data' => '');
                 break;
         }
 

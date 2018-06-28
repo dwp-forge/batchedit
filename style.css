@@ -1,5 +1,11 @@
 /* plugin:batchedit */
 
+.ui-widget.ui-widget-content.batchedit-tooltip {
+    background-color: __background__;
+    border-left: 1px solid __border__;
+    color: __text__;
+}
+
 #batchedit div.file {
     border-left: 1px solid __border__;
 }

@@ -1,3 +1,9 @@
+.ui-widget.ui-widget-content.batchedit-tooltip {
+    padding: 2px 8px 2px 8px;
+    font-size: 90%;
+    box-shadow: 0 0 0.5em #999;
+}
+
 #batchedit table {
     width: 100%;
     border: 0;
