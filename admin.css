@@ -11,7 +11,25 @@
     margin-bottom: 0.5em;
 }
 
+#batchedit .actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 24px;
+}
+
+#batchedit .action svg {
+    width: 24px;
+    height: 24px;
+    fill: #ccc;
+}
+
+#batchedit .action svg:hover {
+    fill: #2b73b7;
+}
+
 #batchedit div.file {
+    position: relative;
     padding-left: 0.5em;
     margin-bottom: 1.5em;
 }

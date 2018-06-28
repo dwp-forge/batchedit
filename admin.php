@@ -26,6 +26,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private $pageIndex;
     private $match;
     private $indent;
+    private $svgCache;
 
     public function __construct() {
         $this->error = '';
@@ -39,6 +40,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->pageIndex = array();
         $this->match = array();
         $this->indent = 0;
+        $this->svgCache = array();
     }
 
     /**
@@ -489,10 +491,25 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $this->ptln($page . ' &ndash; ' . $this->getLangPlural('lbl_match', $matches));
             $this->ptln('</div>', -2);
 
+            $this->ptln('<div class="actions">', +2);
+            $this->printAction('#mainform', 'lnk_mainform', 'arrow-down');
+            $this->ptln('</div>', -2);
+
             $this->printPageMatches($page, $match);
 
             $this->ptln('</div>', -2);
         }
+    }
+
+    /**
+     *
+     */
+    private function printAction($href, $titleId, $iconId) {
+        $action = '<a class="action" href="' . $href . '" title="' . $this->getLang($titleId) . '">';
+        $action .= $this->getSvg($iconId);
+        $action .= '</a>';
+
+        $this->ptln($action);
     }
 
     /**
@@ -665,5 +682,16 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         if ($indentDelta > 0) {
             $this->indent += $indentDelta;
         }
+    }
+
+    /**
+     *
+     */
+    private function getSvg($id) {
+        if (!array_key_exists($id, $this->svgCache)) {
+            $this->svgCache[$id] = file_get_contents(DOKU_PLUGIN . 'batchedit/images/' . $id . '.svg');
+        }
+
+        return $this->svgCache[$id];
     }
 }
