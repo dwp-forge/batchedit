@@ -70,10 +70,18 @@
 }
 
 #batchedit div.match table td.arrow {
-    background-image: url(images/arrow.png);
-    background-repeat: no-repeat;
-    background-position: center;
+    position: relative;
     width: 2%;
+}
+
+#batchedit div.match table td.arrow svg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left:-3px;
+    margin-top:-20px;
+    width: 8px;
+    height: 40px;
 }
 
 #batchedit div.match table span.applied {

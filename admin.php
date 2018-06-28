@@ -535,7 +535,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $this->ptln('<label for="' . $id . '">' . $id . '</label>');
             $this->ptln('<table><tr>', +2);
             $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
-            $this->ptln('<td class="arrow"></td>');
+            $this->ptln('<td class="arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
             $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
             $this->ptln('</tr></table>', -2);
             $this->ptln('</div>', -2);

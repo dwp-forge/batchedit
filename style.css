@@ -18,4 +18,8 @@
     border: 1px dashed __border__;
 }
 
+#batchedit div.match table td.arrow svg {
+    stroke: __text__;
+}
+
 /* /plugin:batchedit */
