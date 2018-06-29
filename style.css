@@ -6,6 +6,10 @@
     color: __text__;
 }
 
+#batchedit #totalstats div {
+    background-color: __background__;
+}
+
 #batchedit div.file {
     border-left: 1px solid __border__;
 }

@@ -25,6 +25,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private $minorEdit;
     private $pageIndex;
     private $match;
+    private $matches;
+    private $edits;
     private $indent;
     private $svgCache;
 
@@ -39,6 +41,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->minorEdit = FALSE;
         $this->pageIndex = array();
         $this->match = array();
+        $this->matches = 0;
+        $this->edits = 0;
         $this->indent = 0;
         $this->svgCache = array();
     }
@@ -116,12 +120,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         ptln('<form action="' . wl($ID) . '" method="post">');
 
-        if ($this->error == '') {
+        if ($this->error == '' && !empty($this->match)) {
             switch ($this->command) {
                 case 'preview':
-                    $this->printMatches();
-                    break;
-
                 case 'apply':
                     $this->printMatches();
                     break;
@@ -288,7 +289,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             }
         }
 
-        if (count($this->match) == 0) {
+        if (empty($this->match)) {
             $this->warning[] = $this->getLang('war_nomatches');
         }
     }
@@ -303,6 +304,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         if ($count === FALSE) {
             throw new Exception('err_pregfailed');
         }
+
+        $this->matches += $count;
 
         for ($i = 0; $i < $count; $i++) {
             $info['original'] = $match[$i][0][0];
@@ -394,15 +397,20 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function applyMatches() {
-        $page = array_keys($this->match);
-        foreach ($page as $p) {
-            if ($this->requiresChanges($p)) {
-                if ($this->isEditAllowed($p)) {
-                    $this->editPage($p);
+        foreach (array_keys($this->match) as $page) {
+            if ($this->requiresChanges($page)) {
+                if ($this->isEditAllowed($page)) {
+                    $this->editPage($page);
                 }
                 else {
-                    $this->unmarkDenied($p);
+                    $this->unmarkDenied($page);
                 }
+            }
+        }
+
+        foreach ($this->match as $page => $match) {
+            foreach ($match as $info) {
+                $this->edits += $info['apply'] ? 1 : 0;
             }
         }
     }
@@ -499,6 +507,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function printMatches() {
+        $this->printTotalStats();
+
         foreach ($this->match as $page => $match) {
             $this->ptln('<div class="file">', +2);
             $this->printPageStats($page, $match);
@@ -506,6 +516,27 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $this->printPageMatches($page, $match);
             $this->ptln('</div>', -2);
         }
+    }
+
+    /**
+     *
+     */
+    private function printTotalStats() {
+        $matches = $this->getLangPlural('sts_matches', $this->matches);
+        $pages = $this->getLangPlural('sts_pages', count($this->match));
+
+        switch ($this->command) {
+            case 'preview':
+                $stats = $this->getLang('sts_preview', $matches, $pages);
+                break;
+
+            case 'apply':
+                $edits = $this->getLangPlural('sts_edits', $this->edits);
+                $stats = $this->getLang('sts_apply', $matches, $pages, $edits);
+                break;
+        }
+
+        $this->ptln('<div id="totalstats"><div>' . $stats . '</div></div>');
     }
 
     /**

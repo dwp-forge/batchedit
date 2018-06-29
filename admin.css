@@ -35,6 +35,25 @@
     fill: #2b73b7;
 }
 
+#batchedit #totalstats {
+    position: relative;
+    font-size: 120%;
+    font-weight: bold;
+    margin: -1em -0.2em 0 -0.5em;
+}
+
+#batchedit #totalstats div {
+    position: relative;
+    z-index: 9;
+    padding: 1em 0.2em 1.2em 0.5em;
+}
+
+#batchedit #totalstats div.floater {
+    position: fixed;
+    top: 0;
+    box-shadow: 0 0.5em 0.5em -0.5em #999;
+}
+
 #batchedit div.file {
     position: relative;
     padding-left: 0.5em;

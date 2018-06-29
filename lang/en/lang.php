@@ -37,9 +37,15 @@ $lang['lbl_replace'] = 'Replacement';
 $lang['lbl_summary'] = 'Summary';
 $lang['lbl_minor'] = 'Minor changes';
 
+$lang['sts_preview'] = 'Search results: {1} on {2}';
+$lang['sts_apply'] = 'Edit results: {1} on {2}, {3}';
 $lang['sts_page'] = '{1} &ndash; {2}';
 $lang['sts_matches#one'] = '{1} match';
 $lang['sts_matches#many'] = '{1} matches';
+$lang['sts_pages#one'] = '{1} page';
+$lang['sts_pages#many'] = '{1} pages';
+$lang['sts_edits#one'] = '{1} replacement applied';
+$lang['sts_edits#many'] = '{1} replacements applied';
 
 $lang['ttl_applyfile'] = 'Apply all matches in this file';
 $lang['ttl_applymatch'] = 'Apply this match';
