@@ -36,8 +36,10 @@ $lang['lbl_regexp'] = 'Regular expression';
 $lang['lbl_replace'] = 'Replacement';
 $lang['lbl_summary'] = 'Summary';
 $lang['lbl_minor'] = 'Minor changes';
-$lang['lbl_match_1'] = '{1} match';
-$lang['lbl_match_n'] = '{1} matches';
+
+$lang['sts_page'] = '{1} &ndash; {2}';
+$lang['sts_matches#one'] = '{1} match';
+$lang['sts_matches#many'] = '{1} matches';
 
 $lang['ttl_applyfile'] = 'Apply all matches in this file';
 $lang['ttl_applymatch'] = 'Apply this match';

@@ -69,10 +69,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     public function getLangPlural($id, $quantity) {
         if ($quantity == 1) {
-            return $this->getLang($id . '_1', $quantity);
+            return $this->getLang($id . '#one', $quantity);
         }
 
-        return $this->getLang($id . '_n', $quantity);
+        return $this->getLang($id . '#many', $quantity);
     }
 
     /**
@@ -426,6 +426,22 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
+    private function hasApplicableMatches($page) {
+        $result = FALSE;
+
+        foreach ($this->match[$page] as $info) {
+            if (!$info['apply']) {
+                $result = TRUE;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
     private function isEditAllowed($page) {
         $allowed = TRUE;
 
@@ -496,26 +512,18 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function printPageStats($page, $match) {
-        $stats = $page . ' &ndash; ' . $this->getLangPlural('lbl_match', count($match));
-        $apply = false;
-
-        foreach ($match as $info) {
-            if (!$info['apply']) {
-                $apply = true;
-                break;
-            }
-        }
+        $stats = $this->getLang('sts_page', $page, $this->getLangPlural('sts_matches', count($match)));
 
         $this->ptln('<div class="stats">', +2);
 
-        if ($apply) {
+        if ($this->hasApplicableMatches($page)) {
             $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $page . '" />');
             $this->ptln('<label class="match-id" for="' . $page . '">' . $stats . '</label>');
             $this->ptln('</span>', -2);
         }
         else {
-            $this->ptln('<div>' . $stats . '</div>');
+            $this->ptln($stats);
         }
 
         $this->ptln('</div>', -2);
