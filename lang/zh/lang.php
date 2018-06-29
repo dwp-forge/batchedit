@@ -37,5 +37,5 @@ $lang['lbl_replace'] = '替换';
 $lang['lbl_summary'] = '编辑摘要';
 $lang['lbl_minor'] = '细微修改';
 
-$lang['lnk_view'] = '前往此页';
-$lang['lnk_edit'] = '修改此页';
+$lang['ttl_view'] = '前往此页';
+$lang['ttl_edit'] = '修改此页';

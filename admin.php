@@ -509,7 +509,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->ptln('<div class="stats">', +2);
 
         if ($apply) {
-            $this->ptln('<span class="apply" title="' . $this->getLang('lbl_apply_file') . '">', +2);
+            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $page . '" />');
             $this->ptln('<label class="match-id" for="' . $page . '">' . $stats . '</label>');
             $this->ptln('</span>', -2);
@@ -528,9 +528,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $link = wl($page);
 
         $this->ptln('<div class="actions">', +2);
-        $this->printAction($link, 'lnk_view', 'file-document');
-        $this->printAction($link . '&do=edit', 'lnk_edit', 'pencil');
-        $this->printAction('#mainform', 'lnk_mainform', 'arrow-down');
+        $this->printAction($link, 'ttl_view', 'file-document');
+        $this->printAction($link . '&do=edit', 'ttl_edit', 'pencil');
+        $this->printAction('#mainform', 'ttl_mainform', 'arrow-down');
         $this->ptln('</div>', -2);
     }
 
@@ -564,7 +564,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $id = $page . '#' . $info['offest'];
 
         if (!$info['apply']) {
-            $this->ptln('<span class="apply" title="' . $this->getLang('lbl_apply_match') . '">', +2);
+            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
             $this->ptln('<label class="match-id" for="' . $id . '">' . $id . '</label>');
             $this->ptln('</span>', -2);

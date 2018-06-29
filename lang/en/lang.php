@@ -38,9 +38,9 @@ $lang['lbl_summary'] = 'Summary';
 $lang['lbl_minor'] = 'Minor changes';
 $lang['lbl_match_1'] = '{1} match';
 $lang['lbl_match_n'] = '{1} matches';
-$lang['lbl_apply_file'] = 'Apply all matches in this file';
-$lang['lbl_apply_match'] = 'Apply this match';
 
-$lang['lnk_mainform'] = 'Go to bottom';
-$lang['lnk_view'] = 'Go to this page';
-$lang['lnk_edit'] = 'Edit this page';
+$lang['ttl_applyfile'] = 'Apply all matches in this file';
+$lang['ttl_applymatch'] = 'Apply this match';
+$lang['ttl_view'] = 'Go to this page';
+$lang['ttl_edit'] = 'Edit this page';
+$lang['ttl_mainform'] = 'Go to bottom';
