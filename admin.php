@@ -629,8 +629,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function printMatchTable($info) {
-        $original = $this->prepareText($info['original'], 'search_hit');
-        $replaced = $this->prepareText($info['replaced'], $info['apply'] ? 'applied' : 'search_hit');
+        $original = $this->prepareText($info['original'], 'search_hit' . ($info['apply'] ? ' replaced' : ''));
+        $replaced = $this->prepareText($info['replaced'], 'search_hit' . ($info['apply'] ? ' applied' : ''));
         $before = $this->prepareText($info['before']);
         $after = $this->prepareText($info['after']);
 
