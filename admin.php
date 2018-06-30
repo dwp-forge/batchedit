@@ -12,17 +12,13 @@ if(!defined('DOKU_INC')) die();
 
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_PLUGIN . 'admin.php');
+require_once(DOKU_PLUGIN . 'batchedit/request.php');
 
 class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     private $error;
     private $warning;
-    private $command;
-    private $namespace;
-    private $regexp;
-    private $replacement;
-    private $summary;
-    private $minorEdit;
+    private $request;
     private $pageIndex;
     private $match;
     private $matches;
@@ -33,12 +29,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     public function __construct() {
         $this->error = '';
         $this->warning = array();
-        $this->command = 'hello';
-        $this->namespace = '';
-        $this->regexp = '';
-        $this->replacement = '';
-        $this->summary = '';
-        $this->minorEdit = FALSE;
+        $this->request = NULL;
         $this->pageIndex = array();
         $this->match = array();
         $this->matches = 0;
@@ -90,14 +81,14 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         try {
-            $this->parseRequest();
+            $this->request = new BatcheditRequest();
 
-            switch ($this->command) {
-                case 'preview':
+            switch ($this->request->getCommand()) {
+                case BatcheditRequest::COMMAND_PREVIEW:
                     $this->preview();
                     break;
 
-                case 'apply':
+                case BatcheditRequest::COMMAND_APPLY:
                     $this->apply();
                     break;
             }
@@ -120,13 +111,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         ptln('<form action="' . wl($ID) . '" method="post">');
 
-        if ($this->error == '' && !empty($this->match)) {
-            switch ($this->command) {
-                case 'preview':
-                case 'apply':
-                    $this->printMatches();
-                    break;
-            }
+        if ($this->error == '' && !empty($this->request) && !empty($this->match)) {
+            $this->printMatches();
         }
 
         $this->printMainForm();
@@ -134,112 +120,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         ptln('</form>');
         ptln('</div>');
         ptln('<!-- /batchedit -->');
-    }
-
-    /**
-     *
-     */
-    private function parseRequest() {
-        $this->command = $this->getCommand();
-        $this->namespace = $this->getNamespace();
-        $this->regexp = $this->getRegexp();
-        $this->replacement = $this->getReplacement();
-        $this->summary = $this->getSummary();
-        $this->minorEdit = isset($_REQUEST['minor']);
-    }
-
-    /**
-     *
-     */
-    private function getCommand() {
-        if (!is_array($_REQUEST['cmd'])) {
-            throw new Exception('err_invreq');
-        }
-
-        $command = key($_REQUEST['cmd']);
-
-        if (($command != 'preview') && ($command != 'apply')) {
-            throw new Exception('err_invreq');
-        }
-
-        return $command;
-    }
-
-    /**
-     *
-     */
-    private function getNamespace() {
-        if (!isset($_REQUEST['namespace'])) {
-            throw new Exception('err_invreq');
-        }
-
-        $namespace = trim($_REQUEST['namespace']);
-
-        if ($namespace != '') {
-            global $ID;
-
-            $namespace = resolve_id(getNS($ID), $namespace . ':');
-
-            if ($namespace != '') {
-                $namespace .= ':';
-            }
-        }
-
-        return $namespace;
-    }
-
-    /**
-     *
-     */
-    private function getRegexp() {
-        if (!isset($_REQUEST['regexp'])) {
-            throw new Exception('err_invreq');
-        }
-
-        $regexp = trim($_REQUEST['regexp']);
-
-        if ($regexp == '') {
-            throw new Exception('err_noregexp');
-        }
-
-        if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/', $regexp) != 1) {
-            throw new Exception('err_invregexp');
-        }
-
-        return $regexp;
-    }
-
-    /**
-     *
-     */
-    private function getReplacement() {
-        if (!isset($_REQUEST['replace'])) {
-            throw new Exception('err_invreq');
-        }
-
-        $unescape = function($matches) {
-            if (strlen($matches[1]) % 2) {
-                $unescaped = array('n' => "\n", 'r' => "\r", 't' => "\t");
-
-                return substr($matches[1], 1) . $unescaped[$matches[2]];
-            }
-            else {
-                return $matches[0];
-            }
-        };
-
-        return preg_replace_callback('/(\\\\+)([nrt])/', $unescape, $_REQUEST['replace']);
-    }
-
-    /**
-     *
-     */
-    private function getSummary() {
-        if (!isset($_REQUEST['summary'])) {
-            throw new Exception('err_invreq');
-        }
-
-        return $_REQUEST['summary'];
     }
 
     /**
@@ -274,8 +154,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function findMatches() {
-        if ($this->namespace != '') {
-            $pattern = '/^' . $this->namespace . '/';
+        if ($this->request->getNamespace() != '') {
+            $pattern = '/^' . $this->request->getNamespace() . '/';
         }
         else {
             $pattern = '';
@@ -299,7 +179,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function findPageMatches($page) {
         $text = rawWiki($page);
-        $count = @preg_match_all($this->regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+        $count = @preg_match_all($this->request->getRegexp(), $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count === FALSE) {
             throw new Exception('err_pregfailed');
@@ -309,7 +189,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         for ($i = 0; $i < $count; $i++) {
             $info['original'] = $match[$i][0][0];
-            $info['replaced'] = preg_replace($this->regexp, $this->replacement, $info['original']);
+            $info['replaced'] = preg_replace($this->request->getRegexp(), $this->request->getReplacement(), $info['original']);
             $info['offest'] = $match[$i][0][1];
             $info['before'] = $this->getBeforeContext($text, $match[$i]);
             $info['after'] = $this->getAfterContext($text, $match[$i]);
@@ -363,12 +243,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->loadPageIndex();
         $this->findMatches();
 
-        if (isset($_REQUEST['apply'])) {
-            if (!is_array($_REQUEST['apply'])) {
-                throw new Exception('err_invcmd');
-            }
-
-            $this->markRequested(array_keys($_REQUEST['apply']));
+        if (!empty($this->request->getAppliedMatches())) {
+            $this->markRequested($this->request->getAppliedMatches());
             $this->applyMatches();
         }
     }
@@ -488,7 +364,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             }
         }
 
-        saveWikiText($page, $text, $this->summary, $this->minorEdit);
+        saveWikiText($page, $text, $this->request->getSummary(), $this->request->getMinorEdit());
         unlock($page);
     }
 
@@ -525,12 +401,12 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $matches = $this->getLangPlural('sts_matches', $this->matches);
         $pages = $this->getLangPlural('sts_pages', count($this->match));
 
-        switch ($this->command) {
-            case 'preview':
+        switch ($this->request->getCommand()) {
+            case BatcheditRequest::COMMAND_PREVIEW:
                 $stats = $this->getLang('sts_preview', $matches, $pages);
                 break;
 
-            case 'apply':
+            case BatcheditRequest::COMMAND_APPLY:
                 $edits = $this->getLangPlural('sts_edits', $this->edits);
                 $stats = $this->getLang('sts_apply', $matches, $pages, $edits);
                 break;
