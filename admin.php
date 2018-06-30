@@ -12,6 +12,7 @@ if(!defined('DOKU_INC')) die();
 
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_PLUGIN . 'admin.php');
+require_once(DOKU_PLUGIN . 'batchedit/engine.php');
 require_once(DOKU_PLUGIN . 'batchedit/request.php');
 
 class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
@@ -188,52 +189,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->matches += $count;
 
         for ($i = 0; $i < $count; $i++) {
-            $info['original'] = $match[$i][0][0];
-            $info['replaced'] = preg_replace($this->request->getRegexp(), $this->request->getReplacement(), $info['original']);
-            $info['offest'] = $match[$i][0][1];
-            $info['before'] = $this->getBeforeContext($text, $match[$i]);
-            $info['after'] = $this->getAfterContext($text, $match[$i]);
-            $info['apply'] = FALSE;
-
-            $this->match[$page][$i] = $info;
+            $this->match[$page][$match[$i][0][1]] = new BatcheditMatch($text, $match[$i][0][1], $match[$i][0][0],
+                    $this->request->getRegexp(), $this->request->getReplacement());
         }
-    }
-
-    /**
-     *
-     */
-    private function getBeforeContext($text, $match) {
-        $length = 50;
-        $offset = $match[0][1] - $length;
-
-        if ($offset < 0) {
-            $length += $offset;
-            $offset = 0;
-        }
-
-        $text = substr($text, $offset, $length);
-        $count = preg_match_all('/\n/', $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-
-        if ($count > 3) {
-            $text = substr($text, $match[$count - 4][0][1] + 1);
-        }
-
-        return $text;
-    }
-
-    /**
-     *
-     */
-    private function getAfterContext($text, $match) {
-        $offset = $match[0][1] + strlen($match[0][0]);
-        $text = substr($text, $offset, 50);
-        $count = preg_match_all('/\n/', $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-
-        if ($count > 3) {
-            $text = substr($text, 0, $match[3][0][1]);
-        }
-
-        return $text;
     }
 
     /**
@@ -253,17 +211,12 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function markRequested($request) {
-        foreach ($request as $r) {
-            list($page, $offset) = explode('#', $r);
+        foreach ($request as $matchId) {
+            list($page, $offset) = explode('#', $matchId);
 
             if (array_key_exists($page, $this->match)) {
-                $count = count($this->match[$page]);
-
-                for ($i = 0; $i < $count; $i++) {
-                    if ($this->match[$page][$i]['offest'] == $offset) {
-                        $this->match[$page][$i]['apply'] = TRUE;
-                        break;
-                    }
+                if (array_key_exists($offset, $this->match[$page])) {
+                    $this->match[$page][$offset]->mark();
                 }
             }
         }
@@ -285,8 +238,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         foreach ($this->match as $page => $match) {
-            foreach ($match as $info) {
-                $this->edits += $info['apply'] ? 1 : 0;
+            foreach ($match as $m) {
+                $this->edits += $m->isMarked() ? 1 : 0;
             }
         }
     }
@@ -297,8 +250,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function requiresChanges($page) {
         $result = FALSE;
 
-        foreach ($this->match[$page] as $info) {
-            if ($info['apply']) {
+        foreach ($this->match[$page] as $match) {
+            if ($match->isMarked()) {
                 $result = TRUE;
                 break;
             }
@@ -313,8 +266,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function hasApplicableMatches($page) {
         $result = FALSE;
 
-        foreach ($this->match[$page] as $info) {
-            if (!$info['apply']) {
+        foreach ($this->match[$page] as $match) {
+            if (!$match->isMarked()) {
                 $result = TRUE;
                 break;
             }
@@ -352,15 +305,11 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         lock($page);
 
         $text = rawWiki($page);
-        $offset = 0;
+        $originalLength = strlen($text);
 
-        foreach ($this->match[$page] as $info) {
-            if ($info['apply']) {
-                $originalLength = strlen($info['original']);
-                $before = substr($text, 0, $info['offest'] + $offset);
-                $after = substr($text, $info['offest'] + $offset + $originalLength);
-                $text = $before . $info['replaced'] . $after;
-                $offset += strlen($info['replaced']) - $originalLength;
+        foreach ($this->match[$page] as $match) {
+            if ($match->isMarked()) {
+                $text = $match->apply($text, strlen($text) - $originalLength);
             }
         }
 
@@ -372,10 +321,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function unmarkDenied($page) {
-        $count = count($this->match[$page]);
-
-        for ($i = 0; $i < $count; $i++) {
-            $this->match[$page][$i]['apply'] = FALSE;
+        foreach ($this->match[$page] as $match) {
+            $match->mark(FALSE);
         }
     }
 
@@ -476,10 +423,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function printPageMatches($page, $match) {
-        foreach ($match as $info) {
+        foreach ($match as $m) {
             $this->ptln('<div class="match">', +2);
-            $this->printMatchHeader($page, $info);
-            $this->printMatchTable($info);
+            $this->printMatchHeader($page, $m);
+            $this->printMatchTable($m);
             $this->ptln('</div>', -2);
         }
     }
@@ -487,10 +434,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    private function printMatchHeader($page, $info) {
-        $id = $page . '#' . $info['offest'];
+    private function printMatchHeader($page, $match) {
+        $id = $page . '#' . $match->getPageOffset();
 
-        if (!$info['apply']) {
+        if (!$match->isMarked()) {
             $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
             $this->ptln('<label class="match-id" for="' . $id . '">' . $id . '</label>');
@@ -504,11 +451,11 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    private function printMatchTable($info) {
-        $original = $this->prepareText($info['original'], 'search_hit' . ($info['apply'] ? ' replaced' : ''));
-        $replaced = $this->prepareText($info['replaced'], 'search_hit' . ($info['apply'] ? ' applied' : ''));
-        $before = $this->prepareText($info['before']);
-        $after = $this->prepareText($info['after']);
+    private function printMatchTable($match) {
+        $original = $this->prepareText($match->getOriginalText(), 'search_hit' . ($match->isMarked() ? ' replaced' : ''));
+        $replaced = $this->prepareText($match->getReplacedText(), 'search_hit' . ($match->isMarked() ? ' applied' : ''));
+        $before = $this->prepareText($match->getContextBefore());
+        $after = $this->prepareText($match->getContextAfter());
 
         $this->ptln('<table><tr>', +2);
         $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
