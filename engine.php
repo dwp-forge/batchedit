@@ -7,6 +7,21 @@
  * @author     Mykola Ostrovskyy <dwpforge@gmail.com>
  */
 
+class BatcheditAccessControlException extends Exception {
+}
+
+class BatcheditPageLockedException extends Exception {
+
+    public $lockedBy;
+
+    /**
+     *
+     */
+    public function __construct($lockedBy) {
+        $this->lockedBy = $lockedBy;
+    }
+}
+
 class BatcheditMatch {
 
     const CONTEXT_LENGTH = 50;
@@ -125,5 +140,155 @@ class BatcheditMatch {
         }
 
         return $context;
+    }
+}
+
+class BatcheditPage {
+
+    private $id;
+    private $matches;
+
+    /**
+     *
+     */
+    public function __construct($id) {
+        $this->id = $id;
+        $this->matches = array();
+    }
+
+    /**
+     *
+     */
+    public function getId() {
+        return $this->id;
+    }
+
+    /**
+     *
+     */
+    public function findMatches($regexp, $replacement) {
+        $text = rawWiki($this->id);
+        $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+
+        if ($count === FALSE) {
+            throw new Exception('err_pregfailed');
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $this->addMatch($text, $match[$i][0][1], $match[$i][0][0], $regexp, $replacement);
+        }
+
+        return $count;
+    }
+
+    /**
+     *
+     */
+    public function getMatches() {
+        return $this->matches;
+    }
+
+    /**
+     *
+     */
+    public function markMatch($offset) {
+        if (array_key_exists($offset, $this->matches)) {
+            $this->matches[$offset]->mark();
+        }
+    }
+
+    /**
+     *
+     */
+    public function hasMarkedMatches() {
+        $result = FALSE;
+
+        foreach ($this->matches as $match) {
+            if ($match->isMarked()) {
+                $result = TRUE;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
+    public function hasUnmarkedMatches() {
+        $result = FALSE;
+
+        foreach ($this->matches as $match) {
+            if (!$match->isMarked()) {
+                $result = TRUE;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
+    public function applyMatches($summary, $minorEdit) {
+        try {
+            $this->lock();
+
+            $text = rawWiki($this->id);
+            $originalLength = strlen($text);
+            $count = 0;
+
+            foreach ($this->matches as $match) {
+                if ($match->isMarked()) {
+                    $text = $match->apply($text, strlen($text) - $originalLength);
+                    $count++;
+                }
+            }
+
+            saveWikiText($this->id, $text, $summary, $minorEdit);
+            unlock($this->id);
+        }
+        catch (Exception $error) {
+            $this->unmarkAllMatches();
+
+            throw $error;
+        }
+
+        return $count;
+    }
+
+    /**
+     *
+     */
+    private function addMatch($text, $offset, $matched, $regexp, $replacement) {
+        $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $regexp, $replacement);
+    }
+
+    /**
+     *
+     */
+    private function lock() {
+        if (auth_quickaclcheck($this->id) < AUTH_EDIT) {
+            throw new BatcheditAccessControlException();
+        }
+
+        $lockedBy = checklock($this->id);
+
+        if ($lockedBy != FALSE) {
+            throw new BatcheditPageLockedException($lockedBy);
+        }
+
+        lock($this->id);
+    }
+
+    /**
+     *
+     */
+    private function unmarkAllMatches() {
+        foreach ($this->matches as $match) {
+            $match->mark(FALSE);
+        }
     }
 }
