@@ -54,6 +54,10 @@
     box-shadow: 0 0.5em 0.5em -0.5em #999;
 }
 
+#batchedit .apply:hover label {
+    color: #2b73b7;
+}
+
 #batchedit div.file {
     position: relative;
     padding-left: 0.5em;
@@ -66,10 +70,6 @@
     margin-bottom: 0.7em;
 }
 
-#batchedit div.file .apply:hover {
-    color: #2b73b7;
-}
-
 #batchedit div.match {
     padding: 0.3em;
     margin-bottom: 0.5em;
@@ -77,10 +77,6 @@
 
 #batchedit div.match .match-id {
     font-weight: bold;
-}
-
-#batchedit div.match .apply:hover {
-    color: #2b73b7;
 }
 
 #batchedit div.match table {

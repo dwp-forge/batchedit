@@ -536,7 +536,19 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 break;
         }
 
-        $this->ptln('<div id="totalstats"><div>' . $stats . '</div></div>');
+        $this->ptln('<div id="totalstats"><div>', +2);
+
+        if ($this->edits < $this->matches) {
+            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyall') . '">', +2);
+            $this->ptln('<input type="checkbox" id="applyall" />');
+            $this->ptln('<label for="applyall">' . $stats . '</label>');
+            $this->ptln('</span>', -2);
+        }
+        else {
+            $this->ptln($stats);
+        }
+
+        $this->ptln('</div></div>', -2);
     }
 
     /**
@@ -550,7 +562,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         if ($this->hasApplicableMatches($page)) {
             $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $page . '" />');
-            $this->ptln('<label class="match-id" for="' . $page . '">' . $stats . '</label>');
+            $this->ptln('<label for="' . $page . '">' . $stats . '</label>');
             $this->ptln('</span>', -2);
         }
         else {

@@ -5,6 +5,10 @@ jQuery(function () {
         track: true
     });
 
+    jQuery('#applyall').click(function(){
+        jQuery('.file input').prop('checked', this.checked);
+    });
+
     jQuery('.page .stats input').click(function(){
         jQuery('.match input[id^=' + this.id.replace(/:/g, '\\:') + ']').prop('checked', this.checked);
     });

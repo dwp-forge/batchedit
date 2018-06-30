@@ -47,6 +47,7 @@ $lang['sts_pages#many'] = '{1} pages';
 $lang['sts_edits#one'] = '{1} replacement applied';
 $lang['sts_edits#many'] = '{1} replacements applied';
 
+$lang['ttl_applyall'] = 'Apply all matches';
 $lang['ttl_applyfile'] = 'Apply all matches in this file';
 $lang['ttl_applymatch'] = 'Apply this match';
 $lang['ttl_view'] = 'Go to this page';
