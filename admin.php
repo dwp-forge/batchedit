@@ -20,10 +20,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private $error;
     private $warning;
     private $request;
-    private $pageIndex;
-    private $matchedPages;
-    private $matches;
-    private $edits;
+    private $engine;
     private $indent;
     private $svgCache;
 
@@ -31,10 +28,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->error = '';
         $this->warning = array();
         $this->request = NULL;
-        $this->pageIndex = array();
-        $this->matchedPages = array();
-        $this->matches = 0;
-        $this->edits = 0;
+        $this->engine = NULL;
         $this->indent = 0;
         $this->svgCache = array();
     }
@@ -82,17 +76,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         try {
-            $this->request = new BatcheditRequest();
-
-            switch ($this->request->getCommand()) {
-                case BatcheditRequest::COMMAND_PREVIEW:
-                    $this->preview();
-                    break;
-
-                case BatcheditRequest::COMMAND_APPLY:
-                    $this->apply();
-                    break;
-            }
+            $this->handleRequest();
         }
         catch (Exception $error) {
             $this->error = $this->getLang($error->getMessage());
@@ -112,7 +96,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         ptln('<form action="' . wl($ID) . '" method="post">');
 
-        if ($this->error == '' && !empty($this->request) && !empty($this->matchedPages)) {
+        if ($this->error == '' && !empty($this->request) && $this->engine->getMatchCount() > 0) {
             $this->printMatches();
         }
 
@@ -126,101 +110,26 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    private function preview() {
-        $this->loadPageIndex();
-        $this->findMatches();
-    }
+    private function handleRequest() {
+        $this->request = new BatcheditRequest();
+        $this->engine = new BatcheditEngine();
 
-    /**
-     *
-     */
-    private function loadPageIndex() {
-        global $conf;
+        $matches = $this->engine->findMatches($this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement());
 
-        if (@file_exists($conf['indexdir'] . '/page.idx')) {
-            require_once(DOKU_INC . 'inc/indexer.php');
-
-            $this->pageIndex = idx_getIndex('page', '');
-
-            if (count($this->pageIndex) == 0) {
-                throw new Exception('err_emptyidx');
-            }
-        }
-        else {
-            throw new Exception('err_idxaccess');
-        }
-    }
-
-    /**
-     *
-     */
-    private function findMatches() {
-        if ($this->request->getNamespace() != '') {
-            $pattern = '/^' . $this->request->getNamespace() . '/';
-        }
-        else {
-            $pattern = '';
-        }
-
-        foreach ($this->pageIndex as $pageId) {
-            $pageId = trim($pageId);
-
-            if (($pattern == '') || (preg_match($pattern, $pageId) == 1)) {
-                $page = new BatcheditPage($pageId);
-                $count = $page->findMatches($this->request->getRegexp(), $this->request->getReplacement());
-
-                if ($count > 0) {
-                    $this->matchedPages[$pageId] = $page;
-                    $this->matches += $count;
-                }
-            }
-        }
-
-        if (empty($this->matchedPages)) {
+        if ($matches == 0) {
             $this->warning[] = $this->getLang('war_nomatches');
         }
-    }
+        elseif ($this->request->getCommand() == BatcheditRequest::COMMAND_APPLY && !empty($this->request->getAppliedMatches())) {
+            $this->engine->markRequestedMatches($this->request->getAppliedMatches());
 
-    /**
-     *
-     */
-    private function apply() {
-        $this->loadPageIndex();
-        $this->findMatches();
+            $errors = $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
 
-        if (!empty($this->request->getAppliedMatches())) {
-            $this->markRequested($this->request->getAppliedMatches());
-            $this->applyMatches();
-        }
-    }
-
-    /**
-     *
-     */
-    private function markRequested($request) {
-        foreach ($request as $matchId) {
-            list($pageId, $offset) = explode('#', $matchId);
-
-            if (array_key_exists($pageId, $this->matchedPages)) {
-                $this->matchedPages[$pageId]->markMatch($offset);
-            }
-        }
-    }
-
-    /**
-     *
-     */
-    private function applyMatches() {
-        foreach ($this->matchedPages as $page) {
-            if ($page->hasMarkedMatches()) {
-                try {
-                    $this->edits += $page->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
+            foreach ($errors as $pageId => $error) {
+                if ($error instanceof BatcheditAccessControlException) {
+                    $this->warning[] = $this->getLang('war_norights', $pageId);
                 }
-                catch (BatcheditAccessControlException $error) {
-                    $this->warning[] = $this->getLang('war_norights', $page->getId());
-                }
-                catch (BatcheditPageLockedException $error) {
-                    $this->warning[] = $this->getLang('war_pagelock', $page->getId(), $error->lockedBy);
+                elseif ($error instanceof BatcheditPageLockedException) {
+                    $this->warning[] = $this->getLang('war_pagelock', $pageId, $error->lockedBy);
                 }
             }
         }
@@ -232,7 +141,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function printMatches() {
         $this->printTotalStats();
 
-        foreach ($this->matchedPages as $page) {
+        foreach ($this->engine->getPages() as $page) {
             $this->ptln('<div class="file">', +2);
             $this->printPageStats($page);
             $this->printPageActions($page->getId());
@@ -245,8 +154,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function printTotalStats() {
-        $matches = $this->getLangPlural('sts_matches', $this->matches);
-        $pages = $this->getLangPlural('sts_pages', count($this->matchedPages));
+        $matches = $this->getLangPlural('sts_matches', $this->engine->getMatchCount());
+        $pages = $this->getLangPlural('sts_pages', $this->engine->getPageCount());
 
         switch ($this->request->getCommand()) {
             case BatcheditRequest::COMMAND_PREVIEW:
@@ -254,14 +163,14 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 break;
 
             case BatcheditRequest::COMMAND_APPLY:
-                $edits = $this->getLangPlural('sts_edits', $this->edits);
+                $edits = $this->getLangPlural('sts_edits', $this->engine->getEditCount());
                 $stats = $this->getLang('sts_apply', $matches, $pages, $edits);
                 break;
         }
 
         $this->ptln('<div id="totalstats"><div>', +2);
 
-        if ($this->edits < $this->matches) {
+        if ($this->engine->getEditCount() < $this->engine->getMatchCount()) {
             $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyall') . '">', +2);
             $this->ptln('<input type="checkbox" id="applyall" />');
             $this->ptln('<label for="applyall">' . $stats . '</label>');

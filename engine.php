@@ -7,10 +7,13 @@
  * @author     Mykola Ostrovskyy <dwpforge@gmail.com>
  */
 
-class BatcheditAccessControlException extends Exception {
+class BatcheditPageApplyException extends Exception {
 }
 
-class BatcheditPageLockedException extends Exception {
+class BatcheditAccessControlException extends BatcheditPageApplyException {
+}
+
+class BatcheditPageLockedException extends BatcheditPageApplyException {
 
     public $lockedBy;
 
@@ -290,5 +293,132 @@ class BatcheditPage {
         foreach ($this->matches as $match) {
             $match->mark(FALSE);
         }
+    }
+}
+
+class BatcheditEngine {
+
+    private $pages;
+    private $matches;
+    private $edits;
+
+    /**
+     *
+     */
+    public function __construct() {
+        $this->pages = array();
+        $this->matches = 0;
+        $this->edits = 0;
+    }
+
+    /**
+     *
+     */
+    public function findMatches($namespace, $regexp, $replacement) {
+        if ($namespace != '') {
+            $pattern = '/^' . $namespace . '/';
+        }
+        else {
+            $pattern = '';
+        }
+
+        foreach ($this->getPageIndex() as $pageId) {
+            $pageId = trim($pageId);
+
+            if (($pattern == '') || (preg_match($pattern, $pageId) == 1)) {
+                $page = new BatcheditPage($pageId);
+                $count = $page->findMatches($regexp, $replacement);
+
+                if ($count > 0) {
+                    $this->pages[$pageId] = $page;
+                    $this->matches += $count;
+                }
+            }
+        }
+
+        return $this->matches;
+    }
+
+    /**
+     *
+     */
+    public function getPageCount() {
+        return count($this->pages);
+    }
+
+    /**
+     *
+     */
+    public function getMatchCount() {
+        return $this->matches;
+    }
+
+    /**
+     *
+     */
+    public function getEditCount() {
+        return $this->edits;
+    }
+
+    /**
+     *
+     */
+    public function getPages() {
+        return $this->pages;
+    }
+
+    /**
+     *
+     */
+    public function markRequestedMatches($request) {
+        foreach ($request as $matchId) {
+            list($pageId, $offset) = explode('#', $matchId);
+
+            if (array_key_exists($pageId, $this->pages)) {
+                $this->pages[$pageId]->markMatch($offset);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public function applyMatches($summary, $minorEdit) {
+        $errors = array();
+
+        foreach ($this->getPages() as $page) {
+            if ($page->hasMarkedMatches()) {
+                try {
+                    $this->edits += $page->applyMatches($summary, $minorEdit);
+                }
+                catch (BatcheditPageApplyException $error) {
+                    $errors[$page->getId()] = $error;
+                }
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     *
+     */
+    private function getPageIndex() {
+        global $conf;
+
+        if (@file_exists($conf['indexdir'] . '/page.idx')) {
+            require_once(DOKU_INC . 'inc/indexer.php');
+
+            $index = idx_getIndex('page', '');
+
+            if (count($index) == 0) {
+                throw new Exception('err_emptyidx');
+            }
+        }
+        else {
+            throw new Exception('err_idxaccess');
+        }
+
+        return $index;
     }
 }
