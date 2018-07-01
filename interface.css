@@ -44,12 +44,12 @@
 
 #batchedit #totalstats div {
     position: relative;
-    z-index: 9;
     padding: 1em 0.2em 1.2em 0.5em;
 }
 
 #batchedit #totalstats div.floater {
     position: fixed;
+    z-index: 1;
     top: 0;
     box-shadow: 0 0.5em 0.5em -0.5em #999;
 }
