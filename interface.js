@@ -23,6 +23,16 @@ var batchedit = (function () {
         jQuery('.be-file .be-stats input').click(function() {
             jQuery('.be-match input[id^=' + this.id.replace(/:/g, '\\:') + ']').prop('checked', this.checked);
         });
+
+        // When all single matches of a file have been checked, mark the appropriate file box as checked, too.
+        jQuery('.be-match input').click(function() {
+            var pageIdEscaped = this.id.substr(0, this.id.indexOf('#')).replace(/:/g, '\\:');
+            var pageMatches = jQuery('.be-match input[id^=' + pageIdEscaped + ']').get();
+
+            jQuery('#' + pageIdEscaped).prop('checked', pageMatches.reduce(function(checked, input) {
+                return checked && input.checked;
+            }, true));
+        });
     }
 
     function initializeTotalStatsFloater() {
