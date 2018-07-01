@@ -35,8 +35,8 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
      *
      */
     private function addAdminIncludes($event) {
-        $this->addTemplateHeaderInclude($event, 'admin.css');
-        $this->addTemplateHeaderInclude($event, 'admin.js');
+        $this->addTemplateHeaderInclude($event, 'interface.css');
+        $this->addTemplateHeaderInclude($event, 'interface.js');
     }
 
     /**
