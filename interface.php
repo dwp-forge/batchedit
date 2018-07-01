@@ -287,23 +287,18 @@ class BatcheditInterface {
     private function printFormEdit($title, $name) {
         $this->ptln('<tr>', +2);
 
-        $this->ptln('<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
+        $this->ptln('<td class="title"><nobr>' . $this->getLang($title) . '</nobr></td>');
 
         $this->ptln('<td class="edit">', +2);
         $this->ptln($this->getEditBox($name));
-        $this->ptln('</td>', -2);
 
         switch ($name) {
             case 'summary':
-                $this->ptln('<td style="padding-left: 2em">', +2);
                 $this->printCheckBox('lbl_minor', 'minor');
-                $this->ptln('</td>', -2);
-                break;
-
-            default:
-                $this->ptln('<td></td>');
                 break;
         }
+
+        $this->ptln('</td>', -2);
 
         $this->ptln('</tr>', -2);
     }

@@ -127,9 +127,15 @@
     margin-top: 1em;
 }
 
+#batchedit div#mainform table {
+    width: 70%;
+}
+
 #batchedit div#mainform table td.title {
     width: 5%;
+    padding-top: 0.6em;
     padding-right: 1em;
+    font-weight: bold;
 }
 
 #batchedit div#mainform table td.edit {
@@ -139,5 +145,6 @@
 #batchedit div#mainform input.edit {
     font-family: "Courier New", monospace;
     font-size: 10pt;
+    padding: 0.3em 0.5em;
     width: 100%;
 }
