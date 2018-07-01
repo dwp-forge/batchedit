@@ -14,7 +14,7 @@
 }
 
 #batchedit div#messages {
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
 }
 
 #batchedit .actions {
@@ -39,18 +39,19 @@
     position: relative;
     font-size: 120%;
     font-weight: bold;
-    margin: -1em -0.2em 0 -0.5em;
+    margin: 0 -0.2em 0 -0.5em;
 }
 
 #batchedit #totalstats div {
     position: relative;
-    padding: 1em 0.2em 1.2em 0.5em;
+    padding: 0 0.2em 1.2em 0.5em;
 }
 
 #batchedit #totalstats div.floater {
     position: fixed;
     z-index: 1;
     top: 0;
+    padding: 1em 0.2em 1.2em 0.5em;
     box-shadow: 0 0.5em 0.5em -0.5em #999;
 }
 
