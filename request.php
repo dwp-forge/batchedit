@@ -230,10 +230,12 @@ class BatcheditRequest {
             return array();
         }
 
-        if (!is_array($_REQUEST['apply'])) {
-            throw new Exception('err_invcmd');
+        $matchIds = json_decode($_REQUEST['apply']);
+
+        if ($matchIds == NULL) {
+            throw new Exception('err_invreq');
         }
 
-        return array_keys($_REQUEST['apply']);
+        return $matchIds;
     }
 }

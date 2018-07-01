@@ -189,6 +189,12 @@ class BatcheditInterface {
 
         $this->printOptions();
 
+        // Value for this hidden input is set before submit through jQuery, containing
+        // JSON-encoded list of all checked checkbox ids for single matches.
+        // Consolidating these inputs into a single string variable avoids problems for
+        // huge replacement sets exceeding `max_input_vars` in `php.ini`.
+        $this->ptln('<input type="hidden" name="apply" value="">');
+
         $this->ptln('<input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
         $this->ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
 
@@ -233,11 +239,9 @@ class BatcheditInterface {
     /**
      *
      */
-    private function printApplyCheckBox($id, $label, $title, $matchId = NULL) {
-        $matchApply = $matchId != NULL ? ' name="apply[' . $matchId . ']"' : '';
-
+    private function printApplyCheckBox($id, $label, $title) {
         $this->ptln('<span class="be-apply" title="' . $this->getLang($title) . '">', +2);
-        $this->ptln('<input type="checkbox" id="' . $id . '"' . $matchApply . ' />');
+        $this->ptln('<input type="checkbox" id="' . $id . '" />');
         $this->ptln('<label for="' . $id . '">' . $label . '</label>');
         $this->ptln('</span>', -2);
     }
@@ -305,7 +309,7 @@ class BatcheditInterface {
         $this->ptln('<div class="be-matchid">', +2);
 
         if (!$match->isMarked()) {
-            $this->printApplyCheckBox($id, $id, 'ttl_applymatch', $id);
+            $this->printApplyCheckBox($id, $id, 'ttl_applymatch');
         }
         else {
             $this->ptln($id);

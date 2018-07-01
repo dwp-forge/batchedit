@@ -33,6 +33,16 @@ var batchedit = (function () {
                 return checked && input.checked;
             }, true));
         });
+
+        // Consolidate the list of all checked match ids into single hidden input field as
+        // a JSON-encoded array string. This avoids problems for huge replacement sets
+        // exceeding `max_input_vars` in `php.ini`.
+        jQuery('#batchedit form').submit(function() {
+            // Consolidate checked matches into a single string variable to be posted to the backend.
+            jQuery('input[name=apply]').val(JSON.stringify(jQuery('.be-match input:checked').map(function() {
+                return this.id;
+            }).get()));
+        });
     }
 
     function initializeTotalStatsFloater() {
