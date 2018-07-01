@@ -28,9 +28,6 @@ $lang['war_pagelock'] = 'Seite {1} wird gerade bearbeitet von {2}.';
 $lang['btn_preview'] = 'Vorschau';
 $lang['btn_apply'] = 'Anwenden';
 
-$lang['inf_regexp'] = 'Beispiel: /(Wiki)/m';
-$lang['inf_replace'] = 'Beispiel: Doku$1';
-
 $lang['lbl_ns'] = 'Namensraum';
 $lang['lbl_regexp'] = 'Regulärer Ausdruck (/suche/)';
 $lang['lbl_replace'] = 'Ersetzen durch';

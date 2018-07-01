@@ -28,9 +28,6 @@ $lang['war_pagelock'] = '页面 {1} 被用户 {2} 锁定。';
 $lang['btn_preview'] = '预览';
 $lang['btn_apply'] = '执行';
 
-$lang['inf_regexp'] = '举例: /(Wiki)/m';
-$lang['inf_replace'] = '举例: Doku$1';
-
 $lang['lbl_ns'] = '命名空间';
 $lang['lbl_regexp'] = '正则表达式';
 $lang['lbl_replace'] = '替换';

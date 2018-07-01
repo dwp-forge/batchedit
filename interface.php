@@ -285,15 +285,13 @@ class BatcheditInterface {
      *
      */
     private function printFormEdit($title, $name) {
-        $value = '';
-
-        if (isset($_REQUEST[$name])) {
-            $value = $_REQUEST[$name];
-        }
-
         $this->ptln('<tr>', +2);
+
         $this->ptln('<td class="title"><nobr><b>' . $this->getLang($title) . ':</b></nobr></td>');
-        $this->ptln('<td class="edit"><input type="text" class="edit" name="' . $name . '" value="' . $value . '" /></td>');
+
+        $this->ptln('<td class="edit">', +2);
+        $this->ptln($this->getEditBox($name));
+        $this->ptln('</td>', -2);
 
         switch ($name) {
             case 'summary':
@@ -302,20 +300,43 @@ class BatcheditInterface {
                 $this->ptln('</td>', -2);
                 break;
 
-            case 'regexp':
-                $this->ptln('<td style="padding-left: 2em">' . $this->getLang('inf_regexp') . '</td>');
-                break;
-
-            case 'replace':
-                $this->ptln('<td style="padding-left: 2em">' . $this->getLang('inf_replace') . '</td>');
-                break;
-
             default:
                 $this->ptln('<td></td>');
                 break;
         }
 
         $this->ptln('</tr>', -2);
+    }
+
+    /**
+     *
+     */
+    private function getEditBox($name) {
+        $html = '<input type="text" class="edit" name="' . $name . '"';
+
+        if (isset($_REQUEST[$name])) {
+            $html .= ' value="' . $_REQUEST[$name] . '"';
+        }
+
+        $placeholder = '';
+
+        switch ($name) {
+            case 'regexp':
+                $placeholder = 'hnt_regexp';
+                break;
+
+            case 'replace':
+                $placeholder = 'hnt_replace';
+                break;
+        }
+
+        if (!empty($placeholder)) {
+            $html .= ' placeholder="' . $this->getLang($placeholder) . '"';
+        }
+
+        $html .= ' />';
+
+        return $html;
     }
 
     /**

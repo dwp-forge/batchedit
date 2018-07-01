@@ -28,9 +28,6 @@ $lang['war_pagelock'] = 'La page {1} is verrouillée par {2}.';
 $lang['btn_preview'] = 'Voir';
 $lang['btn_apply'] = 'Appliquer';
 
-$lang['inf_regexp'] = 'Exemple: /(Wiki)/m';
-$lang['inf_replace'] = 'Exemple: Doku$1';
-
 $lang['lbl_ns'] = 'Espace de noms';
 $lang['lbl_regexp'] = 'Expression régulière';
 $lang['lbl_replace'] = 'Remplacement';

@@ -31,8 +31,8 @@ $lang['msg_warning'] = '<b>Warning:</b> {1}';
 $lang['btn_preview'] = 'Preview';
 $lang['btn_apply'] = 'Apply';
 
-$lang['inf_regexp'] = 'Example: /(Wiki)/m';
-$lang['inf_replace'] = 'Example: Doku$1';
+$lang['hnt_regexp'] = '/(Wiki)/m';
+$lang['hnt_replace'] = 'Doku$1';
 
 $lang['lbl_ns'] = 'Namespace';
 $lang['lbl_regexp'] = 'Regular expression';
