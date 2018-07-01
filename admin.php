@@ -409,6 +409,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function applyMatches() {
+        set_time_limit(120);
         foreach (array_keys($this->match) as $page) {
             if ($this->requiresChanges($page)) {
                 if ($this->isEditAllowed($page)) {
@@ -505,6 +506,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function editPage($page) {
+        set_time_limit(120);
         lock($page);
 
         $text = rawWiki($page);
