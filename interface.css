@@ -1,6 +1,9 @@
 .ui-widget.ui-widget-content.batchedit-tooltip {
     padding: 2px 8px 2px 8px;
     font-size: 90%;
+    color: var(--batchedit-text);
+    background-color: var(--batchedit-background);
+    border-left: 1px solid var(--batchedit-border);
     box-shadow: 0 0 0.5em #999;
 }
 
@@ -32,7 +35,11 @@
 }
 
 #batchedit .action svg:hover {
-    fill: #2b73b7;
+    fill: var(--batchedit-link);
+}
+
+#batchedit div.match table td.arrow svg {
+    stroke: var(--batchedit-text);
 }
 
 #batchedit #totalstats {
@@ -45,6 +52,7 @@
 #batchedit #totalstats div {
     position: relative;
     padding: 0 0.2em 1.2em 0.5em;
+    background-color: var(--batchedit-background);
 }
 
 #batchedit #totalstats div.floater {
@@ -56,13 +64,14 @@
 }
 
 #batchedit .apply:hover label {
-    color: #2b73b7;
+    color: var(--batchedit-link);
 }
 
 #batchedit div.file {
     position: relative;
     padding-left: 0.5em;
     margin-bottom: 1.5em;
+    border-left: 1px solid var(--batchedit-border);
 }
 
 #batchedit div.file div.stats {
@@ -74,6 +83,7 @@
 #batchedit div.match {
     padding: 0.3em;
     margin-bottom: 0.5em;
+    background-color: var(--batchedit-background-alt);
 }
 
 #batchedit div.match .match-id {
@@ -91,6 +101,7 @@
     white-space: pre-wrap;
     width: 49%;
     padding: 0.3em;
+    border: 1px dashed var(--batchedit-border);
 }
 
 #batchedit div.match table td.arrow {
