@@ -34,6 +34,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->error = '';
         $this->warning = array();
         $this->command = 'hello';
+        $this->checkedMatches = '';
         $this->namespace = '';
         $this->regexp = '';
         $this->replacement = '';
@@ -118,7 +119,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         $this->printMessages();
 
-        ptln('<form action="' . wl($ID) . '" method="post">');
+        ptln('<form id="replace-form" action="' . wl($ID) . '" method="post">');
 
         if ($this->error == '' && !empty($this->match)) {
             switch ($this->command) {
@@ -141,6 +142,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function parseRequest() {
         $this->command = $this->getCommand();
+        $this->checkedMatches = $this->getCheckedMatches();
         $this->namespace = $this->getNamespace();
         $this->regexp = $this->getRegexp();
         $this->replacement = $this->getReplacement();
@@ -163,6 +165,21 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         return $command;
+    }
+
+    /**
+     *
+     */
+    private function getCheckedMatches() {
+        if (!isset($_REQUEST['checkedMatches'])) {
+            return '';
+        }
+
+        if (!is_string($_REQUEST['checkedMatches'])) {
+            throw new Exception('err_invreq');
+        }
+
+        return $_REQUEST['checkedMatches'];
     }
 
     /**
@@ -248,6 +265,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function preview() {
         $this->loadPageIndex();
         $this->findMatches();
+        $this->markRequested(explode(',', $this->checkedMatches));
     }
 
     /**
@@ -363,14 +381,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->loadPageIndex();
         $this->findMatches();
 
-        if (isset($_REQUEST['apply'])) {
-            if (!is_array($_REQUEST['apply'])) {
-                throw new Exception('err_invcmd');
-            }
-
-            $this->markRequested(array_keys($_REQUEST['apply']));
-            $this->applyMatches();
-        }
+        $this->markRequested(explode(',', $this->checkedMatches));
+        $this->applyMatches();
     }
 
     /**
@@ -432,14 +444,34 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     }
 
     /**
-     *
+     * applicable here means "not yet applied", so that we should still be able to check/uncheck them
      */
     private function hasApplicableMatches($page) {
         $result = FALSE;
 
         foreach ($this->match[$page] as $info) {
-            if (!$info['apply']) {
+            if (!($this->command == 'apply' && $info['apply'])) {
                 $result = TRUE;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
+    private function hasCheckedAll($page) {
+        if (empty($this->match[$page])) {
+            return FALSE;
+        }
+
+        $result = TRUE;
+
+        foreach ($this->match[$page] as $info) {
+            if (!$info['apply']) {
+                $result = FALSE;
                 break;
             }
         }
@@ -560,8 +592,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->ptln('<div class="stats">', +2);
 
         if ($this->hasApplicableMatches($page)) {
+            $checkedAll = $this->hasCheckedAll($page);
             $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
-            $this->ptln('<input type="checkbox" id="' . $page . '" />');
+            $this->ptln('<input class="check-full-page" type="checkbox" ' . ($checkedAll ? 'checked ' : '') . 'id="' . $page . '" />');
             $this->ptln('<label for="' . $page . '">' . $stats . '</label>');
             $this->ptln('</span>', -2);
         }
@@ -613,15 +646,14 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function printMatchHeader($page, $info) {
         $id = $page . '#' . $info['offest'];
-
-        if (!$info['apply']) {
-            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
-            $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
-            $this->ptln('<label class="match-id" for="' . $id . '">' . $id . '</label>');
-            $this->ptln('</span>', -2);
+        if ($info['apply'] && $this->command == 'apply') {
+            $this->ptln('<div class="match-id">' . $id . '</div>');
         }
         else {
-            $this->ptln('<div class="match-id">' . $id . '</div>');
+            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
+            $this->ptln('<input class="check-single-match" type="checkbox" ' . ($info['apply'] ? 'checked ' : '') . 'id="' . $id . '" />');
+            $this->ptln('<label class="match-id" for="' . $id . '">' . $id . '</label>');
+            $this->ptln('</span>', -2);
         }
     }
 
@@ -710,6 +742,14 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->printFormEdit('lbl_replace', 'replace');
         $this->printFormEdit('lbl_summary', 'summary');
         $this->ptln('</table>', -2);
+
+
+        // Value for this hidden input is set before submit through jQuery, containing
+        // comma-separated list of all checked checkbox ids for single matches, so that
+        // they can be checked again on the result page as applicable.
+        // Consolidating these inputs into a single string variable avoids problems for
+        // huge replacement sets exceeding `max_input_vars` in `php.ini`.
+        $this->ptln('<input type="hidden" name="checkedMatches" value="">');
 
         $this->ptln('<input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
         $this->ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
