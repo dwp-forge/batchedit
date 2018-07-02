@@ -35,10 +35,13 @@ $lang['hnt_regexp'] = '/(Wiki)/m';
 $lang['hnt_replace'] = 'Doku$1';
 
 $lang['lbl_ns'] = 'Namespace';
-$lang['lbl_regexp'] = 'Regular expression';
-$lang['lbl_replace'] = 'Replacement';
+$lang['lbl_search'] = 'Search for';
+$lang['lbl_replace'] = 'Replace with';
 $lang['lbl_summary'] = 'Summary';
 $lang['lbl_minor'] = 'Minor changes';
+$lang['lbl_searchmode'] = 'Search mode';
+$lang['lbl_searchtext'] = 'Plain text';
+$lang['lbl_searchregexp'] = 'Regular expression';
 
 $lang['sts_preview'] = 'Search results: {1} on {2}';
 $lang['sts_apply'] = 'Edit results: {1} on {2}, {3}';

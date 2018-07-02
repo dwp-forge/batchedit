@@ -129,18 +129,23 @@ class BatcheditRequest {
      *
      */
     private function parseRegexp() {
-        if (!isset($_REQUEST['regexp'])) {
+        if (!isset($_REQUEST['search']) || !isset($_REQUEST['searchmode'])) {
             throw new Exception('err_invreq');
         }
 
-        $regexp = trim($_REQUEST['regexp']);
+        $regexp = trim($_REQUEST['search']);
 
         if ($regexp == '') {
             throw new Exception('err_noregexp');
         }
 
-        if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/', $regexp) != 1) {
-            throw new Exception('err_invregexp');
+        if ($_REQUEST['searchmode'] == 'regexp') {
+            if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/', $regexp) != 1) {
+                throw new Exception('err_invregexp');
+            }
+        }
+        else {
+            $regexp = '/' . preg_quote($regexp, '/') . '/';
         }
 
         return $regexp;

@@ -29,10 +29,10 @@ $lang['btn_preview'] = '预览';
 $lang['btn_apply'] = '执行';
 
 $lang['lbl_ns'] = '命名空间';
-$lang['lbl_regexp'] = '正则表达式';
 $lang['lbl_replace'] = '替换';
 $lang['lbl_summary'] = '编辑摘要';
 $lang['lbl_minor'] = '细微修改';
+$lang['lbl_searchregexp'] = '正则表达式';
 
 $lang['ttl_view'] = '前往此页';
 $lang['ttl_edit'] = '修改此页';

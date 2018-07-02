@@ -29,10 +29,10 @@ $lang['btn_preview'] = 'Voir';
 $lang['btn_apply'] = 'Appliquer';
 
 $lang['lbl_ns'] = 'Espace de noms';
-$lang['lbl_regexp'] = 'Expression régulière';
 $lang['lbl_replace'] = 'Remplacement';
 $lang['lbl_summary'] = 'Sommaire';
 $lang['lbl_minor'] = 'Modifications mineures';
+$lang['lbl_searchregexp'] = 'Expression régulière';
 
 $lang['ttl_view'] = 'Aller à cette page';
 $lang['ttl_edit'] = 'Modifier cette page';

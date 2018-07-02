@@ -31,10 +31,17 @@ var batchedit = (function () {
         });
     }
 
+    function initializeSearchMode() {
+        if (jQuery('input[name=searchmode]:checked').length == 0) {
+            jQuery('input[name=searchmode][value=text]').prop('checked', true);
+        }
+    }
+
     function initialize() {
         initializeTooltip();
         initializeApplyCheckboxes();
         initializeTotalStatsFloater();
+        initializeSearchMode();
     }
 
     return {

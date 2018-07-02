@@ -159,10 +159,12 @@ class BatcheditInterface {
 
         $this->ptln('<table>', +2);
         $this->printFormEdit('lbl_ns', 'namespace');
-        $this->printFormEdit('lbl_regexp', 'regexp');
+        $this->printFormEdit('lbl_search', 'search');
         $this->printFormEdit('lbl_replace', 'replace');
         $this->printFormEdit('lbl_summary', 'summary');
         $this->ptln('</table>', -2);
+
+        $this->printOptions();
 
         $this->ptln('<input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
         $this->ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
@@ -287,14 +289,14 @@ class BatcheditInterface {
     private function printFormEdit($title, $name) {
         $this->ptln('<tr>', +2);
 
-        $this->ptln('<td class="title"><nobr>' . $this->getLang($title) . '</nobr></td>');
+        $this->ptln('<td class="title">' . $this->getLang($title) . '</td>');
 
         $this->ptln('<td class="edit">', +2);
         $this->ptln($this->getEditBox($name));
 
         switch ($name) {
             case 'summary':
-                $this->printCheckBox('lbl_minor', 'minor');
+                $this->printCheckBox('minor', 'lbl_minor');
                 break;
         }
 
@@ -316,7 +318,7 @@ class BatcheditInterface {
         $placeholder = '';
 
         switch ($name) {
-            case 'regexp':
+            case 'search':
                 $placeholder = 'hnt_regexp';
                 break;
 
@@ -337,7 +339,22 @@ class BatcheditInterface {
     /**
      *
      */
-    private function printCheckBox($title, $name) {
+    private function printOptions() {
+        $this->ptln('<div id="options"><div>', +2);
+
+        $this->ptln('<div class="radiogroup">', +2);
+        $this->ptln('<div>' . $this->getLang('lbl_searchmode') . '</div>');
+        $this->printRadioButton('searchmode', 'text', 'lbl_searchtext');
+        $this->printRadioButton('searchmode', 'regexp', 'lbl_searchregexp');
+        $this->ptln('</div>', -2);
+
+        $this->ptln('</div></div>', -2);
+    }
+
+    /**
+     *
+     */
+    private function printCheckBox($name, $label) {
         $html = '<input type="checkbox" id="' . $name . '" name="' . $name . '" value="on"';
 
         if (isset($_REQUEST[$name])) {
@@ -345,7 +362,24 @@ class BatcheditInterface {
         }
 
         $this->ptln($html . ' />');
-        $this->ptln('<label for="' . $name . '">' . $this->getLang($title) . '</label>');
+        $this->ptln('<label for="' . $name . '">' . $this->getLang($label) . '</label>');
+    }
+
+    /**
+     *
+     */
+    private function printRadioButton($group, $name, $label) {
+        $id = $group . $name;
+        $html = '<input type="radio" id="' . $id . '" name="' . $group . '" value="' . $name . '"';
+
+        if (isset($_REQUEST[$group]) && $_REQUEST[$group] == $name) {
+            $html .= ' checked="checked"';
+        }
+
+        $this->ptln('<div class="radiobtn">', +2);
+        $this->ptln($html . ' />');
+        $this->ptln('<label for="' . $id . '">' . $this->getLang($label) . '</label>');
+        $this->ptln('</div>', -2);
     }
 
     /**
