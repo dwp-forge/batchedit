@@ -106,7 +106,7 @@ class BatcheditInterface {
      */
     public function printTotalStats($command, $matchCount, $pageCount, $editCount) {
         $matches = $this->getLangPlural('sts_matches', $matchCount);
-        $pages = $this->getLangPlural('sts_pages', $pages);
+        $pages = $this->getLangPlural('sts_pages', $pageCount);
 
         switch ($command) {
             case BatcheditRequest::COMMAND_PREVIEW:
