@@ -31,8 +31,10 @@ $lang['msg_warning'] = '<b>Warning:</b> {1}';
 $lang['btn_preview'] = 'Preview';
 $lang['btn_apply'] = 'Apply';
 
-$lang['hnt_regexp'] = '/(Wiki)/m';
-$lang['hnt_replace'] = 'Doku$1';
+$lang['hnt_textsearch'] = 'AnyWiki';
+$lang['hnt_textreplace'] = 'DokuWiki';
+$lang['hnt_regexpsearch'] = '/\w+(Wiki)/m';
+$lang['hnt_regexpreplace'] = 'Doku$1';
 
 $lang['lbl_ns'] = 'Namespace';
 $lang['lbl_search'] = 'Search for';

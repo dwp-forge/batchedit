@@ -85,6 +85,29 @@ class BatcheditInterface {
     /**
      *
      */
+    public function printBeginning() {
+        global $ID;
+
+        $this->ptln('<!-- batchedit -->');
+        $this->ptln('<div id="batchedit">');
+
+        $this->printJavascriptLang();
+
+        $this->ptln('<form action="' . wl($ID) . '" method="post">');
+    }
+
+    /**
+     *
+     */
+    public function printEnding() {
+        $this->ptln('</form>');
+        $this->ptln('</div>');
+        $this->ptln('<!-- /batchedit -->');
+    }
+
+    /**
+     *
+     */
     public function printMessages() {
         if (empty($this->messages)) {
             return;
@@ -150,12 +173,12 @@ class BatcheditInterface {
     /**
      *
      */
-    public function printMainForm($pluginName) {
+    public function printMainForm() {
         $this->ptln('<div id="mainform">', +2);
 
         // Output hidden values to ensure dokuwiki will return back to this plugin
         $this->ptln('<input type="hidden" name="do"   value="admin" />');
-        $this->ptln('<input type="hidden" name="page" value="' . $pluginName. '" />');
+        $this->ptln('<input type="hidden" name="page" value="' . $this->plugin->getPluginName() . '" />');
 
         $this->ptln('<table>', +2);
         $this->printFormEdit('lbl_ns', 'namespace');
@@ -177,6 +200,23 @@ class BatcheditInterface {
      */
     private function addMessage($type, $arguments) {
         $this->messages[] = new BatcheditMessage($type, call_user_func_array(array($this, 'getLang'), $arguments));
+    }
+
+    /**
+     *
+     */
+    private function printJavascriptLang() {
+        $this->ptln('<script type="text/javascript">');
+
+        $langIds = array('hnt_textsearch', 'hnt_textreplace', 'hnt_regexpsearch', 'hnt_regexpreplace');
+        $lang = array();
+
+        foreach ($langIds as $id) {
+            $lang[$id] = $this->getLang($id);
+        }
+
+        $this->ptln('var batcheditLang = ' . json_encode($lang) . ';');
+        $this->ptln('</script>');
     }
 
     /**
@@ -287,12 +327,14 @@ class BatcheditInterface {
      *
      */
     private function printFormEdit($title, $name) {
+        $value = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+
         $this->ptln('<tr>', +2);
 
         $this->ptln('<td class="title">' . $this->getLang($title) . '</td>');
 
         $this->ptln('<td class="edit">', +2);
-        $this->ptln($this->getEditBox($name));
+        $this->ptln('<input type="text" class="edit" name="' . $name . '" value="' . $value . '" />');
 
         switch ($name) {
             case 'summary':
@@ -303,37 +345,6 @@ class BatcheditInterface {
         $this->ptln('</td>', -2);
 
         $this->ptln('</tr>', -2);
-    }
-
-    /**
-     *
-     */
-    private function getEditBox($name) {
-        $html = '<input type="text" class="edit" name="' . $name . '"';
-
-        if (isset($_REQUEST[$name])) {
-            $html .= ' value="' . $_REQUEST[$name] . '"';
-        }
-
-        $placeholder = '';
-
-        switch ($name) {
-            case 'search':
-                $placeholder = 'hnt_regexp';
-                break;
-
-            case 'replace':
-                $placeholder = 'hnt_replace';
-                break;
-        }
-
-        if (!empty($placeholder)) {
-            $html .= ' placeholder="' . $this->getLang($placeholder) . '"';
-        }
-
-        $html .= ' />';
-
-        return $html;
     }
 
     /**

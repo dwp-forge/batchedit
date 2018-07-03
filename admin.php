@@ -53,14 +53,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      * Output appropriate html
      */
     public function html() {
-        global $ID;
-
-        ptln('<!-- batchedit -->');
-        ptln('<div id="batchedit">');
-
+        $this->interface->printBeginning();
         $this->interface->printMessages();
-
-        ptln('<form action="' . wl($ID) . '" method="post">');
 
         if (empty($this->error) && !empty($this->request) && $this->engine->getMatchCount() > 0) {
             $this->interface->printTotalStats($this->request->getCommand(), $this->engine->getMatchCount(),
@@ -68,11 +62,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $this->interface->printMatches($this->engine->getPages());
         }
 
-        $this->interface->printMainForm($this->getPluginName());
-
-        ptln('</form>');
-        ptln('</div>');
-        ptln('<!-- /batchedit -->');
+        $this->interface->printMainForm();
+        $this->interface->printEnding();
     }
 
     /**
