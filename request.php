@@ -12,6 +12,7 @@ class BatcheditRequest {
     const COMMAND_PREVIEW = 'preview';
     const COMMAND_APPLY = 'apply';
 
+    private $options;
     private $command;
     private $namespace;
     private $regexp;
@@ -24,6 +25,7 @@ class BatcheditRequest {
      *
      */
     public function __construct() {
+        $this->options = array();
         $this->command = $this->parseCommand();
         $this->namespace = $this->parseNamespace();
         $this->regexp = $this->parseRegexp();
@@ -81,6 +83,17 @@ class BatcheditRequest {
     /**
      *
      */
+    public function getOption($id) {
+        if (array_key_exists($id, $this->options)) {
+            return $this->options[$id];
+        }
+
+        return NULL;
+    }
+
+    /**
+     *
+     */
     public function getAppliedMatches() {
         return $this->appliedMatches;
     }
@@ -132,6 +145,8 @@ class BatcheditRequest {
         if (!isset($_REQUEST['search']) || !isset($_REQUEST['searchmode'])) {
             throw new Exception('err_invreq');
         }
+
+        $this->setOption('searchmode');
 
         $regexp = trim($_REQUEST['search']);
 
@@ -197,5 +212,12 @@ class BatcheditRequest {
         }
 
         return array_keys($_REQUEST['apply']);
+    }
+
+    /**
+     *
+     */
+    private function setOption($id) {
+        $this->options[$id] = $_REQUEST[$id];
     }
 }

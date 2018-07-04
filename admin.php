@@ -12,6 +12,7 @@ if(!defined('DOKU_INC')) die();
 
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_PLUGIN . 'admin.php');
+require_once(DOKU_PLUGIN . 'batchedit/config.php');
 require_once(DOKU_PLUGIN . 'batchedit/engine.php');
 require_once(DOKU_PLUGIN . 'batchedit/interface.php');
 require_once(DOKU_PLUGIN . 'batchedit/request.php');
@@ -20,12 +21,14 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     private $error;
     private $request;
+    private $config;
     private $engine;
     private $interface;
 
     public function __construct() {
         $this->error = NULL;
         $this->request = NULL;
+        $this->config = new BatcheditConfig();
         $this->engine = NULL;
         $this->interface = new BatcheditInterface($this);
     }
@@ -53,6 +56,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      * Output appropriate html
      */
     public function html() {
+        $this->interface->configure($this->config);
+
         $this->interface->printBeginning();
         $this->interface->printMessages();
 
@@ -92,5 +97,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 }
             }
         }
+
+        $this->config->update($this->request);
     }
 }

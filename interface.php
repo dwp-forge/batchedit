@@ -85,6 +85,15 @@ class BatcheditInterface {
     /**
      *
      */
+    public function configure($config) {
+        if (!empty($config->getConf('searchmode'))) {
+            $_REQUEST['searchmode'] = $config->getConf('searchmode');
+        }
+    }
+
+    /**
+     *
+     */
     public function printBeginning() {
         global $ID;
 
