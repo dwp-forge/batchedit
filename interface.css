@@ -164,6 +164,10 @@
     padding-left: 1em;
 }
 
+#batchedit .checkbox {
+    margin: 0.3em 0;
+}
+
 #batchedit div.radiogroup {
     margin-top: 0.5em;
     margin-bottom: 1em;

@@ -89,6 +89,10 @@ class BatcheditInterface {
         if (!empty($config->getConf('searchmode'))) {
             $_REQUEST['searchmode'] = $config->getConf('searchmode');
         }
+
+        if ($config->getConf('matchcase')) {
+            $_REQUEST['matchcase'] = TRUE;
+        }
     }
 
     /**
@@ -368,6 +372,8 @@ class BatcheditInterface {
         $this->printRadioButton('searchmode', 'regexp', 'lbl_searchregexp');
         $this->ptln('</div>', -2);
 
+        $this->printCheckBox('matchcase', 'lbl_matchcase');
+
         $this->ptln('</div></div>', -2);
     }
 
@@ -381,8 +387,10 @@ class BatcheditInterface {
             $html .= ' checked="checked"';
         }
 
+        $this->ptln('<div class="checkbox">', +2);
         $this->ptln($html . ' />');
         $this->ptln('<label for="' . $name . '">' . $this->getLang($label) . '</label>');
+        $this->ptln('</div>', -2);
     }
 
     /**

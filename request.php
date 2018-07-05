@@ -146,7 +146,8 @@ class BatcheditRequest {
             throw new Exception('err_invreq');
         }
 
-        $this->setOption('searchmode');
+        $this->setOption('searchmode', $_REQUEST['searchmode']);
+        $this->setOption('matchcase', isset($_REQUEST['matchcase']));
 
         $regexp = trim($_REQUEST['search']);
 
@@ -154,13 +155,17 @@ class BatcheditRequest {
             throw new Exception('err_noregexp');
         }
 
-        if ($_REQUEST['searchmode'] == 'regexp') {
+        if ($this->getOption('searchmode') == 'regexp') {
             if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/', $regexp) != 1) {
                 throw new Exception('err_invregexp');
             }
         }
         else {
             $regexp = '/' . preg_quote($regexp, '/') . '/';
+        }
+
+        if (!$this->getOption('matchcase')) {
+            $regexp .= 'i';
         }
 
         return $regexp;
@@ -217,7 +222,7 @@ class BatcheditRequest {
     /**
      *
      */
-    private function setOption($id) {
-        $this->options[$id] = $_REQUEST[$id];
+    private function setOption($id, $value) {
+        $this->options[$id] = $value;
     }
 }
