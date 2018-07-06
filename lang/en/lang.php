@@ -15,7 +15,7 @@ $lang['direction']  = 'ltr';
 $lang['menu'] = 'Batch Edit';
 
 $lang['err_invreq'] = 'Invalid request.';
-$lang['err_noregexp'] = 'Regular expression is not specified.';
+$lang['err_nosearch'] = 'Search expression is not specified.';
 $lang['err_invregexp'] = 'Invalid regular expression.';
 $lang['err_emptyidx'] = 'The page index is empty.';
 $lang['err_idxaccess'] = 'Cannot access the page index.';

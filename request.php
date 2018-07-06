@@ -166,7 +166,7 @@ class BatcheditRequest {
         $regexp = trim($_REQUEST['search']);
 
         if ($regexp == '') {
-            throw new Exception('err_noregexp');
+            throw new Exception('err_nosearch');
         }
 
         if ($this->getOption('searchmode') == 'regexp') {

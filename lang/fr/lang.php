@@ -15,7 +15,6 @@ $lang['direction']  = 'ltr';
 $lang['menu'] = 'Batch Edit';
 
 $lang['err_invreq'] = 'Requête invalide.';
-$lang['err_noregexp'] = 'Expression régulière non précisée.';
 $lang['err_invregexp'] = 'Expression régulière invalide.';
 $lang['err_emptyidx'] = 'L\'index de la page est vide.';
 $lang['err_idxaccess'] = 'Je ne peux avoir accès à l\'index de la page.';

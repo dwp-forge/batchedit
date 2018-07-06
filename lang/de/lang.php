@@ -15,7 +15,7 @@ $lang['direction']  = 'ltr';
 $lang['menu'] = 'Suchen&Ersetzen';
 
 $lang['err_invreq'] = 'Ungültige Anfrage.';
-$lang['err_noregexp'] = 'Regulärer Ausduck (Suchbegriff) fehlt';
+$lang['err_nosearch'] = 'Suchbegriff fehlt.';
 $lang['err_invregexp'] = 'Ungültiger Regulärer Ausduck (Suchbegriff)';
 $lang['err_emptyidx'] = 'Seitenindex ist leer.';
 $lang['err_idxaccess'] = 'Seitenindex kann nicht geladen werden.';

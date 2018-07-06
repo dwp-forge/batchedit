@@ -15,7 +15,6 @@ $lang['direction']  = 'ltr';
 $lang['menu'] = '批量修改';
 
 $lang['err_invreq'] = '无效请求。';
-$lang['err_noregexp'] = '未指定正则表达式。';
 $lang['err_invregexp'] = '无效的正则表达式。';
 $lang['err_emptyidx'] = '页面索引为空。';
 $lang['err_idxaccess'] = '无法访问页面索引。';
