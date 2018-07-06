@@ -25,7 +25,7 @@ class BatcheditRequest {
      *
      */
     public function __construct() {
-        $this->options = array();
+        $this->options = $this->parseOptions();
         $this->command = $this->parseCommand();
         $this->namespace = $this->parseNamespace();
         $this->regexp = $this->parseRegexp();
@@ -101,6 +101,23 @@ class BatcheditRequest {
     /**
      *
      */
+    private function parseOptions() {
+        if (!isset($_REQUEST['searchmode'])) {
+            throw new Exception('err_invreq');
+        }
+
+        $options = array();
+
+        $options['searchmode'] = $_REQUEST['searchmode'];
+        $options['matchcase'] = isset($_REQUEST['matchcase']);
+        $options['multiline'] = isset($_REQUEST['multiline']);
+
+        return $options;
+    }
+
+    /**
+     *
+     */
     private function parseCommand() {
         if (!is_array($_REQUEST['cmd'])) {
             throw new Exception('err_invreq');
@@ -142,12 +159,9 @@ class BatcheditRequest {
      *
      */
     private function parseRegexp() {
-        if (!isset($_REQUEST['search']) || !isset($_REQUEST['searchmode'])) {
+        if (!isset($_REQUEST['search'])) {
             throw new Exception('err_invreq');
         }
-
-        $this->setOption('searchmode', $_REQUEST['searchmode']);
-        $this->setOption('matchcase', isset($_REQUEST['matchcase']));
 
         $regexp = trim($_REQUEST['search']);
 
@@ -156,13 +170,15 @@ class BatcheditRequest {
         }
 
         if ($this->getOption('searchmode') == 'regexp') {
-            if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/', $regexp) != 1) {
+            if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/s', $regexp) != 1) {
                 throw new Exception('err_invregexp');
             }
         }
         else {
             $regexp = '/' . preg_quote($regexp, '/') . '/';
         }
+
+        $regexp = str_replace("\r\n", "\n", $regexp);
 
         if (!$this->getOption('matchcase')) {
             $regexp .= 'i';
@@ -179,10 +195,12 @@ class BatcheditRequest {
             throw new Exception('err_invreq');
         }
 
-        $unescape = function($matches) {
-            if (strlen($matches[1]) % 2) {
-                $unescaped = array('n' => "\n", 'r' => "\r", 't' => "\t");
+        $replace = str_replace("\r\n", "\n", $_REQUEST['replace']);
 
+        $unescape = function($matches) {
+            static $unescaped = array('n' => "\n", 'r' => "\r", 't' => "\t");
+
+            if (strlen($matches[1]) % 2) {
                 return substr($matches[1], 1) . $unescaped[$matches[2]];
             }
             else {
@@ -190,7 +208,7 @@ class BatcheditRequest {
             }
         };
 
-        return preg_replace_callback('/(\\\\+)([nrt])/', $unescape, $_REQUEST['replace']);
+        return preg_replace_callback('/(\\\\+)([nrt])/', $unescape, $replace);
     }
 
     /**
@@ -217,12 +235,5 @@ class BatcheditRequest {
         }
 
         return array_keys($_REQUEST['apply']);
-    }
-
-    /**
-     *
-     */
-    private function setOption($id, $value) {
-        $this->options[$id] = $value;
     }
 }

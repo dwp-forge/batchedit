@@ -86,13 +86,9 @@ class BatcheditInterface {
      *
      */
     public function configure($config) {
-        if (!empty($config->getConf('searchmode'))) {
-            $_REQUEST['searchmode'] = $config->getConf('searchmode');
-        }
-
-        if ($config->getConf('matchcase')) {
-            $_REQUEST['matchcase'] = TRUE;
-        }
+        $this->loadOption($config, 'searchmode');
+        $this->loadOption($config, 'matchcase');
+        $this->loadOption($config, 'multiline');
     }
 
     /**
@@ -210,6 +206,17 @@ class BatcheditInterface {
      */
     private function addMessage($type, $arguments) {
         $this->messages[] = new BatcheditMessage($type, call_user_func_array(array($this, 'getLang'), $arguments));
+    }
+
+    /**
+     *
+     */
+    private function loadOption($config, $id) {
+        $value = $config->getConf($id);
+
+        if (!empty($value)) {
+            $_REQUEST['searchmode'] = $value;
+        }
     }
 
     /**
@@ -347,23 +354,30 @@ class BatcheditInterface {
      *
      */
     private function printFormEdit($title, $name) {
-        $value = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
-
         $this->ptln('<tr>', +2);
-
         $this->ptln('<td class="be-title">' . $this->getLang($title) . '</td>');
-
         $this->ptln('<td class="be-edit">', +2);
-        $this->ptln('<input type="text" class="be-edit" name="' . $name . '" value="' . $value . '" />');
 
         switch ($name) {
+            case 'namespace':
+                $this->printEditBox($name);
+                break;
+
+            case 'search':
+            case 'replace':
+                $multiline = isset($_REQUEST['multiline']);
+
+                $this->printEditBox($name, FALSE, !$multiline);
+                $this->printTextArea($name, $multiline);
+                break;
+
             case 'summary':
+                $this->printEditBox($name);
                 $this->printCheckBox('minor', 'lbl_minor');
                 break;
         }
 
         $this->ptln('</td>', -2);
-
         $this->ptln('</tr>', -2);
     }
 
@@ -380,8 +394,57 @@ class BatcheditInterface {
         $this->ptln('</div>', -2);
 
         $this->printCheckBox('matchcase', 'lbl_matchcase');
+        $this->printCheckBox('multiline', 'lbl_multiline');
 
         $this->ptln('</div></div>', -2);
+    }
+
+    /**
+     *
+     */
+    private function printEditBox($name, $submitted = TRUE, $visible = TRUE) {
+        $html = '<input type="text" class="be-edit" id="be-' . $name . 'edit"';
+
+        if ($submitted) {
+            $html .= ' name="' . $name . '"';
+
+            if (isset($_REQUEST[$name])) {
+                $html .= ' value="' . $_REQUEST[$name] . '"';
+            }
+        }
+
+        if (!$visible) {
+            $html .= ' style="display: none;"';
+        }
+
+        $this->ptln($html . ' />');
+    }
+
+    /**
+     *
+     */
+    private function printTextArea($name, $visible = TRUE) {
+        $html = '<textarea class="be-edit" id="be-' . $name . 'area" name="' . $name . '"';
+
+        if (!$visible) {
+            $html .= ' style="display: none;"';
+        }
+
+        $html .= '>';
+
+        if (isset($_REQUEST[$name])) {
+            $value = $_REQUEST[$name];
+
+            // HACK: It seems that even with "white-space: pre" textarea trims one leading
+            // empty line. To workaround this duplicate the empty line.
+            if (preg_match("/^(\r?\n)/", $value, $match) == 1) {
+                $value = $match[1] . $value;
+            }
+
+            $html .= $value;
+        }
+
+        $this->ptln($html . '</textarea>');
     }
 
     /**

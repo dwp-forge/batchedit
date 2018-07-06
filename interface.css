@@ -181,11 +181,17 @@
     padding-right: 1em;
 }
 
-#batchedit #be-mainform input.be-edit {
+#batchedit #be-mainform td.be-edit .be-edit {
     font-family: "Courier New", monospace;
     font-size: 10pt;
     padding: 0.3em 0.5em;
     width: 100%;
+}
+
+#batchedit #be-mainform textarea.be-edit {
+    min-height: 4em;
+    resize: vertical;
+    white-space: pre;
 }
 
 /*

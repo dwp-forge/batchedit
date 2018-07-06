@@ -14,7 +14,8 @@ class BatcheditConfig {
 
     private static $defaults = array(
         'searchmode' => 'text',
-        'matchcase' => FALSE
+        'matchcase' => FALSE,
+        'multiline' => FALSE
     );
 
     /**
@@ -31,6 +32,7 @@ class BatcheditConfig {
     public function update($request) {
         $this->updateOption($request, 'searchmode');
         $this->updateOption($request, 'matchcase');
+        $this->updateOption($request, 'multiline');
         $this->save();
     }
 

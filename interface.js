@@ -26,12 +26,12 @@ var batchedit = (function () {
     }
 
     function initializeTotalStatsFloater() {
-        var updateFloater = function() {
-            var $anchor = jQuery('#be-totalstats');
-            var $floater = $anchor.children('div');
+        var $anchor = jQuery('#be-totalstats');
+        var $floater = $anchor.children('div');
 
+        var updateFloater = function() {
             if (window.pageYOffset > $anchor.offset().top) {
-                $floater.addClass('be-floater').css({width: $anchor.css('width')});
+                $floater.addClass('be-floater').css('width', $anchor.css('width'));
             }
             else {
                 $floater.removeClass('be-floater');
@@ -48,16 +48,49 @@ var batchedit = (function () {
             jQuery('input[name=searchmode][value=text]').prop('checked', true);
         }
 
-        var searchModeUpdate = function() {
+        var $searchInputs = jQuery('#be-searchedit, #be-searcharea');
+        var $replaceInputs = jQuery('#be-replaceedit, #be-replacearea');
+
+        var onSearchModeUpdate = function() {
             var searchMode = jQuery('input[name=searchmode]:checked').val();
 
-            jQuery('input[name=search]').prop('placeholder', getLang('hnt_' + searchMode + 'search'));
-            jQuery('input[name=replace]').prop('placeholder', getLang('hnt_' + searchMode + 'replace'));
+            $searchInputs.prop('placeholder', getLang('hnt_' + searchMode + 'search'));
+            $replaceInputs.prop('placeholder', getLang('hnt_' + searchMode + 'replace'));
         };
 
-        jQuery('input[name=searchmode]').click(searchModeUpdate);
+        jQuery('input[name=searchmode]').click(onSearchModeUpdate);
 
-        searchModeUpdate();
+        onSearchModeUpdate();
+    }
+
+    function initializeMultiline() {
+        var $multiline = jQuery('input[name=multiline]');
+        var $searchEdit = jQuery('#be-searchedit');
+        var $searchArea = jQuery('#be-searcharea');
+        var $replaceEdit = jQuery('#be-replaceedit');
+        var $replaceArea = jQuery('#be-replacearea');
+
+        $multiline.click(function() {
+            if (this.checked) {
+                $searchEdit.hide();
+                $replaceEdit.hide();
+                $searchArea.val($searchEdit.val()).show();
+                $replaceArea.val($replaceEdit.val()).show();
+            }
+            else {
+                $searchArea.hide();
+                $replaceArea.hide();
+                $searchEdit.val($searchArea.val().replace(/\n/g, '\\n')).show();
+                $replaceEdit.val($replaceArea.val().replace(/\n/g, '\\n')).show();
+            }
+        });
+
+        jQuery('#batchedit form').submit(function() {
+            if (!$multiline.prop('checked')) {
+                $searchArea.val($searchEdit.val());
+                $replaceArea.val($replaceEdit.val());
+            }
+        });
     }
 
     function initialize() {
@@ -65,6 +98,7 @@ var batchedit = (function () {
         initializeApplyCheckboxes();
         initializeTotalStatsFloater();
         initializeSearchMode();
+        initializeMultiline();
     }
 
     return {
