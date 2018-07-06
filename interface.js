@@ -26,7 +26,7 @@ var batchedit = (function () {
     }
 
     function initializeTotalStatsFloater() {
-        jQuery(window).scroll(function() {
+        var updateFloater = function() {
             var $anchor = jQuery('#be-totalstats');
             var $floater = $anchor.children('div');
 
@@ -36,7 +36,11 @@ var batchedit = (function () {
             else {
                 $floater.removeClass('be-floater');
             }
-        });
+        };
+
+        jQuery(window).scroll(updateFloater);
+
+        updateFloater();
     }
 
     function initializeSearchMode() {
