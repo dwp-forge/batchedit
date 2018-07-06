@@ -126,7 +126,7 @@ class BatcheditInterface {
             return;
         }
 
-        $this->ptln('<div id="messages">', +2);
+        $this->ptln('<div id="be-messages">', +2);
 
         foreach($this->messages as $message) {
             $this->ptln('<div class="' . $message->getClass() . '">', +2);
@@ -155,12 +155,12 @@ class BatcheditInterface {
                 break;
         }
 
-        $this->ptln('<div id="totalstats"><div>', +2);
+        $this->ptln('<div id="be-totalstats"><div>', +2);
 
         if ($editCount < $matchCount) {
-            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyall') . '">', +2);
-            $this->ptln('<input type="checkbox" id="applyall" />');
-            $this->ptln('<label for="applyall">' . $stats . '</label>');
+            $this->ptln('<span class="be-apply" title="' . $this->getLang('ttl_applyall') . '">', +2);
+            $this->ptln('<input type="checkbox" id="be-applyall" />');
+            $this->ptln('<label for="be-applyall">' . $stats . '</label>');
             $this->ptln('</span>', -2);
         }
         else {
@@ -175,7 +175,7 @@ class BatcheditInterface {
      */
     public function printMatches($pages) {
         foreach ($pages as $page) {
-            $this->ptln('<div class="file">', +2);
+            $this->ptln('<div class="be-file">', +2);
             $this->printPageStats($page);
             $this->printPageActions($page->getId());
             $this->printPageMatches($page);
@@ -187,7 +187,7 @@ class BatcheditInterface {
      *
      */
     public function printMainForm() {
-        $this->ptln('<div id="mainform">', +2);
+        $this->ptln('<div id="be-mainform">', +2);
 
         // Output hidden values to ensure dokuwiki will return back to this plugin
         $this->ptln('<input type="hidden" name="do"   value="admin" />');
@@ -238,10 +238,10 @@ class BatcheditInterface {
     private function printPageStats($page) {
         $stats = $this->getLang('sts_page', $page->getId(), $this->getLangPlural('sts_matches', count($page->getMatches())));
 
-        $this->ptln('<div class="stats">', +2);
+        $this->ptln('<div class="be-stats">', +2);
 
         if ($page->hasUnmarkedMatches()) {
-            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
+            $this->ptln('<span class="be-apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $page->getId() . '" />');
             $this->ptln('<label for="' . $page->getId() . '">' . $stats . '</label>');
             $this->ptln('</span>', -2);
@@ -259,10 +259,10 @@ class BatcheditInterface {
     private function printPageActions($pageId) {
         $link = wl($pageId);
 
-        $this->ptln('<div class="actions">', +2);
+        $this->ptln('<div class="be-actions">', +2);
         $this->printAction($link, 'ttl_view', 'file-document');
         $this->printAction($link . '&do=edit', 'ttl_edit', 'pencil');
-        $this->printAction('#mainform', 'ttl_mainform', 'arrow-down');
+        $this->printAction('#be-mainform', 'ttl_mainform', 'arrow-down');
         $this->ptln('</div>', -2);
     }
 
@@ -270,7 +270,7 @@ class BatcheditInterface {
      *
      */
     private function printAction($href, $titleId, $iconId) {
-        $action = '<a class="action" href="' . $href . '" title="' . $this->getLang($titleId) . '">';
+        $action = '<a class="be-action" href="' . $href . '" title="' . $this->getLang($titleId) . '">';
         $action .= $this->getSvg($iconId);
         $action .= '</a>';
 
@@ -282,7 +282,7 @@ class BatcheditInterface {
      */
     private function printPageMatches($page) {
         foreach ($page->getMatches() as $match) {
-            $this->ptln('<div class="match">', +2);
+            $this->ptln('<div class="be-match">', +2);
             $this->printMatchHeader($page->getId(), $match);
             $this->printMatchTable($match);
             $this->ptln('</div>', -2);
@@ -296,13 +296,13 @@ class BatcheditInterface {
         $id = $pageId . '#' . $match->getPageOffset();
 
         if (!$match->isMarked()) {
-            $this->ptln('<span class="apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
+            $this->ptln('<span class="be-apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
             $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
-            $this->ptln('<label class="match-id" for="' . $id . '">' . $id . '</label>');
+            $this->ptln('<label class="be-matchid" for="' . $id . '">' . $id . '</label>');
             $this->ptln('</span>', -2);
         }
         else {
-            $this->ptln('<div class="match-id">' . $id . '</div>');
+            $this->ptln('<div class="be-matchid">' . $id . '</div>');
         }
     }
 
@@ -310,15 +310,15 @@ class BatcheditInterface {
      *
      */
     private function printMatchTable($match) {
-        $original = $this->prepareText($match->getOriginalText(), 'search_hit' . ($match->isMarked() ? ' replaced' : ''));
-        $replaced = $this->prepareText($match->getReplacedText(), 'search_hit' . ($match->isMarked() ? ' applied' : ''));
+        $original = $this->prepareText($match->getOriginalText(), 'search_hit' . ($match->isMarked() ? ' be-replaced' : ''));
+        $replaced = $this->prepareText($match->getReplacedText(), 'search_hit' . ($match->isMarked() ? ' be-applied' : ''));
         $before = $this->prepareText($match->getContextBefore());
         $after = $this->prepareText($match->getContextAfter());
 
         $this->ptln('<table><tr>', +2);
-        $this->ptln('<td class="text">' . $before . $original . $after . '</td>');
-        $this->ptln('<td class="arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
-        $this->ptln('<td class="text">' . $before . $replaced . $after . '</td>');
+        $this->ptln('<td class="be-text">' . $before . $original . $after . '</td>');
+        $this->ptln('<td class="be-arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
+        $this->ptln('<td class="be-text">' . $before . $replaced . $after . '</td>');
         $this->ptln('</tr></table>', -2);
     }
 
@@ -344,10 +344,10 @@ class BatcheditInterface {
 
         $this->ptln('<tr>', +2);
 
-        $this->ptln('<td class="title">' . $this->getLang($title) . '</td>');
+        $this->ptln('<td class="be-title">' . $this->getLang($title) . '</td>');
 
-        $this->ptln('<td class="edit">', +2);
-        $this->ptln('<input type="text" class="edit" name="' . $name . '" value="' . $value . '" />');
+        $this->ptln('<td class="be-edit">', +2);
+        $this->ptln('<input type="text" class="be-edit" name="' . $name . '" value="' . $value . '" />');
 
         switch ($name) {
             case 'summary':
@@ -364,9 +364,9 @@ class BatcheditInterface {
      *
      */
     private function printOptions() {
-        $this->ptln('<div id="options"><div>', +2);
+        $this->ptln('<div id="be-options"><div>', +2);
 
-        $this->ptln('<div class="radiogroup">', +2);
+        $this->ptln('<div class="be-radiogroup">', +2);
         $this->ptln('<div>' . $this->getLang('lbl_searchmode') . '</div>');
         $this->printRadioButton('searchmode', 'text', 'lbl_searchtext');
         $this->printRadioButton('searchmode', 'regexp', 'lbl_searchregexp');
@@ -381,15 +381,15 @@ class BatcheditInterface {
      *
      */
     private function printCheckBox($name, $label) {
-        $html = '<input type="checkbox" id="' . $name . '" name="' . $name . '" value="on"';
+        $html = '<input type="checkbox" id="be-' . $name . '" name="' . $name . '" value="on"';
 
         if (isset($_REQUEST[$name])) {
             $html .= ' checked="checked"';
         }
 
-        $this->ptln('<div class="checkbox">', +2);
+        $this->ptln('<div class="be-checkbox">', +2);
         $this->ptln($html . ' />');
-        $this->ptln('<label for="' . $name . '">' . $this->getLang($label) . '</label>');
+        $this->ptln('<label for="be-' . $name . '">' . $this->getLang($label) . '</label>');
         $this->ptln('</div>', -2);
     }
 
@@ -398,15 +398,15 @@ class BatcheditInterface {
      */
     private function printRadioButton($group, $name, $label) {
         $id = $group . $name;
-        $html = '<input type="radio" id="' . $id . '" name="' . $group . '" value="' . $name . '"';
+        $html = '<input type="radio" id="be-' . $id . '" name="' . $group . '" value="' . $name . '"';
 
         if (isset($_REQUEST[$group]) && $_REQUEST[$group] == $name) {
             $html .= ' checked="checked"';
         }
 
-        $this->ptln('<div class="radiobtn">', +2);
+        $this->ptln('<div class="be-radiobtn">', +2);
         $this->ptln($html . ' />');
-        $this->ptln('<label for="' . $id . '">' . $this->getLang($label) . '</label>');
+        $this->ptln('<label for="be-' . $id . '">' . $this->getLang($label) . '</label>');
         $this->ptln('</div>', -2);
     }
 

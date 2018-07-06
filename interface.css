@@ -1,4 +1,7 @@
-.ui-widget.ui-widget-content.batchedit-tooltip {
+/*
+ * Tooltip
+ */
+.ui-widget.ui-widget-content.be-tooltip {
     padding: 2px 8px 2px 8px;
     font-size: 90%;
     color: var(--batchedit-text);
@@ -7,55 +10,73 @@
     box-shadow: 0 0 0.5em #999;
 }
 
+/*
+ * Global styles
+ */
 #batchedit table {
-    width: 100%;
     border: 0;
 }
 
-#batchedit table td {
+#batchedit td {
     border: 0;
 }
 
-#batchedit div#messages {
+#batchedit .be-checkbox {
+    margin: 0.3em 0;
+}
+
+#batchedit .be-radiogroup {
+    margin-top: 0.5em;
     margin-bottom: 1em;
 }
 
-#batchedit .actions {
+#batchedit .be-radiobtn {
+    margin: 0.3em 0;
+    padding-left: 1em;
+}
+
+#batchedit .be-actions {
     position: absolute;
     top: 0;
     right: 0;
     height: 24px;
 }
 
-#batchedit .action svg {
+#batchedit .be-action svg {
     width: 24px;
     height: 24px;
     margin-left: 4px;
     fill: #ccc;
 }
 
-#batchedit .action svg:hover {
+#batchedit .be-action svg:hover {
     fill: var(--batchedit-link);
 }
 
-#batchedit div.match table td.arrow svg {
-    stroke: var(--batchedit-text);
+/*
+ * Messages
+ */
+#batchedit #be-messages {
+    margin-bottom: 1em;
 }
 
-#batchedit #totalstats {
+/*
+ * Total statistics
+ */
+#batchedit #be-totalstats {
     position: relative;
     font-size: 120%;
     font-weight: bold;
     margin: 0 -0.2em 0 -0.5em;
 }
 
-#batchedit #totalstats div {
+#batchedit #be-totalstats div {
     position: relative;
     padding: 0 0.2em 1.2em 0.5em;
     background-color: var(--batchedit-background);
 }
 
-#batchedit #totalstats div.floater {
+#batchedit #be-totalstats div.be-floater {
     position: fixed;
     z-index: 1;
     top: 0;
@@ -63,38 +84,43 @@
     box-shadow: 0 0.5em 0.5em -0.5em #999;
 }
 
-#batchedit .apply:hover label {
+#batchedit .be-apply:hover label {
     color: var(--batchedit-link);
 }
 
-#batchedit div.file {
+/*
+ * Matches
+ */
+#batchedit .be-file {
     position: relative;
     padding-left: 0.5em;
     margin-bottom: 1.5em;
     border-left: 1px solid var(--batchedit-border);
 }
 
-#batchedit div.file div.stats {
+#batchedit .be-file .be-stats {
     font-size: 120%;
     font-weight: bold;
     margin-bottom: 0.7em;
 }
 
-#batchedit div.match {
+#batchedit .be-match {
     padding: 0.3em;
     margin-bottom: 0.5em;
     background-color: var(--batchedit-background-alt);
 }
 
-#batchedit div.match .match-id {
+#batchedit .be-match .be-matchid {
     font-weight: bold;
 }
 
-#batchedit div.match table {
+#batchedit .be-match table {
+    width: 100%;
+    border: 0;
     margin: 0.3em 0 0 0;
 }
 
-#batchedit div.match table td.text {
+#batchedit .be-match td.be-text {
     font-family: "Courier New", monospace;
     font-size: 8pt;
     text-align: left;
@@ -104,12 +130,13 @@
     border: 1px dashed var(--batchedit-border);
 }
 
-#batchedit div.match table td.arrow {
+#batchedit .be-match td.be-arrow {
     position: relative;
     width: 2%;
+    border: 0;
 }
 
-#batchedit div.match table td.arrow svg {
+#batchedit .be-match td.be-arrow svg {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -117,23 +144,31 @@
     margin-top:-20px;
     width: 8px;
     height: 40px;
+    stroke: var(--batchedit-text);
 }
 
-#batchedit div.match table span.applied {
+#batchedit .be-match .be-applied {
     background-color: #6f9;
 }
 
-#batchedit div#mainform {
+/*
+ * Main form
+ */
+#batchedit #be-mainform {
     position: relative;
     margin-top: 1em;
 }
 
-#batchedit div#mainform table {
+#batchedit #be-mainform table {
     width: 70%;
     border-right: 1px solid var(--batchedit-border);
 }
 
-#batchedit div#mainform table td.title {
+#batchedit #be-mainform td {
+    border: 0;
+}
+
+#batchedit #be-mainform td.be-title {
     width: 1%;
     padding-top: 0.6em;
     padding-right: 1em;
@@ -141,39 +176,28 @@
     white-space:nowrap;
 }
 
-#batchedit div#mainform table td.edit {
+#batchedit #be-mainform td.be-edit {
     width: 60%;
     padding-right: 1em;
 }
 
-#batchedit div#mainform input.edit {
+#batchedit #be-mainform input.be-edit {
     font-family: "Courier New", monospace;
     font-size: 10pt;
     padding: 0.3em 0.5em;
     width: 100%;
 }
 
-#batchedit div#options {
+/*
+ * Options
+ */
+#batchedit #be-options {
     position: absolute;
     top: 0;
     right: 0;
     width: 30%;
 }
 
-#batchedit div#options > div {
-    padding-left: 1em;
-}
-
-#batchedit .checkbox {
-    margin: 0.3em 0;
-}
-
-#batchedit div.radiogroup {
-    margin-top: 0.5em;
-    margin-bottom: 1em;
-}
-
-#batchedit div.radiogroup .radiobtn {
-    margin: 0.3em 0;
+#batchedit #be-options > div {
     padding-left: 1em;
 }
