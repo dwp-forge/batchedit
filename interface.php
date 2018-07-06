@@ -158,10 +158,7 @@ class BatcheditInterface {
         $this->ptln('<div id="be-totalstats"><div>', +2);
 
         if ($editCount < $matchCount) {
-            $this->ptln('<span class="be-apply" title="' . $this->getLang('ttl_applyall') . '">', +2);
-            $this->ptln('<input type="checkbox" id="be-applyall" />');
-            $this->ptln('<label for="be-applyall">' . $stats . '</label>');
-            $this->ptln('</span>', -2);
+            $this->printApplyCheckBox('be-applyall', $stats, 'ttl_applyall');
         }
         else {
             $this->ptln($stats);
@@ -235,16 +232,25 @@ class BatcheditInterface {
     /**
      *
      */
+    private function printApplyCheckBox($id, $label, $title, $matchId = NULL) {
+        $matchApply = $matchId != NULL ? ' name="apply[' . $matchId . ']"' : '';
+
+        $this->ptln('<span class="be-apply" title="' . $this->getLang($title) . '">', +2);
+        $this->ptln('<input type="checkbox" id="' . $id . '"' . $matchApply . ' />');
+        $this->ptln('<label for="' . $id . '">' . $label . '</label>');
+        $this->ptln('</span>', -2);
+    }
+
+    /**
+     *
+     */
     private function printPageStats($page) {
         $stats = $this->getLang('sts_page', $page->getId(), $this->getLangPlural('sts_matches', count($page->getMatches())));
 
         $this->ptln('<div class="be-stats">', +2);
 
         if ($page->hasUnmarkedMatches()) {
-            $this->ptln('<span class="be-apply" title="' . $this->getLang('ttl_applyfile') . '">', +2);
-            $this->ptln('<input type="checkbox" id="' . $page->getId() . '" />');
-            $this->ptln('<label for="' . $page->getId() . '">' . $stats . '</label>');
-            $this->ptln('</span>', -2);
+            $this->printApplyCheckBox($page->getId(), $stats, 'ttl_applyfile');
         }
         else {
             $this->ptln($stats);
@@ -295,15 +301,16 @@ class BatcheditInterface {
     private function printMatchHeader($pageId, $match) {
         $id = $pageId . '#' . $match->getPageOffset();
 
+        $this->ptln('<div class="be-matchid">', +2);
+
         if (!$match->isMarked()) {
-            $this->ptln('<span class="be-apply" title="' . $this->getLang('ttl_applymatch') . '">', +2);
-            $this->ptln('<input type="checkbox" id="' . $id . '" name="apply[' . $id . ']" value="on" />');
-            $this->ptln('<label class="be-matchid" for="' . $id . '">' . $id . '</label>');
-            $this->ptln('</span>', -2);
+            $this->printApplyCheckBox($id, $id, 'ttl_applymatch', $id);
         }
         else {
-            $this->ptln('<div class="be-matchid">' . $id . '</div>');
+            $this->ptln($id);
         }
+
+        $this->ptln('</div>', -2);
     }
 
     /**
