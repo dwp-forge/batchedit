@@ -95,14 +95,12 @@ class BatcheditInterface {
      *
      */
     public function printBeginning() {
-        global $ID;
-
         $this->ptln('<!-- batchedit -->');
         $this->ptln('<div id="batchedit">');
 
         $this->printJavascriptLang();
 
-        $this->ptln('<form action="' . wl($ID) . '" method="post">');
+        $this->ptln('<form action="' . $_SERVER[REQUEST_URI] . '" method="post">');
     }
 
     /**
@@ -181,10 +179,6 @@ class BatcheditInterface {
      */
     public function printMainForm() {
         $this->ptln('<div id="be-mainform">', +2);
-
-        // Output hidden values to ensure dokuwiki will return back to this plugin
-        $this->ptln('<input type="hidden" name="do"   value="admin" />');
-        $this->ptln('<input type="hidden" name="page" value="' . $this->plugin->getPluginName() . '" />');
 
         $this->ptln('<table>', +2);
         $this->printFormEdit('lbl_ns', 'namespace');
