@@ -19,11 +19,17 @@ require_once(DOKU_PLUGIN . 'batchedit/request.php');
 
 class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
+    private static $instance = NULL;
+
     private $error;
     private $request;
     private $config;
     private $engine;
     private $interface;
+
+    public static function getInstance() {
+        return self::$instance;
+    }
 
     public function __construct() {
         $this->error = NULL;
@@ -31,6 +37,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->config = new BatcheditConfig();
         $this->engine = NULL;
         $this->interface = new BatcheditInterface($this);
+
+        self::$instance = $this;
+    }
+
+    /**
+     *
+     */
+    public function getConfig() {
+        return $this->config;
     }
 
     /**

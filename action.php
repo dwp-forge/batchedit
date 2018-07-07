@@ -12,31 +12,51 @@ if(!defined('DOKU_INC')) die();
 
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_PLUGIN . 'action.php');
+require_once(DOKU_PLUGIN . 'batchedit/admin.php');
+require_once(DOKU_PLUGIN . 'batchedit/config.php');
 
 class action_plugin_batchedit extends DokuWiki_Action_Plugin {
+
+    const YEAR_IN_SECONDS = 31536000;
 
     /**
      * Register callbacks
      */
     public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE', $this, 'handle');
-    }
-
-    /**
-     *
-     */
-    public function handle($event, $param) {
-        if (($_REQUEST['do'] == 'admin') && !empty($_REQUEST['page']) && ($_REQUEST['page'] == 'batchedit')) {
-            $this->addAdminIncludes($event);
+        if (!$this->isBatchEdit()) {
+            return;
         }
+
+        $controller->register_hook('ACTION_HEADERS_SEND', 'BEFORE', $this, 'onBeforeHeadersSend');
+        $controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE', $this, 'onBeforeMetaheaderOutput');
     }
 
     /**
      *
      */
-    private function addAdminIncludes($event) {
+    public function onBeforeHeadersSend($event, $param) {
+        $admin = admin_plugin_batchedit::getInstance();
+
+        if ($admin == NULL) {
+            return;
+        }
+
+        setcookie(BatcheditConfig::COOKIE, $admin->getConfig()->serialize(), time() + self::YEAR_IN_SECONDS);
+    }
+
+    /**
+     *
+     */
+    public function onBeforeMetaheaderOutput($event, $param) {
         $this->addTemplateHeaderInclude($event, 'interface.css');
         $this->addTemplateHeaderInclude($event, 'interface.js');
+    }
+
+    /**
+     *
+     */
+    private function isBatchEdit() {
+        return $_REQUEST['do'] == 'admin' && !empty($_REQUEST['page']) && $_REQUEST['page'] == 'batchedit';
     }
 
     /**

@@ -9,7 +9,8 @@
 
 class BatcheditConfig {
 
-    private $fileName;
+    const COOKIE = 'BatchEditConfig';
+
     private $config;
 
     private static $defaults = array(
@@ -22,7 +23,6 @@ class BatcheditConfig {
      *
      */
     public function __construct() {
-        $this->fileName = DOKU_CONF . 'batchedit.local.json';
         $this->config = $this->load();
     }
 
@@ -33,7 +33,6 @@ class BatcheditConfig {
         $this->updateOption($request, 'searchmode');
         $this->updateOption($request, 'matchcase');
         $this->updateOption($request, 'multiline');
-        $this->save();
     }
 
     /**
@@ -54,6 +53,13 @@ class BatcheditConfig {
     /**
      *
      */
+    public function serialize() {
+        return json_encode($this->config);
+    }
+
+    /**
+     *
+     */
     private function updateOption($request, $id) {
         $value = $request->getOption($id);
 
@@ -66,17 +72,31 @@ class BatcheditConfig {
      *
      */
     private function load() {
-        if (!file_exists($this->fileName)) {
+        if (!array_key_exists(self::COOKIE, $_COOKIE)) {
             return array();
         }
 
-        return json_decode(io_readFile($this->fileName, FALSE), TRUE);
-    }
+        $cookie = json_decode($_COOKIE[self::COOKIE], TRUE);
 
-    /**
-     *
-     */
-    private function save() {
-        io_saveFile($this->fileName, json_encode($this->config, JSON_PRETTY_PRINT));
+        if (!is_array($cookie)) {
+            return array();
+        }
+
+        // Sanitize user-provided data
+        $options = array();
+
+        if (array_key_exists('searchmode', $cookie)) {
+            $options['searchmode'] = $cookie['searchmode'] == 'regexp' ? 'regexp' : 'text';
+        }
+
+        if (array_key_exists('matchcase', $cookie)) {
+            $options['matchcase'] = $cookie['matchcase'] == TRUE;
+        }
+
+        if (array_key_exists('multiline', $cookie)) {
+            $options['multiline'] = $cookie['multiline'] == TRUE;
+        }
+
+        return $options;
     }
 }
