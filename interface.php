@@ -209,7 +209,7 @@ class BatcheditInterface {
         $value = $config->getConf($id);
 
         if (!empty($value)) {
-            $_REQUEST['searchmode'] = $value;
+            $_REQUEST[$id] = $value;
         }
     }
 
