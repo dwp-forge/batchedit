@@ -401,10 +401,10 @@ class BatcheditInterface {
 
         if ($submitted) {
             $html .= ' name="' . $name . '"';
+        }
 
-            if (isset($_REQUEST[$name])) {
-                $html .= ' value="' . $_REQUEST[$name] . '"';
-            }
+        if (($submitted || $visible) && isset($_REQUEST[$name])) {
+            $html .= ' value="' . $_REQUEST[$name] . '"';
         }
 
         if (!$visible) {
