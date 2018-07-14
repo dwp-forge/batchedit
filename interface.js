@@ -7,6 +7,16 @@ var batchedit = (function () {
         return 'undefined';
     }
 
+    function updateConfig(id, value) {
+        var config = Cookies.getJSON('BatchEditConfig');
+
+        if (typeof config != 'undefined') {
+            config[id] = value;
+
+            Cookies.set('BatchEditConfig', config, { path: '' });
+        }
+    }
+
     function initializeTooltip() {
         jQuery('#batchedit').tooltip({
             tooltipClass: 'be-tooltip',
@@ -76,11 +86,19 @@ var batchedit = (function () {
 
             $searchInputs.prop('placeholder', getLang('hnt_' + searchMode + 'search'));
             $replaceInputs.prop('placeholder', getLang('hnt_' + searchMode + 'replace'));
+
+            updateConfig('searchmode', searchMode);
         };
 
         jQuery('input[name=searchmode]').click(onSearchModeUpdate);
 
         onSearchModeUpdate();
+    }
+
+    function initializeMatchCase() {
+        jQuery('input[name=matchcase]').click(function() {
+            updateConfig('matchcase', this.checked);
+        });
     }
 
     function initializeMultiline() {
@@ -103,6 +121,8 @@ var batchedit = (function () {
                 $searchEdit.val($searchArea.val().replace(/\n/g, '\\n')).show();
                 $replaceEdit.val($replaceArea.val().replace(/\n/g, '\\n')).show();
             }
+
+            updateConfig('multiline', this.checked);
         });
 
         jQuery('#batchedit form').submit(function() {
@@ -118,6 +138,7 @@ var batchedit = (function () {
         initializeApplyCheckboxes();
         initializeTotalStatsFloater();
         initializeSearchMode();
+        initializeMatchCase();
         initializeMultiline();
     }
 

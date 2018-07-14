@@ -50,6 +50,7 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
     public function onBeforeMetaheaderOutput($event, $param) {
         $this->addTemplateHeaderInclude($event, 'interface.css');
         $this->addTemplateHeaderInclude($event, 'interface.js');
+        $this->addTemplateHeaderInclude($event, 'js.cookie.js');
     }
 
     /**
