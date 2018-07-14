@@ -81,18 +81,14 @@ var batchedit = (function () {
         var $searchInputs = jQuery('#be-searchedit, #be-searcharea');
         var $replaceInputs = jQuery('#be-replaceedit, #be-replacearea');
 
-        var onSearchModeUpdate = function() {
+        jQuery('input[name=searchmode]').click(function() {
             var searchMode = jQuery('input[name=searchmode]:checked').val();
 
             $searchInputs.prop('placeholder', getLang('hnt_' + searchMode + 'search'));
             $replaceInputs.prop('placeholder', getLang('hnt_' + searchMode + 'replace'));
 
             updateConfig('searchmode', searchMode);
-        };
-
-        jQuery('input[name=searchmode]').click(onSearchModeUpdate);
-
-        onSearchModeUpdate();
+        });
     }
 
     function initializeMatchCase() {

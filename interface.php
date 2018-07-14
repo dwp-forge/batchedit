@@ -364,9 +364,10 @@ class BatcheditInterface {
             case 'search':
             case 'replace':
                 $multiline = isset($_REQUEST['multiline']);
+                $placeholder = $this->getLang('hnt_' . $_REQUEST['searchmode'] . $name);
 
-                $this->printEditBox($name, FALSE, !$multiline);
-                $this->printTextArea($name, $multiline);
+                $this->printEditBox($name, FALSE, !$multiline, $placeholder);
+                $this->printTextArea($name, $multiline, $placeholder);
                 break;
 
             case 'summary':
@@ -400,11 +401,15 @@ class BatcheditInterface {
     /**
      *
      */
-    private function printEditBox($name, $submitted = TRUE, $visible = TRUE) {
+    private function printEditBox($name, $submitted = TRUE, $visible = TRUE, $placeholder = '') {
         $html = '<input type="text" class="be-edit" id="be-' . $name . 'edit"';
 
         if ($submitted) {
             $html .= ' name="' . $name . '"';
+        }
+
+        if (!empty($placeholder)) {
+            $html .= ' placeholder="' . $placeholder . '"';
         }
 
         if (($submitted || $visible) && isset($_REQUEST[$name])) {
@@ -421,8 +426,12 @@ class BatcheditInterface {
     /**
      *
      */
-    private function printTextArea($name, $visible = TRUE) {
+    private function printTextArea($name, $visible = TRUE, $placeholder = '') {
         $html = '<textarea class="be-edit" id="be-' . $name . 'area" name="' . $name . '"';
+
+        if (!empty($placeholder)) {
+            $html .= ' placeholder="' . $placeholder . '"';
+        }
 
         if (!$visible) {
             $html .= ' style="display: none;"';
