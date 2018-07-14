@@ -197,8 +197,8 @@ class BatcheditInterface {
         // huge replacement sets exceeding `max_input_vars` in `php.ini`.
         $this->ptln('<input type="hidden" name="apply" value="">');
 
-        $this->ptln('<input type="submit" class="button" name="cmd[preview]"  value="' . $this->getLang('btn_preview') . '" />');
-        $this->ptln('<input type="submit" class="button" name="cmd[apply]"  value="' . $this->getLang('btn_apply') . '" />');
+        $this->ptln('<input type="submit" class="button" name="cmd[preview]" value="' . $this->getLang('btn_preview') . '" />');
+        $this->ptln('<input type="submit" class="button" name="cmd[apply]" value="' . $this->getLang('btn_apply') . '" />');
 
         $this->ptln('</div>', -2);
     }
@@ -227,7 +227,7 @@ class BatcheditInterface {
     private function printJavascriptLang() {
         $this->ptln('<script type="text/javascript">');
 
-        $langIds = array('hnt_textsearch', 'hnt_textreplace', 'hnt_regexpsearch', 'hnt_regexpreplace');
+        $langIds = array('hnt_textsearch', 'hnt_textreplace', 'hnt_regexpsearch', 'hnt_regexpreplace', 'war_nosummary');
         $lang = array();
 
         foreach ($langIds as $id) {

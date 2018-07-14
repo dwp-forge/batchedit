@@ -171,6 +171,14 @@ var batchedit = (function () {
         });
     }
 
+    function initializeApplyConfirmation() {
+        jQuery('input[name=cmd\\[apply\\]]').click(function(event) {
+            if (jQuery('input[name=summary]').val().replace(/\s+/, '') == '') {
+                return confirm(getLang('war_nosummary'));
+            }
+        });
+    }
+
     function initialize() {
         initializeTooltip();
         initializeApplyCheckboxes();
@@ -178,6 +186,7 @@ var batchedit = (function () {
         initializeSearchMode();
         initializeMatchCase();
         initializeMultiline();
+        initializeApplyConfirmation();
     }
 
     return {
