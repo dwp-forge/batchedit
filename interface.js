@@ -1,4 +1,31 @@
 var batchedit = (function () {
+    function debounce(callback, timeout) {
+        var timeoutId = null;
+
+        var wrapper = function() {
+            var self = this;
+            var args = arguments;
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
+            timeoutId = setTimeout(function () {
+                callback.apply(self, args);
+
+                timeoutId = null;
+            }, timeout);
+        };
+
+        return wrapper;
+    }
+
+    function observeStyleMutations($element, callback) {
+        return new MutationObserver(debounce(callback, 500)).observe($element.get(0), {
+            attributes: true, attributeFilter: ['style']
+        });
+    }
+
     function getLang(id) {
         if (id in batcheditLang) {
             return batcheditLang[id];
@@ -119,6 +146,21 @@ var batchedit = (function () {
             }
 
             updateConfig('multiline', this.checked);
+        });
+
+        observeStyleMutations($searchArea, function() {
+            // Avoid using $searchArea.outerHeight() as it will have to modify display style
+            // of the element when it's hidden in order to get its height. This style mutation
+            // will trigger the observer again, causing an infintite loop.
+            if ($searchArea.get(0).offsetHeight > 0) {
+                updateConfig('searchheight', $searchArea.get(0).offsetHeight);
+            }
+        });
+
+        observeStyleMutations($replaceArea, function() {
+            if ($replaceArea.get(0).offsetHeight > 0) {
+                updateConfig('replaceheight', $replaceArea.get(0).offsetHeight);
+            }
         });
 
         jQuery('#batchedit form').submit(function() {

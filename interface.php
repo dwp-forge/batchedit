@@ -89,6 +89,8 @@ class BatcheditInterface {
         $this->loadOption($config, 'searchmode');
         $this->loadOption($config, 'matchcase');
         $this->loadOption($config, 'multiline');
+        $this->loadOption($config, 'searchheight');
+        $this->loadOption($config, 'replaceheight');
     }
 
     /**
@@ -433,8 +435,18 @@ class BatcheditInterface {
             $html .= ' placeholder="' . $placeholder . '"';
         }
 
+        $style = array();
+
         if (!$visible) {
-            $html .= ' style="display: none;"';
+            $style[] = 'display: none;';
+        }
+
+        if (isset($_REQUEST[$name . 'height'])) {
+            $style[] = 'height: ' . $_REQUEST[$name . 'height'] . 'px;';
+        }
+
+        if (!empty($style)) {
+            $html .= ' style="' . join(' ', $style) . '"';
         }
 
         $html .= '>';

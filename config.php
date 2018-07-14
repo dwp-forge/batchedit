@@ -97,6 +97,14 @@ class BatcheditConfig {
             $options['multiline'] = $cookie['multiline'] == TRUE;
         }
 
+        if (array_key_exists('searchheight', $cookie)) {
+            $options['searchheight'] = intval($cookie['searchheight']);
+        }
+
+        if (array_key_exists('replaceheight', $cookie)) {
+            $options['replaceheight'] = intval($cookie['replaceheight']);
+        }
+
         return $options;
     }
 }
