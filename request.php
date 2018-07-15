@@ -9,11 +9,12 @@
 
 class BatcheditRequest {
 
+    const COMMAND_WELCOME = 'welcome';
     const COMMAND_PREVIEW = 'preview';
     const COMMAND_APPLY = 'apply';
 
-    private $options;
     private $command;
+    private $options;
     private $namespace;
     private $regexp;
     private $replacement;
@@ -25,8 +26,13 @@ class BatcheditRequest {
      *
      */
     public function __construct() {
-        $this->options = $this->parseOptions();
         $this->command = $this->parseCommand();
+
+        if ($this->command == self::COMMAND_WELCOME) {
+            return;
+        }
+
+        $this->options = $this->parseOptions();
         $this->namespace = $this->parseNamespace();
         $this->regexp = $this->parseRegexp();
         $this->replacement = $this->parseReplacement();
@@ -43,6 +49,17 @@ class BatcheditRequest {
      */
     public function getCommand() {
         return $this->command;
+    }
+
+    /**
+     *
+     */
+    public function getOption($id) {
+        if (array_key_exists($id, $this->options)) {
+            return $this->options[$id];
+        }
+
+        return NULL;
     }
 
     /**
@@ -83,19 +100,29 @@ class BatcheditRequest {
     /**
      *
      */
-    public function getOption($id) {
-        if (array_key_exists($id, $this->options)) {
-            return $this->options[$id];
-        }
-
-        return NULL;
+    public function getAppliedMatches() {
+        return $this->appliedMatches;
     }
 
     /**
      *
      */
-    public function getAppliedMatches() {
-        return $this->appliedMatches;
+    private function parseCommand() {
+        if (!isset($_REQUEST['cmd'])) {
+            return self::COMMAND_WELCOME;
+        }
+
+        if (!is_array($_REQUEST['cmd'])) {
+            throw new Exception('err_invreq');
+        }
+
+        $command = key($_REQUEST['cmd']);
+
+        if (($command != 'preview') && ($command != 'apply')) {
+            throw new Exception('err_invreq');
+        }
+
+        return $command;
     }
 
     /**
@@ -113,23 +140,6 @@ class BatcheditRequest {
         $options['multiline'] = isset($_REQUEST['multiline']);
 
         return $options;
-    }
-
-    /**
-     *
-     */
-    private function parseCommand() {
-        if (!is_array($_REQUEST['cmd'])) {
-            throw new Exception('err_invreq');
-        }
-
-        $command = key($_REQUEST['cmd']);
-
-        if (($command != 'preview') && ($command != 'apply')) {
-            throw new Exception('err_invreq');
-        }
-
-        return $command;
     }
 
     /**

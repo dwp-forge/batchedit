@@ -35,7 +35,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->error = NULL;
         $this->request = NULL;
         $this->config = new BatcheditConfig();
-        $this->engine = NULL;
+        $this->engine = new BatcheditEngine();
         $this->interface = new BatcheditInterface($this);
 
         self::$instance = $this;
@@ -52,11 +52,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      * Handle user request
      */
     public function handle() {
-        if (!isset($_REQUEST['cmd'])) {
-            // First time - nothing to do
-            return;
-        }
-
         try {
             $this->handleRequest();
         }
@@ -76,13 +71,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->interface->printBeginning();
         $this->interface->printMessages();
 
-        if (empty($this->error) && !empty($this->request) && $this->engine->getMatchCount() > 0) {
+        $showMatches = empty($this->error) && $this->engine->getMatchCount() > 0;
+
+        if ($showMatches) {
             $this->interface->printTotalStats($this->request->getCommand(), $this->engine->getMatchCount(),
                     $this->engine->getPageCount(), $this->engine->getEditCount());
             $this->interface->printMatches($this->engine->getPages());
         }
 
-        $this->interface->printMainForm();
+        $this->interface->printMainForm($showMatches);
         $this->interface->printEnding();
     }
 
@@ -91,7 +88,11 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function handleRequest() {
         $this->request = new BatcheditRequest();
-        $this->engine = new BatcheditEngine();
+
+        if ($this->request->getCommand() == BatcheditRequest::COMMAND_WELCOME) {
+            // First time - nothing to do
+            return;
+        }
 
         $matches = $this->engine->findMatches($this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement());
 

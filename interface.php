@@ -179,7 +179,7 @@ class BatcheditInterface {
     /**
      *
      */
-    public function printMainForm() {
+    public function printMainForm($enableApply) {
         $this->ptln('<div id="be-mainform">', +2);
 
         $this->ptln('<table>', +2);
@@ -197,8 +197,8 @@ class BatcheditInterface {
         // huge replacement sets exceeding `max_input_vars` in `php.ini`.
         $this->ptln('<input type="hidden" name="apply" value="">');
 
-        $this->ptln('<input type="submit" class="button" name="cmd[preview]" value="' . $this->getLang('btn_preview') . '" />');
-        $this->ptln('<input type="submit" class="button" name="cmd[apply]" value="' . $this->getLang('btn_apply') . '" />');
+        $this->printSubmitButton('cmd[preview]', 'btn_preview');
+        $this->printSubmitButton('cmd[apply]', 'btn_apply', $enableApply);
 
         $this->ptln('</div>', -2);
     }
@@ -497,6 +497,19 @@ class BatcheditInterface {
         $this->ptln($html . ' />');
         $this->ptln('<label for="be-' . $id . '">' . $this->getLang($label) . '</label>');
         $this->ptln('</div>', -2);
+    }
+
+    /**
+     *
+     */
+    private function printSubmitButton($name, $label, $enabled = TRUE) {
+        $html = '<input type="submit" class="button" name="' . $name . '" value="' . $this->getLang($label) . '"';
+
+        if (!$enabled) {
+            $html .= ' disabled="disabled"';
+        }
+
+        $this->ptln($html . ' />');
     }
 
     /**
