@@ -503,7 +503,7 @@ class BatcheditInterface {
      *
      */
     private function printSubmitButton($name, $label, $enabled = TRUE) {
-        $html = '<input type="submit" class="button" name="' . $name . '" value="' . $this->getLang($label) . '"';
+        $html = '<input type="submit" class="button be-submit" name="' . $name . '" value="' . $this->getLang($label) . '"';
 
         if (!$enabled) {
             $html .= ' disabled="disabled"';
