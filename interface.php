@@ -89,6 +89,7 @@ class BatcheditInterface {
         $this->loadOption($config, 'searchmode');
         $this->loadOption($config, 'matchcase');
         $this->loadOption($config, 'multiline');
+        $this->loadOption($config, 'checksummary');
         $this->loadOption($config, 'searchheight');
         $this->loadOption($config, 'replaceheight');
     }
@@ -407,6 +408,8 @@ class BatcheditInterface {
         $this->ptln('<div class="be-actions">', +2);
         $this->printAction('javascript:closeAdvancedOptions();', '', 'close');
         $this->ptln('</div>', -2);
+
+        $this->printCheckBox('checksummary', 'lbl_checksummary');
 
         $this->ptln('</div>', -2);
     }

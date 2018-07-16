@@ -205,8 +205,18 @@ var batchedit = (function () {
         });
     }
 
+    function initializeCheckSummary() {
+        jQuery('input[name=checksummary]').click(function() {
+            updateConfig('checksummary', this.checked);
+        });
+    }
+
     function initializeApplyConfirmation() {
-        jQuery('input[name=cmd\\[apply\\]]').click(function(event) {
+        jQuery('input[name=cmd\\[apply\\]]').click(function() {
+            if (!jQuery('input[name=checksummary]').prop('checked')) {
+                return true;
+            }
+
             if (jQuery('input[name=summary]').val().replace(/\s+/, '') == '') {
                 return confirm(getLang('war_nosummary'));
             }
@@ -221,6 +231,7 @@ var batchedit = (function () {
         initializeMatchCase();
         initializeMultiline();
         initializeAdvancedOptions();
+        initializeCheckSummary();
         initializeApplyConfirmation();
     }
 

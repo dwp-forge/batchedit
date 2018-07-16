@@ -138,6 +138,7 @@ class BatcheditRequest {
         $options['searchmode'] = $_REQUEST['searchmode'];
         $options['matchcase'] = isset($_REQUEST['matchcase']);
         $options['multiline'] = isset($_REQUEST['multiline']);
+        $options['checksummary'] = isset($_REQUEST['checksummary']);
 
         return $options;
     }

@@ -16,7 +16,8 @@ class BatcheditConfig {
     private static $defaults = array(
         'searchmode' => 'text',
         'matchcase' => FALSE,
-        'multiline' => FALSE
+        'multiline' => FALSE,
+        'checksummary' => TRUE
     );
 
     /**
@@ -33,6 +34,7 @@ class BatcheditConfig {
         $this->updateOption($request, 'searchmode');
         $this->updateOption($request, 'matchcase');
         $this->updateOption($request, 'multiline');
+        $this->updateOption($request, 'checksummary');
     }
 
     /**
@@ -95,6 +97,10 @@ class BatcheditConfig {
 
         if (array_key_exists('multiline', $cookie)) {
             $options['multiline'] = $cookie['multiline'] == TRUE;
+        }
+
+        if (array_key_exists('checksummary', $cookie)) {
+            $options['checksummary'] = $cookie['checksummary'] == TRUE;
         }
 
         if (array_key_exists('searchheight', $cookie)) {

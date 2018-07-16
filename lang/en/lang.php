@@ -47,6 +47,7 @@ $lang['lbl_searchtext'] = 'Plain text';
 $lang['lbl_searchregexp'] = 'Regular expression';
 $lang['lbl_matchcase'] = 'Case sensitive';
 $lang['lbl_multiline'] = 'Multiline';
+$lang['lbl_checksummary'] = 'Show confirmation on applying edits with no summary';
 
 $lang['sts_preview'] = 'Search results: {1} on {2}';
 $lang['sts_apply'] = 'Edit results: {1} on {2}, {3}';
