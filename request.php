@@ -242,7 +242,7 @@ class BatcheditRequest {
 
         $matchIds = json_decode($_REQUEST['apply']);
 
-        if ($matchIds == NULL) {
+        if (!is_array($matchIds)) {
             throw new Exception('err_invreq');
         }
 
