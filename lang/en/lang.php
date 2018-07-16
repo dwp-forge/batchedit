@@ -64,3 +64,4 @@ $lang['ttl_applymatch'] = 'Apply this match';
 $lang['ttl_view'] = 'Go to this page';
 $lang['ttl_edit'] = 'Edit this page';
 $lang['ttl_mainform'] = 'Go to bottom';
+$lang['ttl_extoptions'] = 'Advanced options';

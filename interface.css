@@ -160,7 +160,7 @@
 }
 
 #batchedit #be-mainform table {
-    width: 70%;
+    width: 75%;
     border-right: 1px solid var(--batchedit-border);
 }
 
@@ -207,9 +207,21 @@
     position: absolute;
     top: 0;
     right: 0;
-    width: 30%;
+    width: 25%;
 }
 
 #batchedit #be-options > div {
     padding-left: 1em;
+}
+
+#batchedit #be-extoptions {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 8em;
+    width: 50%;
+    padding: 0.5em 1em;
+    background-color: var(--batchedit-background);
+    box-shadow: 0 0 0.5em #999;
 }

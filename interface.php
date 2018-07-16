@@ -398,6 +398,17 @@ class BatcheditInterface {
         $this->printCheckBox('multiline', 'lbl_multiline');
 
         $this->ptln('</div></div>', -2);
+
+        $this->ptln('<div class="be-actions">', +2);
+        $this->printAction('javascript:openAdvancedOptions();', 'ttl_extoptions', 'settings');
+        $this->ptln('</div>', -2);
+
+        $this->ptln('<div id="be-extoptions">', +2);
+        $this->ptln('<div class="be-actions">', +2);
+        $this->printAction('javascript:closeAdvancedOptions();', '', 'close');
+        $this->ptln('</div>', -2);
+
+        $this->ptln('</div>', -2);
     }
 
     /**

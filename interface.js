@@ -171,6 +171,40 @@ var batchedit = (function () {
         });
     }
 
+    function initializeAdvancedOptions() {
+        $document = jQuery(document);
+        $options = jQuery('#be-extoptions');
+
+        function onClickOutside(event) {
+            if (!$options.get(0).contains(event.target)) {
+                console.log('outside');
+                close();
+            }
+        }
+
+        function open() {
+            $options.show();
+            $document.on('click', onClickOutside);
+        }
+
+        function close() {
+            $options.hide();
+            $document.off('click', onClickOutside);
+        }
+
+        jQuery('a[href="javascript:openAdvancedOptions();"]').click(function() {
+            open();
+
+            return false;
+        });
+
+        jQuery('a[href="javascript:closeAdvancedOptions();"]').click(function() {
+            close();
+
+            return false;
+        });
+    }
+
     function initializeApplyConfirmation() {
         jQuery('input[name=cmd\\[apply\\]]').click(function(event) {
             if (jQuery('input[name=summary]').val().replace(/\s+/, '') == '') {
@@ -186,6 +220,7 @@ var batchedit = (function () {
         initializeSearchMode();
         initializeMatchCase();
         initializeMultiline();
+        initializeAdvancedOptions();
         initializeApplyConfirmation();
     }
 
