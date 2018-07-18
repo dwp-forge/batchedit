@@ -34,8 +34,9 @@ $lang['btn_apply'] = 'Apply';
 
 $lang['hnt_textsearch'] = 'AnyWiki';
 $lang['hnt_textreplace'] = 'DokuWiki';
-$lang['hnt_regexpsearch'] = '/\w+(Wiki)/m';
+$lang['hnt_regexpsearch'] = '\w+(Wiki)';
 $lang['hnt_regexpreplace'] = 'Doku$1';
+$lang['hnt_advregexpsearch'] = '/\w+(Wiki)/m';
 
 $lang['lbl_ns'] = 'Namespace';
 $lang['lbl_search'] = 'Search for';
@@ -47,6 +48,7 @@ $lang['lbl_searchtext'] = 'Plain text';
 $lang['lbl_searchregexp'] = 'Regular expression';
 $lang['lbl_matchcase'] = 'Case sensitive';
 $lang['lbl_multiline'] = 'Multiline';
+$lang['lbl_advregexp'] = 'Use regular expression syntax with modifiers';
 $lang['lbl_checksummary'] = 'Show confirmation on applying edits with no summary';
 
 $lang['sts_preview'] = 'Search results: {1} on {2}';

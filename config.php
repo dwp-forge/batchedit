@@ -17,6 +17,7 @@ class BatcheditConfig {
         'searchmode' => 'text',
         'matchcase' => FALSE,
         'multiline' => FALSE,
+        'advregexp' => FALSE,
         'checksummary' => TRUE
     );
 
@@ -34,6 +35,7 @@ class BatcheditConfig {
         $this->updateOption($request, 'searchmode');
         $this->updateOption($request, 'matchcase');
         $this->updateOption($request, 'multiline');
+        $this->updateOption($request, 'advregexp');
         $this->updateOption($request, 'checksummary');
     }
 
@@ -91,26 +93,31 @@ class BatcheditConfig {
             $options['searchmode'] = $cookie['searchmode'] == 'regexp' ? 'regexp' : 'text';
         }
 
-        if (array_key_exists('matchcase', $cookie)) {
-            $options['matchcase'] = $cookie['matchcase'] == TRUE;
-        }
-
-        if (array_key_exists('multiline', $cookie)) {
-            $options['multiline'] = $cookie['multiline'] == TRUE;
-        }
-
-        if (array_key_exists('checksummary', $cookie)) {
-            $options['checksummary'] = $cookie['checksummary'] == TRUE;
-        }
-
-        if (array_key_exists('searchheight', $cookie)) {
-            $options['searchheight'] = intval($cookie['searchheight']);
-        }
-
-        if (array_key_exists('replaceheight', $cookie)) {
-            $options['replaceheight'] = intval($cookie['replaceheight']);
-        }
+        $this->loadBoolean($cookie, 'matchcase', $options);
+        $this->loadBoolean($cookie, 'multiline', $options);
+        $this->loadBoolean($cookie, 'advregexp', $options);
+        $this->loadBoolean($cookie, 'checksummary', $options);
+        $this->loadInteger($cookie, 'searchheight', $options);
+        $this->loadInteger($cookie, 'replaceheight', $options);
 
         return $options;
+    }
+
+    /**
+     *
+     */
+    private function loadBoolean($cookie, $id, &$options) {
+        if (array_key_exists($id, $cookie)) {
+            $options[$id] = $cookie[$id] == TRUE;
+        }
+    }
+
+    /**
+     *
+     */
+    private function loadInteger($cookie, $id, &$options) {
+        if (array_key_exists($id, $cookie)) {
+            $options[$id] = intval($cookie[$id]);
+        }
     }
 }

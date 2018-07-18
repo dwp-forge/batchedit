@@ -89,6 +89,7 @@ class BatcheditInterface {
         $this->loadOption($config, 'searchmode');
         $this->loadOption($config, 'matchcase');
         $this->loadOption($config, 'multiline');
+        $this->loadOption($config, 'advregexp');
         $this->loadOption($config, 'checksummary');
         $this->loadOption($config, 'searchheight');
         $this->loadOption($config, 'replaceheight');
@@ -228,7 +229,8 @@ class BatcheditInterface {
     private function printJavascriptLang() {
         $this->ptln('<script type="text/javascript">');
 
-        $langIds = array('hnt_textsearch', 'hnt_textreplace', 'hnt_regexpsearch', 'hnt_regexpreplace', 'war_nosummary');
+        $langIds = array('hnt_textsearch', 'hnt_textreplace', 'hnt_regexpsearch', 'hnt_regexpreplace',
+                'hnt_advregexpsearch', 'war_nosummary');
         $lang = array();
 
         foreach ($langIds as $id) {
@@ -367,7 +369,7 @@ class BatcheditInterface {
             case 'search':
             case 'replace':
                 $multiline = isset($_REQUEST['multiline']);
-                $placeholder = $this->getLang('hnt_' . $_REQUEST['searchmode'] . $name);
+                $placeholder = $this->getLang($this->getPlaceholderId($name));
 
                 $this->printEditBox($name, FALSE, !$multiline, $placeholder);
                 $this->printTextArea($name, $multiline, $placeholder);
@@ -381,6 +383,25 @@ class BatcheditInterface {
 
         $this->ptln('</td>', -2);
         $this->ptln('</tr>', -2);
+    }
+
+    /**
+     *
+     */
+    private function getPlaceholderId($editName) {
+        switch ($editName) {
+            case 'search':
+                switch ($_REQUEST['searchmode']) {
+                    case 'text':
+                        return 'hnt_textsearch';
+                    case 'regexp':
+                        return isset($_REQUEST['advregexp']) ? 'hnt_advregexpsearch' : 'hnt_regexpsearch';
+                }
+            case 'replace':
+                return 'hnt_' . $_REQUEST['searchmode'] . 'replace';
+        }
+
+        return '';
     }
 
     /**
@@ -409,6 +430,7 @@ class BatcheditInterface {
         $this->printAction('javascript:closeAdvancedOptions();', '', 'close');
         $this->ptln('</div>', -2);
 
+        $this->printCheckBox('advregexp', 'lbl_advregexp');
         $this->printCheckBox('checksummary', 'lbl_checksummary');
 
         $this->ptln('</div>', -2);

@@ -138,6 +138,7 @@ class BatcheditRequest {
         $options['searchmode'] = $_REQUEST['searchmode'];
         $options['matchcase'] = isset($_REQUEST['matchcase']);
         $options['multiline'] = isset($_REQUEST['multiline']);
+        $options['advregexp'] = isset($_REQUEST['advregexp']);
         $options['checksummary'] = isset($_REQUEST['checksummary']);
 
         return $options;
@@ -181,12 +182,17 @@ class BatcheditRequest {
         }
 
         if ($this->getOption('searchmode') == 'regexp') {
-            if (preg_match('/^([^\w\\\\]|_).+?\1[imsxeADSUXJu]*$/s', $regexp) != 1) {
-                throw new Exception('err_invregexp');
+            if ($this->getOption('advregexp')) {
+                if (preg_match('/^([^\w\\\\]|_).+?\1[imsxADSUXJu]*$/s', $regexp) != 1) {
+                    throw new Exception('err_invregexp');
+                }
+            }
+            else {
+                $regexp = "\033" . $regexp . "\033";
             }
         }
         else {
-            $regexp = '/' . preg_quote($regexp, '/') . '/';
+            $regexp = "\033" . preg_quote($regexp) . "\033";
         }
 
         $regexp = str_replace("\r\n", "\n", $regexp);

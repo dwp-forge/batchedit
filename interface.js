@@ -101,20 +101,30 @@ var batchedit = (function () {
     }
 
     function initializeSearchMode() {
-        if (jQuery('input[name=searchmode]:checked').length == 0) {
-            jQuery('input[name=searchmode][value=text]').prop('checked', true);
-        }
-
+        var $searchMode = jQuery('input[name=searchmode]');
+        var $advancedRegexp = jQuery('input[name=advregexp]');
         var $searchInputs = jQuery('#be-searchedit, #be-searcharea');
         var $replaceInputs = jQuery('#be-replaceedit, #be-replacearea');
 
-        jQuery('input[name=searchmode]').click(function() {
-            var searchMode = jQuery('input[name=searchmode]:checked').val();
+        function updatePlaceholders(searchMode, advancedRegexp) {
+            var replaceMode = searchMode;
+
+            if (searchMode == 'regexp' && advancedRegexp) {
+                searchMode = 'advregexp';
+            }
 
             $searchInputs.prop('placeholder', getLang('hnt_' + searchMode + 'search'));
-            $replaceInputs.prop('placeholder', getLang('hnt_' + searchMode + 'replace'));
+            $replaceInputs.prop('placeholder', getLang('hnt_' + replaceMode + 'replace'));
+        }
 
-            updateConfig('searchmode', searchMode);
+        $searchMode.click(function() {
+            updatePlaceholders(this.value, $advancedRegexp.prop('checked'));
+            updateConfig('searchmode', this.value);
+        });
+
+        $advancedRegexp.click(function() {
+            updatePlaceholders($searchMode.filter(':checked').val(), this.checked);
+            updateConfig('advregexp', this.checked);
         });
     }
 
