@@ -14,6 +14,7 @@ class BatcheditRequest {
     const COMMAND_APPLY = 'apply';
 
     private $command;
+    private $sessionId;
     private $namespace;
     private $regexp;
     private $replacement;
@@ -33,6 +34,7 @@ class BatcheditRequest {
 
         $config->update($this->parseOptions());
 
+        $this->sessionId = $this->parseSessionId();
         $this->namespace = $this->parseNamespace();
         $this->regexp = $this->parseRegexp($config);
         $this->replacement = $this->parseReplacement();
@@ -49,6 +51,13 @@ class BatcheditRequest {
      */
     public function getCommand() {
         return $this->command;
+    }
+
+    /**
+     *
+     */
+    public function getSessionId() {
+        return $this->sessionId;
     }
 
     /**
@@ -137,6 +146,17 @@ class BatcheditRequest {
         $options['checksummary'] = isset($_REQUEST['checksummary']);
 
         return $options;
+    }
+
+    /**
+     *
+     */
+    private function parseSessionId() {
+        if (!isset($_REQUEST['session'])) {
+            return '';
+        }
+
+        return $_REQUEST['session'];
     }
 
     /**

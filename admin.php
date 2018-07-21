@@ -24,6 +24,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private $error;
     private $request;
     private $config;
+    private $session;
     private $engine;
     private $interface;
 
@@ -35,7 +36,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->error = NULL;
         $this->request = NULL;
         $this->config = new BatcheditConfig();
-        $this->engine = new BatcheditEngine();
+        $this->session = new BatcheditSession();
+        $this->engine = new BatcheditEngine($this->session);
         $this->interface = new BatcheditInterface($this);
 
         self::$instance = $this;
@@ -68,15 +70,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     public function html() {
         $this->interface->configure($this->config);
 
-        $this->interface->printBeginning();
+        $this->interface->printBeginning($this->session->getId());
         $this->interface->printMessages();
 
-        $showMatches = empty($this->error) && $this->engine->getMatchCount() > 0;
+        $showMatches = empty($this->error) && $this->session->getMatchCount() > 0;
 
         if ($showMatches) {
-            $this->interface->printTotalStats($this->request->getCommand(), $this->engine->getMatchCount(),
-                    $this->engine->getPageCount(), $this->engine->getEditCount());
-            $this->interface->printMatches($this->engine->getPages());
+            $this->interface->printTotalStats($this->request->getCommand(), $this->session->getMatchCount(),
+                    $this->session->getPageCount(), $this->session->getEditCount());
+            $this->interface->printMatches($this->session->getPages());
         }
 
         $this->interface->printMainForm($showMatches);
@@ -94,28 +96,52 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             return;
         }
 
-        $interrupted = $this->engine->findMatches($this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement(),
+        if (!$this->session->load($this->request, $this->config)) {
+            $this->findMatches();
+        }
+
+        if ($this->request->getCommand() == BatcheditRequest::COMMAND_APPLY) {
+            $this->applyMatches();
+        }
+
+        $this->session->save($this->request, $this->config);
+    }
+
+    /**
+     *
+     */
+    private function findMatches() {
+        $interrupted = $this->engine->findMatches(
+                $this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement(),
                 $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : 0);
 
         if ($interrupted) {
             $this->interface->addWarningMessage('war_searchlimit');
         }
 
-        if ($this->engine->getMatchCount() == 0) {
+        if ($this->session->getMatchCount() == 0) {
             $this->interface->addWarningMessage('war_nomatches');
         }
-        elseif ($this->request->getCommand() == BatcheditRequest::COMMAND_APPLY && !empty($this->request->getAppliedMatches())) {
-            $this->engine->markRequestedMatches($this->request->getAppliedMatches());
+    }
 
-            $errors = $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
+    /**
+     *
+     */
+    private function applyMatches() {
+        if ($this->session->getMatchCount() == 0 || empty($this->request->getAppliedMatches())) {
+            return;
+        }
 
-            foreach ($errors as $pageId => $error) {
-                if ($error instanceof BatcheditAccessControlException) {
-                    $this->interface->addWarningMessage('war_norights', $pageId);
-                }
-                elseif ($error instanceof BatcheditPageLockedException) {
-                    $this->interface->addWarningMessage('war_pagelock', $pageId, $error->lockedBy);
-                }
+        $this->engine->markRequestedMatches($this->request->getAppliedMatches());
+
+        $errors = $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
+
+        foreach ($errors as $pageId => $error) {
+            if ($error instanceof BatcheditAccessControlException) {
+                $this->interface->addWarningMessage('war_norights', $pageId);
+            }
+            elseif ($error instanceof BatcheditPageLockedException) {
+                $this->interface->addWarningMessage('war_pagelock', $pageId, $error->lockedBy);
             }
         }
     }

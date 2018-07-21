@@ -25,7 +25,7 @@ class BatcheditPageLockedException extends BatcheditPageApplyException {
     }
 }
 
-class BatcheditMatch {
+class BatcheditMatch implements Serializable {
 
     const CONTEXT_LENGTH = 50;
     const CONTEXT_MAX_LINES = 3;
@@ -43,7 +43,7 @@ class BatcheditMatch {
     public function __construct($pageText, $pageOffset, $text, $regexp, $replacement) {
         $this->pageOffset = $pageOffset;
         $this->originalText = $text;
-        $this->replacedText = preg_replace($regexp, $replacement, $text);;
+        $this->replacedText = preg_replace($regexp, $replacement, $text);
         $this->contextBefore = $this->cropContextBefore($pageText, $pageOffset);
         $this->contextAfter = $this->cropContextAfter($pageText, $pageOffset + strlen($text));
         $this->marked = FALSE;
@@ -112,6 +112,22 @@ class BatcheditMatch {
     /**
      *
      */
+    public function serialize() {
+        return serialize(array($this->pageOffset, $this->originalText, $this->replacedText,
+                $this->contextBefore, $this->contextAfter, $this->marked));
+    }
+
+    /**
+     *
+     */
+    public function unserialize($data) {
+        list($this->pageOffset, $this->originalText, $this->replacedText,
+                $this->contextBefore, $this->contextAfter, $this->marked) = unserialize($data);
+    }
+
+    /**
+     *
+     */
     private function cropContextBefore($pageText, $pageOffset) {
         $length = self::CONTEXT_LENGTH;
         $offset = $pageOffset - $length;
@@ -146,7 +162,7 @@ class BatcheditMatch {
     }
 }
 
-class BatcheditPage {
+class BatcheditPage implements Serializable {
 
     private $id;
     private $matches;
@@ -272,6 +288,20 @@ class BatcheditPage {
     /**
      *
      */
+    public function serialize() {
+        return serialize(array($this->id, $this->matches));
+    }
+
+    /**
+     *
+     */
+    public function unserialize($data) {
+        list($this->id, $this->matches) = unserialize($data);
+    }
+
+    /**
+     *
+     */
     private function addMatch($text, $offset, $matched, $regexp, $replacement) {
         $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $regexp, $replacement);
     }
@@ -303,8 +333,9 @@ class BatcheditPage {
     }
 }
 
-class BatcheditEngine {
+class BatcheditSession {
 
+    private $id;
     private $pages;
     private $matches;
     private $edits;
@@ -313,9 +344,154 @@ class BatcheditEngine {
      *
      */
     public function __construct() {
+        global $USERINFO;
+
+        $time = gettimeofday();
+
+        $this->id = md5($time['sec'] . $time['usec'] . $USERINFO['name'] . $USERINFO['mail']);
         $this->pages = array();
         $this->matches = 0;
         $this->edits = 0;
+    }
+
+    /**
+     *
+     */
+    public function getId() {
+        return $this->id;
+    }
+
+    /**
+     *
+     */
+    public function load($request, $config) {
+        $this->id = $request->getSessionId();
+
+        $properties = $this->loadArray('props');
+
+        if (!is_array($properties) || !empty(array_diff_assoc($properties, $this->getProperties($request, $config)))) {
+            return FALSE;
+        }
+
+        $matches = $this->loadArray('matches');
+
+        if (!is_array($matches)) {
+            return FALSE;
+        }
+
+        list($this->pages, $this->matches, $this->edits) = $matches;
+
+        return TRUE;
+    }
+
+    /**
+     *
+     */
+    public function save($request, $config) {
+        $this->saveArray('props', $this->getProperties($request, $config));
+        $this->saveArray('matches', array($this->pages, $this->matches, $this->edits));
+    }
+
+    /**
+     *
+     */
+    public function addPage($page) {
+        $this->pages[$page->getId()] = $page;
+        $this->matches += count($page->getMatches());
+    }
+
+    /**
+     *
+     */
+    public function getPages() {
+        return $this->pages;
+    }
+
+    /**
+     *
+     */
+    public function getPageCount() {
+        return count($this->pages);
+    }
+
+    /**
+     *
+     */
+    public function getMatchCount() {
+        return $this->matches;
+    }
+
+    /**
+     *
+     */
+    public function addEdits($edits) {
+        $this->edits += $edits;
+    }
+
+    /**
+     *
+     */
+    public function getEditCount() {
+        return $this->edits;
+    }
+
+    /**
+     *
+     */
+    private function getProperties($request, $config) {
+        global $USERINFO;
+
+        $properties = array();
+
+        $properties['username'] = $USERINFO['name'];
+        $properties['usermail'] = $USERINFO['mail'];
+        $properties['namespace'] = $request->getNamespace();
+        $properties['regexp'] = $request->getRegexp();
+        $properties['replacement'] = $request->getReplacement();
+        $properties['searchlimit'] = $config->getConf('searchlimit') ? $config->getConf('searchmax') : 0;
+
+        return $properties;
+    }
+
+    /**
+     *
+     */
+    private function getCacheName($ext) {
+        global $conf;
+
+        $cacheDir = $conf['cachedir'] . '/batchedit';
+
+        io_mkdir_p($cacheDir);
+
+        return $cacheDir . '/' . $this->id . '.' . $ext;
+    }
+
+    /**
+     *
+     */
+    private function saveArray($name, $array) {
+        file_put_contents($this->getCacheName($name), serialize($array));
+    }
+
+    /**
+     *
+     */
+    private function loadArray($name) {
+        return @unserialize(file_get_contents($this->getCacheName($name)));
+    }
+}
+
+class BatcheditEngine {
+
+    private $session;
+    private $matches;
+    private $edits;
+
+    /**
+     *
+     */
+    public function __construct($session) {
+        $this->session = $session;
     }
 
     /**
@@ -336,12 +512,10 @@ class BatcheditEngine {
 
             if (($pattern == '') || (preg_match($pattern, $pageId) == 1)) {
                 $page = new BatcheditPage($pageId);
-                $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->matches);
-                $count = count($page->getMatches());
+                $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount());
 
-                if ($count > 0) {
-                    $this->pages[$pageId] = $page;
-                    $this->matches += $count;
+                if (count($page->getMatches()) > 0) {
+                    $this->session->addPage($page);
                 }
 
                 if ($interrupted) {
@@ -356,40 +530,14 @@ class BatcheditEngine {
     /**
      *
      */
-    public function getPageCount() {
-        return count($this->pages);
-    }
-
-    /**
-     *
-     */
-    public function getMatchCount() {
-        return $this->matches;
-    }
-
-    /**
-     *
-     */
-    public function getEditCount() {
-        return $this->edits;
-    }
-
-    /**
-     *
-     */
-    public function getPages() {
-        return $this->pages;
-    }
-
-    /**
-     *
-     */
     public function markRequestedMatches($request) {
+        $pages = $this->session->getPages();
+
         foreach ($request as $matchId) {
             list($pageId, $offset) = explode('#', $matchId);
 
-            if (array_key_exists($pageId, $this->pages)) {
-                $this->pages[$pageId]->markMatch($offset);
+            if (array_key_exists($pageId, $pages)) {
+                $pages[$pageId]->markMatch($offset);
             }
         }
     }
@@ -400,10 +548,10 @@ class BatcheditEngine {
     public function applyMatches($summary, $minorEdit) {
         $errors = array();
 
-        foreach ($this->getPages() as $page) {
+        foreach ($this->session->getPages() as $page) {
             if ($page->hasMarkedMatches()) {
                 try {
-                    $this->edits += $page->applyMatches($summary, $minorEdit);
+                    $this->session->addEdits($page->applyMatches($summary, $minorEdit));
                 }
                 catch (BatcheditPageApplyException $error) {
                     $errors[$page->getId()] = $error;
