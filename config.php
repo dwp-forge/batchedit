@@ -25,18 +25,23 @@ class BatcheditConfig {
      *
      */
     public function __construct() {
-        $this->config = $this->load();
+        $this->config = array();
+
+        $this->loadCookie();
     }
 
     /**
      *
      */
-    public function update($request) {
-        $this->updateOption($request, 'searchmode');
-        $this->updateOption($request, 'matchcase');
-        $this->updateOption($request, 'multiline');
-        $this->updateOption($request, 'advregexp');
-        $this->updateOption($request, 'checksummary');
+    public function update($options) {
+        $this->load($options);
+    }
+
+    /**
+     *
+     */
+    public function getConfig() {
+        return $this->config;
     }
 
     /**
@@ -64,60 +69,51 @@ class BatcheditConfig {
     /**
      *
      */
-    private function updateOption($request, $id) {
-        $value = $request->getOption($id);
-
-        if ($value !== NULL) {
-            $this->config[$id] = $value;
-        }
-    }
-
-    /**
-     *
-     */
-    private function load() {
+    private function loadCookie() {
         if (!array_key_exists(self::COOKIE, $_COOKIE)) {
-            return array();
+            return;
         }
 
         $cookie = json_decode($_COOKIE[self::COOKIE], TRUE);
 
         if (!is_array($cookie)) {
-            return array();
+            return;
         }
 
-        // Sanitize user-provided data
-        $options = array();
+        $this->load($cookie);
+    }
 
-        if (array_key_exists('searchmode', $cookie)) {
-            $options['searchmode'] = $cookie['searchmode'] == 'regexp' ? 'regexp' : 'text';
+    /**
+     * Sanitize user-provided data
+     */
+    private function load($options) {
+        if (array_key_exists('searchmode', $options)) {
+            $this->config['searchmode'] = $options['searchmode'] == 'regexp' ? 'regexp' : 'text';
         }
 
-        $this->loadBoolean($cookie, 'matchcase', $options);
-        $this->loadBoolean($cookie, 'multiline', $options);
-        $this->loadBoolean($cookie, 'advregexp', $options);
-        $this->loadBoolean($cookie, 'checksummary', $options);
-        $this->loadInteger($cookie, 'searchheight', $options);
-        $this->loadInteger($cookie, 'replaceheight', $options);
-
-        return $options;
+        $this->loadBoolean($options, 'matchcase');
+        $this->loadBoolean($options, 'multiline');
+        $this->loadBoolean($options, 'advregexp');
+        $this->loadBoolean($options, 'checksummary');
+        $this->loadInteger($options, 'searchheight');
+        $this->loadInteger($options, 'replaceheight');
     }
 
     /**
      *
      */
-    private function loadBoolean($cookie, $id, &$options) {
-        if (array_key_exists($id, $cookie)) {
-            $options[$id] = $cookie[$id] == TRUE;
+    private function loadBoolean($options, $id) {
+        if (array_key_exists($id, $options)) {
+            $this->config[$id] = $options[$id] == TRUE;
         }
     }
 
     /**
      *
      */
-    private function loadInteger($cookie, $id, &$options) {
-        if (array_key_exists($id, $cookie)) {
-            $options[$id] = intval($cookie[$id]);
+    private function loadInteger($options, $id) {
+        if (array_key_exists($id, $options)) {
+            $this->config[$id] = intval($options[$id]);
         }
     }
 }

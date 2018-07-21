@@ -87,7 +87,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function handleRequest() {
-        $this->request = new BatcheditRequest();
+        $this->request = new BatcheditRequest($this->config);
 
         if ($this->request->getCommand() == BatcheditRequest::COMMAND_WELCOME) {
             // First time - nothing to do
@@ -113,7 +113,5 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 }
             }
         }
-
-        $this->config->update($this->request);
     }
 }

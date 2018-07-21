@@ -14,7 +14,6 @@ class BatcheditRequest {
     const COMMAND_APPLY = 'apply';
 
     private $command;
-    private $options;
     private $namespace;
     private $regexp;
     private $replacement;
@@ -25,16 +24,17 @@ class BatcheditRequest {
     /**
      *
      */
-    public function __construct() {
+    public function __construct($config) {
         $this->command = $this->parseCommand();
 
         if ($this->command == self::COMMAND_WELCOME) {
             return;
         }
 
-        $this->options = $this->parseOptions();
+        $config->update($this->parseOptions());
+
         $this->namespace = $this->parseNamespace();
-        $this->regexp = $this->parseRegexp();
+        $this->regexp = $this->parseRegexp($config);
         $this->replacement = $this->parseReplacement();
         $this->summary = $this->parseSummary();
         $this->minorEdit = isset($_REQUEST['minor']);
@@ -49,17 +49,6 @@ class BatcheditRequest {
      */
     public function getCommand() {
         return $this->command;
-    }
-
-    /**
-     *
-     */
-    public function getOption($id) {
-        if (array_key_exists($id, $this->options)) {
-            return $this->options[$id];
-        }
-
-        return NULL;
     }
 
     /**
@@ -170,7 +159,7 @@ class BatcheditRequest {
     /**
      *
      */
-    private function parseRegexp() {
+    private function parseRegexp($config) {
         if (!isset($_REQUEST['search'])) {
             throw new Exception('err_invreq');
         }
@@ -181,8 +170,8 @@ class BatcheditRequest {
             throw new Exception('err_nosearch');
         }
 
-        if ($this->getOption('searchmode') == 'regexp') {
-            if ($this->getOption('advregexp')) {
+        if ($config->getConf('searchmode') == 'regexp') {
+            if ($config->getConf('advregexp')) {
                 if (preg_match('/^([^\w\\\\]|_).+?\1[imsxADSUXJu]*$/s', $regexp) != 1) {
                     throw new Exception('err_invregexp');
                 }
@@ -197,7 +186,7 @@ class BatcheditRequest {
 
         $regexp = str_replace("\r\n", "\n", $regexp);
 
-        if (!$this->getOption('matchcase')) {
+        if (!$config->getConf('matchcase')) {
             $regexp .= 'i';
         }
 

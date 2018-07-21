@@ -86,13 +86,11 @@ class BatcheditInterface {
      *
      */
     public function configure($config) {
-        $this->loadOption($config, 'searchmode');
-        $this->loadOption($config, 'matchcase');
-        $this->loadOption($config, 'multiline');
-        $this->loadOption($config, 'advregexp');
-        $this->loadOption($config, 'checksummary');
-        $this->loadOption($config, 'searchheight');
-        $this->loadOption($config, 'replaceheight');
+        foreach ($config->getConfig() as $id => $value) {
+            if (!empty($value)) {
+                $_REQUEST[$id] = $value;
+            }
+        }
     }
 
     /**
@@ -210,17 +208,6 @@ class BatcheditInterface {
      */
     private function addMessage($type, $arguments) {
         $this->messages[] = new BatcheditMessage($type, call_user_func_array(array($this, 'getLang'), $arguments));
-    }
-
-    /**
-     *
-     */
-    private function loadOption($config, $id) {
-        $value = $config->getConf($id);
-
-        if (!empty($value)) {
-            $_REQUEST[$id] = $value;
-        }
     }
 
     /**
