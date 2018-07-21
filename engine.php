@@ -400,14 +400,16 @@ class BatcheditSession {
      *
      */
     public function save($request, $config) {
-        if ($this->error != NULL || $this->edits > 0) {
-            $this->expire();
-
-            return;
-        }
-
         $this->saveArray('props', $this->getProperties($request, $config));
         $this->saveArray('matches', array($this->warnings, $this->matches, $this->pages));
+    }
+
+    /**
+     *
+     */
+    public function expire() {
+        @unlink($this->getCacheName('props'));
+        @unlink($this->getCacheName('matches'));
     }
 
     /**
@@ -518,14 +520,6 @@ class BatcheditSession {
      */
     private function loadArray($name) {
         return @unserialize(file_get_contents($this->getCacheName($name)));
-    }
-
-    /**
-     *
-     */
-    private function expire() {
-        @unlink($this->getCacheName('props'));
-        @unlink($this->getCacheName('matches'));
     }
 }
 

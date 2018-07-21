@@ -57,6 +57,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
         catch (Exception $error) {
             $this->session->setError($error->getMessage());
+            $this->session->expire();
         }
     }
 
@@ -92,13 +93,16 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         if (!$this->session->load($this->request, $this->config)) {
             $this->findMatches();
+            $this->session->save($this->request, $this->config);
         }
 
         if ($this->request->getCommand() == BatcheditRequest::COMMAND_APPLY) {
             $this->applyMatches();
-        }
 
-        $this->session->save($this->request, $this->config);
+            if ($this->session->getEditCount() > 0) {
+                $this->session->expire();
+            }
+        }
     }
 
     /**
