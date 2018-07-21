@@ -24,6 +24,7 @@ $lang['err_pregfailed'] = 'Regular expression matching has failed.';
 $lang['war_nomatches'] = 'No matches are found.';
 $lang['war_norights'] = 'You have no rights to edit page {1}.';
 $lang['war_pagelock'] = 'Page {1} is locked by {2}.';
+$lang['war_searchlimit'] = 'The search was interrupted after reaching maximal number of matches.';
 $lang['war_nosummary'] = 'The edit summary was not provided. Do you want to proceed witout it?';
 
 $lang['msg_error'] = '<b>Error:</b> {1}';
@@ -49,6 +50,7 @@ $lang['lbl_searchregexp'] = 'Regular expression';
 $lang['lbl_matchcase'] = 'Case sensitive';
 $lang['lbl_multiline'] = 'Multiline';
 $lang['lbl_advregexp'] = 'Use regular expression syntax with modifiers';
+$lang['lbl_searchlimit'] = 'Stop search after finding first {1} matches';
 $lang['lbl_checksummary'] = 'Show confirmation on applying edits with no summary';
 
 $lang['sts_preview'] = 'Search results: {1} on {2}';

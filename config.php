@@ -18,6 +18,8 @@ class BatcheditConfig {
         'matchcase' => FALSE,
         'multiline' => FALSE,
         'advregexp' => FALSE,
+        'searchlimit' => TRUE,
+        'searchmax' => 100,
         'checksummary' => TRUE
     );
 
@@ -94,6 +96,13 @@ class BatcheditConfig {
         $this->loadBoolean($options, 'matchcase');
         $this->loadBoolean($options, 'multiline');
         $this->loadBoolean($options, 'advregexp');
+        $this->loadBoolean($options, 'searchlimit');
+        $this->loadInteger($options, 'searchmax');
+
+        if ($this->config['searchmax'] == 0) {
+            $this->config['searchlimit'] = FALSE;
+        }
+
         $this->loadBoolean($options, 'checksummary');
         $this->loadInteger($options, 'searchheight');
         $this->loadInteger($options, 'replaceheight');

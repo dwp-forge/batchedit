@@ -87,8 +87,11 @@ class BatcheditInterface {
      */
     public function configure($config) {
         foreach ($config->getConfig() as $id => $value) {
-            if (!empty($value)) {
+            if (!empty($value) || $value === 0) {
                 $_REQUEST[$id] = $value;
+            }
+            else {
+                unset($_REQUEST[$id]);
             }
         }
     }
@@ -418,7 +421,43 @@ class BatcheditInterface {
         $this->ptln('</div>', -2);
 
         $this->printCheckBox('advregexp', 'lbl_advregexp');
+        $this->printSearchLimit();
         $this->printCheckBox('checksummary', 'lbl_checksummary');
+
+        $this->ptln('</div>', -2);
+    }
+
+    /**
+     *
+     */
+    private function printSearchLimit() {
+        $this->ptln('<div class="be-checkbox">', +2);
+
+        $html = '<input type="checkbox" id="be-searchlimit" name="searchlimit" value="on"';
+
+        if (isset($_REQUEST['searchlimit'])) {
+            $html .= ' checked="checked"';
+        }
+
+        $this->ptln($html . ' />');
+
+        $label = explode('{1}', $this->getLang('lbl_searchlimit'));
+
+        $this->ptln('<label for="be-searchlimit">' . $label[0] . '</label>');
+
+        $html = '<input type="text" class="be-edit" id="be-searchmaxedit" name="searchmax"';
+
+        if (isset($_REQUEST['searchmax'])) {
+            $html .= ' value="' . $_REQUEST['searchmax'] . '"';
+        }
+
+        if (!isset($_REQUEST['searchlimit'])) {
+            $html .= ' disabled="disabled"';
+        }
+
+        $this->ptln($html . ' />');
+
+        $this->ptln('<label for="be-searchlimit">' . $label[1] . '</label>');
 
         $this->ptln('</div>', -2);
     }

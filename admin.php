@@ -94,9 +94,14 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             return;
         }
 
-        $matches = $this->engine->findMatches($this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement());
+        $interrupted = $this->engine->findMatches($this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement(),
+                $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : 0);
 
-        if ($matches == 0) {
+        if ($interrupted) {
+            $this->interface->addWarningMessage('war_searchlimit');
+        }
+
+        if ($this->engine->getMatchCount() == 0) {
             $this->interface->addWarningMessage('war_nomatches');
         }
         elseif ($this->request->getCommand() == BatcheditRequest::COMMAND_APPLY && !empty($this->request->getAppliedMatches())) {

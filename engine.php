@@ -169,7 +169,7 @@ class BatcheditPage {
     /**
      *
      */
-    public function findMatches($regexp, $replacement) {
+    public function findMatches($regexp, $replacement, $limit) {
         $text = rawWiki($this->id);
         $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
@@ -177,11 +177,18 @@ class BatcheditPage {
             throw new Exception('err_pregfailed');
         }
 
+        $interrupted = FALSE;
+
+        if ($limit > 0 && $count > $limit) {
+            $count = $limit;
+            $interrupted = TRUE;
+        }
+
         for ($i = 0; $i < $count; $i++) {
             $this->addMatch($text, $match[$i][0][1], $match[$i][0][0], $regexp, $replacement);
         }
 
-        return $count;
+        return $interrupted;
     }
 
     /**
@@ -314,7 +321,7 @@ class BatcheditEngine {
     /**
      *
      */
-    public function findMatches($namespace, $regexp, $replacement) {
+    public function findMatches($namespace, $regexp, $replacement, $limit) {
         if ($namespace != '') {
             $pattern = '/^' . $namespace . '/';
         }
@@ -322,21 +329,28 @@ class BatcheditEngine {
             $pattern = '';
         }
 
+        $interrupted = FALSE;
+
         foreach ($this->getPageIndex() as $pageId) {
             $pageId = trim($pageId);
 
             if (($pattern == '') || (preg_match($pattern, $pageId) == 1)) {
                 $page = new BatcheditPage($pageId);
-                $count = $page->findMatches($regexp, $replacement);
+                $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->matches);
+                $count = count($page->getMatches());
 
                 if ($count > 0) {
                     $this->pages[$pageId] = $page;
                     $this->matches += $count;
                 }
+
+                if ($interrupted) {
+                    break;
+                }
             }
         }
 
-        return $this->matches;
+        return $interrupted;
     }
 
     /**

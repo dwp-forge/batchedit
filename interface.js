@@ -215,6 +215,19 @@ var batchedit = (function () {
         });
     }
 
+    function initializeSearchLimit() {
+        var $searchMax = jQuery('input[name=searchmax]');
+
+        jQuery('input[name=searchlimit]').click(function() {
+            $searchMax.prop('disabled', !this.checked);
+            updateConfig('searchlimit', this.checked);
+        });
+
+        $searchMax.change(function() {
+            updateConfig('searchmax', this.value);
+        });
+    }
+
     function initializeCheckSummary() {
         jQuery('input[name=checksummary]').click(function() {
             updateConfig('checksummary', this.checked);
@@ -241,6 +254,7 @@ var batchedit = (function () {
         initializeMatchCase();
         initializeMultiline();
         initializeAdvancedOptions();
+        initializeSearchLimit();
         initializeCheckSummary();
         initializeApplyConfirmation();
     }
