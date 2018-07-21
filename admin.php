@@ -86,22 +86,38 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function handleRequest() {
         $this->request = new BatcheditRequest($this->config);
 
-        if ($this->request->getCommand() == BatcheditRequest::COMMAND_WELCOME) {
-            // First time - nothing to do
-            return;
-        }
+        switch ($this->request->getCommand()) {
+            case BatcheditRequest::COMMAND_PREVIEW:
+                $this->handlePreview();
+                break;
 
+            case BatcheditRequest::COMMAND_APPLY:
+                $this->handleApply();
+                break;
+        }
+    }
+
+    /**
+     *
+     */
+    private function handlePreview() {
+        $this->session->setId($this->request->getSessionId());
+        $this->findMatches();
+        $this->session->save($this->request, $this->config);
+    }
+
+    /**
+     *
+     */
+    private function handleApply() {
         if (!$this->session->load($this->request, $this->config)) {
             $this->findMatches();
-            $this->session->save($this->request, $this->config);
         }
 
-        if ($this->request->getCommand() == BatcheditRequest::COMMAND_APPLY) {
-            $this->applyMatches();
+        $this->applyMatches();
 
-            if ($this->session->getEditCount() > 0) {
-                $this->session->expire();
-            }
+        if ($this->session->getEditCount() > 0) {
+            $this->session->expire();
         }
     }
 
