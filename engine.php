@@ -335,6 +335,7 @@ class BatcheditPage implements Serializable {
 
 class BatcheditSession {
 
+    private $cacheDir;
     private $id;
     private $pages;
     private $matches;
@@ -345,6 +346,11 @@ class BatcheditSession {
      */
     public function __construct() {
         global $USERINFO;
+        global $conf;
+
+        $this->cacheDir = $conf['cachedir'] . '/batchedit';
+
+        io_mkdir_p($this->cacheDir);
 
         $time = gettimeofday();
 
@@ -379,7 +385,7 @@ class BatcheditSession {
             return FALSE;
         }
 
-        list($this->pages, $this->matches, $this->edits) = $matches;
+        list($this->matches, $this->pages) = $matches;
 
         return TRUE;
     }
@@ -388,8 +394,14 @@ class BatcheditSession {
      *
      */
     public function save($request, $config) {
+        if ($this->edits > 0) {
+            $this->expire();
+
+            return;
+        }
+
         $this->saveArray('props', $this->getProperties($request, $config));
-        $this->saveArray('matches', array($this->pages, $this->matches, $this->edits));
+        $this->saveArray('meta', array($this->matches, $this->pages));
     }
 
     /**
@@ -457,13 +469,7 @@ class BatcheditSession {
      *
      */
     private function getCacheName($ext) {
-        global $conf;
-
-        $cacheDir = $conf['cachedir'] . '/batchedit';
-
-        io_mkdir_p($cacheDir);
-
-        return $cacheDir . '/' . $this->id . '.' . $ext;
+        return $this->cacheDir . '/' . $this->id . '.' . $ext;
     }
 
     /**
@@ -478,6 +484,14 @@ class BatcheditSession {
      */
     private function loadArray($name) {
         return @unserialize(file_get_contents($this->getCacheName($name)));
+    }
+
+    /**
+     *
+     */
+    private function expire() {
+        @unlink($this->getCacheName('props'));
+        @unlink($this->getCacheName('matches'));
     }
 }
 
