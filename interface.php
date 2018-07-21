@@ -7,20 +7,12 @@
  * @author     Mykola Ostrovskyy <dwpforge@gmail.com>
  */
 
-class BatcheditMessage {
+class BatcheditMessage implements Serializable {
     const ERROR = 1;
     const WARNING = 2;
 
     public $type;
-    public $text;
-
-    /**
-     *
-     */
-    public function __construct($type, $text) {
-        $this->type = $type;
-        $this->text = $text;
-    }
+    public $data;
 
     /**
      *
@@ -49,12 +41,47 @@ class BatcheditMessage {
 
         return '';
     }
+
+    /**
+     *
+     */
+    public function serialize() {
+        return serialize(array($this->type, $this->data));
+    }
+
+    /**
+     *
+     */
+    public function unserialize($data) {
+        list($this->type, $this->data) = unserialize($data);
+    }
+}
+
+class BatcheditErrorMessage extends BatcheditMessage {
+
+    /**
+     * Accepts message array that starts with message id followed by optional arguments.
+     */
+    public function __construct($message) {
+        $this->type = self::ERROR;
+        $this->data = $message;
+    }
+}
+
+class BatcheditWarningMessage extends BatcheditMessage {
+
+    /**
+     * Accepts message array that starts with message id followed by optional arguments.
+     */
+    public function __construct($message) {
+        $this->type = self::WARNING;
+        $this->data = $message;
+    }
 }
 
 class BatcheditInterface {
 
     private $plugin;
-    private $messages;
     private $indent;
     private $svgCache;
 
@@ -63,23 +90,8 @@ class BatcheditInterface {
      */
     public function __construct($plugin) {
         $this->plugin = $plugin;
-        $this->messages = array();
         $this->indent = 0;
         $this->svgCache = array();
-    }
-
-    /**
-     * Accepts message id followed by optional arguments.
-     */
-    public function addErrorMessage($id) {
-        $this->addMessage(BatcheditMessage::ERROR, func_get_args());
-    }
-
-    /**
-     * Accepts message id followed by optional arguments.
-     */
-    public function addWarningMessage($id) {
-        $this->addMessage(BatcheditMessage::WARNING, func_get_args());
     }
 
     /**
@@ -121,16 +133,16 @@ class BatcheditInterface {
     /**
      *
      */
-    public function printMessages() {
-        if (empty($this->messages)) {
+    public function printMessages($messages) {
+        if (empty($messages)) {
             return;
         }
 
         $this->ptln('<div id="be-messages">', +2);
 
-        foreach($this->messages as $message) {
+        foreach ($messages as $message) {
             $this->ptln('<div class="' . $message->getClass() . '">', +2);
-            $this->ptln($this->getLang($message->getFormatId(), $message->text));
+            $this->ptln($this->getLang($message->getFormatId(), call_user_func_array(array($this, 'getLang'), $message->data)));
             $this->ptln('</div>', -2);
         }
 
@@ -205,13 +217,6 @@ class BatcheditInterface {
         $this->printSubmitButton('cmd[apply]', 'btn_apply', $enableApply);
 
         $this->ptln('</div>', -2);
-    }
-
-    /**
-     *
-     */
-    private function addMessage($type, $arguments) {
-        $this->messages[] = new BatcheditMessage($type, call_user_func_array(array($this, 'getLang'), $arguments));
     }
 
     /**

@@ -7,6 +7,8 @@
  * @author     Mykola Ostrovskyy <dwpforge@gmail.com>
  */
 
+require_once(DOKU_PLUGIN . 'batchedit/interface.php');
+
 class BatcheditPageApplyException extends Exception {
 }
 
@@ -337,6 +339,8 @@ class BatcheditSession {
 
     private $cacheDir;
     private $id;
+    private $error;
+    private $warnings;
     private $pages;
     private $matches;
     private $edits;
@@ -355,6 +359,8 @@ class BatcheditSession {
         $time = gettimeofday();
 
         $this->id = md5($time['sec'] . $time['usec'] . $USERINFO['name'] . $USERINFO['mail']);
+        $this->error = NULL;
+        $this->warnings = array();
         $this->pages = array();
         $this->matches = 0;
         $this->edits = 0;
@@ -385,7 +391,7 @@ class BatcheditSession {
             return FALSE;
         }
 
-        list($this->matches, $this->pages) = $matches;
+        list($this->warnings, $this->matches, $this->pages) = $matches;
 
         return TRUE;
     }
@@ -394,14 +400,42 @@ class BatcheditSession {
      *
      */
     public function save($request, $config) {
-        if ($this->edits > 0) {
+        if ($this->error != NULL || $this->edits > 0) {
             $this->expire();
 
             return;
         }
 
         $this->saveArray('props', $this->getProperties($request, $config));
-        $this->saveArray('meta', array($this->matches, $this->pages));
+        $this->saveArray('matches', array($this->warnings, $this->matches, $this->pages));
+    }
+
+    /**
+     * Accepts message id followed by optional arguments.
+     */
+    public function setError($messageId) {
+        $this->error = new BatcheditErrorMessage(func_get_args());
+        $this->pages = array();
+        $this->matches = 0;
+        $this->edits = 0;
+    }
+
+    /**
+     * Accepts message id followed by optional arguments.
+     */
+    public function addWarning($messageId) {
+        $this->warnings[] = new BatcheditWarningMessage(func_get_args());
+    }
+
+    /**
+     *
+     */
+    public function getMessages() {
+        if ($this->error != NULL) {
+            return array($this->error);
+        }
+
+        return $this->warnings;
     }
 
     /**

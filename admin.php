@@ -21,7 +21,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     private static $instance = NULL;
 
-    private $error;
     private $request;
     private $config;
     private $session;
@@ -33,7 +32,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     }
 
     public function __construct() {
-        $this->error = NULL;
         $this->request = NULL;
         $this->config = new BatcheditConfig();
         $this->session = new BatcheditSession();
@@ -58,9 +56,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
             $this->handleRequest();
         }
         catch (Exception $error) {
-            $this->error = $error;
-
-            $this->interface->addErrorMessage($error->getMessage());
+            $this->session->setError($error->getMessage());
         }
     }
 
@@ -71,17 +67,15 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->interface->configure($this->config);
 
         $this->interface->printBeginning($this->session->getId());
-        $this->interface->printMessages();
+        $this->interface->printMessages($this->session->getMessages());
 
-        $showMatches = empty($this->error) && $this->session->getMatchCount() > 0;
-
-        if ($showMatches) {
+        if ($this->session->getMatchCount() > 0) {
             $this->interface->printTotalStats($this->request->getCommand(), $this->session->getMatchCount(),
                     $this->session->getPageCount(), $this->session->getEditCount());
             $this->interface->printMatches($this->session->getPages());
         }
 
-        $this->interface->printMainForm($showMatches);
+        $this->interface->printMainForm($this->session->getMatchCount() > 0);
         $this->interface->printEnding();
     }
 
@@ -116,11 +110,11 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : 0);
 
         if ($interrupted) {
-            $this->interface->addWarningMessage('war_searchlimit');
+            $this->session->addWarning('war_searchlimit');
         }
 
         if ($this->session->getMatchCount() == 0) {
-            $this->interface->addWarningMessage('war_nomatches');
+            $this->session->addWarning('war_nomatches');
         }
     }
 
@@ -138,10 +132,10 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         foreach ($errors as $pageId => $error) {
             if ($error instanceof BatcheditAccessControlException) {
-                $this->interface->addWarningMessage('war_norights', $pageId);
+                $this->session->addWarning('war_norights', $pageId);
             }
             elseif ($error instanceof BatcheditPageLockedException) {
-                $this->interface->addWarningMessage('war_pagelock', $pageId, $error->lockedBy);
+                $this->session->addWarning('war_pagelock', $pageId, $error->lockedBy);
             }
         }
     }
