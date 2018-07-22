@@ -335,35 +335,137 @@ class BatcheditPage implements Serializable {
     }
 }
 
+class BatcheditSessionCache {
+
+    const EXPIRATION_TIME = 3600;
+
+    private $directory;
+
+    /**
+     *
+     */
+    public function __construct() {
+        global $conf;
+
+        $this->directory = $conf['cachedir'] . '/batchedit';
+
+        io_mkdir_p($this->directory);
+    }
+
+    /**
+     *
+     */
+    public function __destruct() {
+        $this->prune();
+    }
+
+    /**
+     *
+     */
+    public function save($id, $name, $data) {
+        file_put_contents($this->getFileName($id, $name), serialize($data));
+    }
+
+    /**
+     *
+     */
+    public function load($id, $name) {
+        return @unserialize(file_get_contents($this->getFileName($id, $name)));
+    }
+
+    /**
+     *
+     */
+    public function isValid($id) {
+        global $conf;
+
+        $propsTime = @filemtime($this->getFileName($id, 'props'));
+        $matchesTime = @filemtime($this->getFileName($id, 'matches'));
+
+        if ($propsTime === FALSE || $matchesTime === FALSE) {
+            return FALSE;
+        }
+
+        $now = time();
+
+        if ($propsTime + self::EXPIRATION_TIME < $now || $matchesTime + self::EXPIRATION_TIME < $now) {
+            return FALSE;
+        }
+
+        $changeLogTime = @filemtime($conf['changelog']);
+
+        if ($changeLogTime !== FALSE && ($changeLogTime > $propsTime || $changeLogTime > $matchesTime)) {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    /**
+     *
+     */
+    public function expire($id) {
+        @unlink($this->getFileName($id, 'props'));
+        @unlink($this->getFileName($id, 'matches'));
+    }
+
+    /**
+     *
+     */
+    private function getFileName($id, $ext) {
+        return $this->directory . '/' . $id . '.' . $ext;
+    }
+
+    /**
+     *
+     */
+    private function prune() {
+        $marker = $this->directory . '/_prune';
+        $lastPrune = @filemtime($marker);
+        $now = time();
+
+        if ($lastPrune !== FALSE && $lastPrune + self::EXPIRATION_TIME > $now) {
+            return;
+        }
+
+        $directory = new GlobIterator($this->directory . '/*.*');
+        $expired = array();
+
+        foreach ($directory as $fileInfo) {
+            if ($fileInfo->getMTime() + self::EXPIRATION_TIME < $now) {
+                $expired[pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME)] = TRUE;
+            }
+        }
+
+        foreach ($expired as $id => $dummy) {
+            $this->expire($id);
+        }
+
+        @touch($marker);
+    }
+}
+
 class BatcheditSession {
 
-    private $cacheDir;
     private $id;
     private $error;
     private $warnings;
     private $pages;
     private $matches;
     private $edits;
+    private $cache;
 
     /**
      *
      */
     public function __construct() {
-        global $USERINFO;
-        global $conf;
-
-        $this->cacheDir = $conf['cachedir'] . '/batchedit';
-
-        io_mkdir_p($this->cacheDir);
-
-        $time = gettimeofday();
-
-        $this->id = md5($time['sec'] . $time['usec'] . $USERINFO['name'] . $USERINFO['mail']);
+        $this->id = $this->generateId();
         $this->error = NULL;
         $this->warnings = array();
         $this->pages = array();
         $this->matches = 0;
         $this->edits = 0;
+        $this->cache = new BatcheditSessionCache();
     }
 
     /**
@@ -385,6 +487,10 @@ class BatcheditSession {
      */
     public function load($request, $config) {
         $this->id = $request->getSessionId();
+
+        if (!$this->cache->isValid($this->id)) {
+            return FALSE;
+        }
 
         $properties = $this->loadArray('props');
 
@@ -415,8 +521,7 @@ class BatcheditSession {
      *
      */
     public function expire() {
-        @unlink($this->getCacheName('props'));
-        @unlink($this->getCacheName('matches'));
+        $this->cache->expire($this->id);
     }
 
     /**
@@ -493,6 +598,17 @@ class BatcheditSession {
     /**
      *
      */
+    private function generateId() {
+        global $USERINFO;
+
+        $time = gettimeofday();
+
+        return md5($time['sec'] . $time['usec'] . $USERINFO['name'] . $USERINFO['mail']);
+    }
+
+    /**
+     *
+     */
     private function getProperties($request, $config) {
         global $USERINFO;
 
@@ -511,22 +627,15 @@ class BatcheditSession {
     /**
      *
      */
-    private function getCacheName($ext) {
-        return $this->cacheDir . '/' . $this->id . '.' . $ext;
-    }
-
-    /**
-     *
-     */
     private function saveArray($name, $array) {
-        file_put_contents($this->getCacheName($name), serialize($array));
+        $this->cache->save($this->id, $name, $array);
     }
 
     /**
      *
      */
     private function loadArray($name) {
-        return @unserialize(file_get_contents($this->getCacheName($name)));
+        return $this->cache->load($this->id, $name);
     }
 }
 
