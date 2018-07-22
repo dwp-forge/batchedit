@@ -25,7 +25,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private $config;
     private $session;
     private $engine;
-    private $interface;
 
     public static function getInstance() {
         return self::$instance;
@@ -36,7 +35,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $this->config = new BatcheditConfig();
         $this->session = new BatcheditSession();
         $this->engine = new BatcheditEngine($this->session);
-        $this->interface = new BatcheditInterface($this);
 
         self::$instance = $this;
     }
@@ -65,19 +63,21 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      * Output appropriate html
      */
     public function html() {
-        $this->interface->configure($this->config);
+        $interface = new BatcheditInterface($this);
 
-        $this->interface->printBeginning($this->session->getId());
-        $this->interface->printMessages($this->session->getMessages());
+        $interface->configure($this->config);
+
+        $interface->printBeginning($this->session->getId());
+        $interface->printMessages($this->session->getMessages());
 
         if ($this->session->getMatchCount() > 0) {
-            $this->interface->printTotalStats($this->request->getCommand(), $this->session->getMatchCount(),
+            $interface->printTotalStats($this->request->getCommand(), $this->session->getMatchCount(),
                     $this->session->getPageCount(), $this->session->getEditCount());
-            $this->interface->printMatches($this->session->getPages());
+            $interface->printMatches($this->session->getPages());
         }
 
-        $this->interface->printMainForm($this->session->getMatchCount() > 0);
-        $this->interface->printEnding();
+        $interface->printMainForm($this->session->getMatchCount() > 0);
+        $interface->printEnding();
     }
 
     /**
