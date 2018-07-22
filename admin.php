@@ -127,7 +127,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function findMatches() {
         $interrupted = $this->engine->findMatches(
                 $this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement(),
-                $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : 0);
+                $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : -1);
 
         if ($interrupted) {
             $this->session->addWarning('war_searchlimit');

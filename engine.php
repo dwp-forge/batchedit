@@ -197,7 +197,7 @@ class BatcheditPage implements Serializable {
 
         $interrupted = FALSE;
 
-        if ($limit > 0 && $count > $limit) {
+        if ($limit >= 0 && $count > $limit) {
             $count = $limit;
             $interrupted = TRUE;
         }
