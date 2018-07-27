@@ -656,29 +656,18 @@ class BatcheditEngine {
      *
      */
     public function findMatches($namespace, $regexp, $replacement, $limit) {
-        if ($namespace != '') {
-            $pattern = '/^' . $namespace . '/';
-        }
-        else {
-            $pattern = '';
-        }
-
         $interrupted = FALSE;
 
-        foreach ($this->getPageIndex() as $pageId) {
-            $pageId = trim($pageId);
+        foreach ($this->getPageIndex($namespace) as $pageId) {
+            $page = new BatcheditPage(trim($pageId));
+            $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount());
 
-            if (($pattern == '') || (preg_match($pattern, $pageId) == 1)) {
-                $page = new BatcheditPage($pageId);
-                $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount());
+            if (count($page->getMatches()) > 0) {
+                $this->session->addPage($page);
+            }
 
-                if (count($page->getMatches()) > 0) {
-                    $this->session->addPage($page);
-                }
-
-                if ($interrupted) {
-                    break;
-                }
+            if ($interrupted) {
+                break;
             }
         }
 
@@ -723,20 +712,27 @@ class BatcheditEngine {
     /**
      *
      */
-    private function getPageIndex() {
+    private function getPageIndex($namespace) {
         global $conf;
 
-        if (@file_exists($conf['indexdir'] . '/page.idx')) {
-            require_once(DOKU_INC . 'inc/indexer.php');
-
-            $index = idx_getIndex('page', '');
-
-            if (count($index) == 0) {
-                throw new Exception('err_emptyidx');
-            }
-        }
-        else {
+        if (!@file_exists($conf['indexdir'] . '/page.idx')) {
             throw new Exception('err_idxaccess');
+        }
+
+        require_once(DOKU_INC . 'inc/indexer.php');
+
+        $index = idx_getIndex('page', '');
+
+        if (count($index) == 0) {
+            throw new Exception('err_emptyidx');
+        }
+
+        if ($namespace != '') {
+            $pattern = "\033^" . $namespace . "\033";
+
+            $index = array_filter($index, function ($pageId) use ($pattern) {
+                return preg_match($pattern, $pageId) == 1;
+            });
         }
 
         return $index;
