@@ -689,23 +689,26 @@ class BatcheditSession {
 
 class BatcheditEngine {
 
+    // This constant is used to take into account the time that plugin spends outside
+    // of the engine. For example, this can be time spent by DokuWiki itself, time for
+    // request parsing, session loading and saving, etc.
+    const NON_ENGINE_TIME = 5;
+
     private $session;
-    private $matches;
-    private $edits;
+    private $startTime;
 
     /**
      *
      */
     public function __construct($session) {
         $this->session = $session;
+        $this->startTime = time();
     }
 
     /**
      *
      */
     public function findMatches($namespace, $regexp, $replacement, $limit) {
-        $interrupted = FALSE;
-
         foreach ($this->getPageIndex($namespace) as $pageId) {
             $page = new BatcheditPage(trim($pageId));
             $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount());
@@ -715,12 +718,14 @@ class BatcheditEngine {
             }
 
             if ($interrupted) {
+                $this->session->addWarning('war_searchlimit');
                 break;
             }
-        }
 
-        if ($interrupted) {
-            $this->session->addWarning('war_searchlimit');
+            if ($this->isOperationTimedOut()) {
+                $this->session->addWarning('war_timeout');
+                break;
+            }
         }
 
         if ($this->session->getMatchCount() == 0) {
@@ -754,6 +759,11 @@ class BatcheditEngine {
                 }
                 catch (BatcheditPageApplyException $error) {
                     $this->session->addWarning($error);
+                }
+
+                if ($this->isOperationTimedOut()) {
+                    $this->session->addWarning('war_timeout');
+                    break;
                 }
             }
         }
@@ -795,5 +805,16 @@ class BatcheditEngine {
         }
 
         return $index;
+    }
+
+    /**
+     *
+     */
+    private function isOperationTimedOut() {
+        // On different systems max_execution_time can be used in diffenent ways: it can track
+        // either real time or only user time excluding all system calls. Here we enforce real
+        // time limit, which could be more strict then what PHP would do, but is easier to
+        // implement in a cross-platform way and easier for a user to understand.
+        return time() - $this->startTime >= ini_get('max_execution_time') - self::NON_ENGINE_TIME;
     }
 }

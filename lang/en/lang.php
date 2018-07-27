@@ -26,6 +26,7 @@ $lang['war_nomatches'] = 'No matches are found.';
 $lang['war_norights'] = 'You have no rights to edit page {1}.';
 $lang['war_pagelock'] = 'Page {1} is locked by {2}.';
 $lang['war_searchlimit'] = 'The search was interrupted after reaching maximal number of matches.';
+$lang['war_timeout'] = 'The operation was interrupted because it is taking too much time.';
 $lang['war_nosummary'] = 'The edit summary was not provided. Do you want to proceed witout it?';
 
 $lang['msg_error'] = '<b>Error:</b> {1}';
