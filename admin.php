@@ -53,8 +53,8 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         try {
             $this->handleRequest();
         }
-        catch (Exception $error) {
-            $this->session->setError($error->getMessage());
+        catch (BatcheditException $error) {
+            $this->session->setError($error);
             $this->session->expire();
         }
     }
@@ -151,12 +151,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $errors = $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
 
         foreach ($errors as $pageId => $error) {
-            if ($error instanceof BatcheditAccessControlException) {
-                $this->session->addWarning('war_norights', $pageId);
-            }
-            elseif ($error instanceof BatcheditPageLockedException) {
-                $this->session->addWarning('war_pagelock', $pageId, $error->lockedBy);
-            }
+            $this->session->addWarning($error);
         }
     }
 }

@@ -7,6 +7,8 @@
  * @author     Mykola Ostrovskyy <dwpforge@gmail.com>
  */
 
+require_once(DOKU_PLUGIN . 'batchedit/engine.php');
+
 class BatcheditRequest {
 
     const COMMAND_WELCOME = 'welcome';
@@ -111,13 +113,13 @@ class BatcheditRequest {
         }
 
         if (!is_array($_REQUEST['cmd'])) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         $command = key($_REQUEST['cmd']);
 
         if (($command != 'preview') && ($command != 'apply')) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         return $command;
@@ -128,7 +130,7 @@ class BatcheditRequest {
      */
     private function parseOptions() {
         if (!isset($_REQUEST['searchmode'])) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         $options = array();
@@ -164,7 +166,7 @@ class BatcheditRequest {
      */
     private function parseNamespace() {
         if (!isset($_REQUEST['namespace'])) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         $namespace = trim($_REQUEST['namespace']);
@@ -187,19 +189,19 @@ class BatcheditRequest {
      */
     private function parseRegexp($config) {
         if (!isset($_REQUEST['search'])) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         $regexp = trim($_REQUEST['search']);
 
         if ($regexp == '') {
-            throw new Exception('err_nosearch');
+            throw new BatcheditException('err_nosearch');
         }
 
         if ($config->getConf('searchmode') == 'regexp') {
             if ($config->getConf('advregexp')) {
                 if (preg_match('/^([^\w\\\\]|_).+?\1[imsxADSUXJu]*$/s', $regexp) != 1) {
-                    throw new Exception('err_invregexp');
+                    throw new BatcheditException('err_invregexp');
                 }
             }
             else {
@@ -224,7 +226,7 @@ class BatcheditRequest {
      */
     private function parseReplacement() {
         if (!isset($_REQUEST['replace'])) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         $replace = str_replace("\r\n", "\n", $_REQUEST['replace']);
@@ -248,7 +250,7 @@ class BatcheditRequest {
      */
     private function parseSummary() {
         if (!isset($_REQUEST['summary'])) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         return $_REQUEST['summary'];
@@ -265,7 +267,7 @@ class BatcheditRequest {
         $matchIds = json_decode($_REQUEST['apply']);
 
         if (!is_array($matchIds)) {
-            throw new Exception('err_invreq');
+            throw new BatcheditException('err_invreq');
         }
 
         return $matchIds;

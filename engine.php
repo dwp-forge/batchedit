@@ -9,21 +9,54 @@
 
 require_once(DOKU_PLUGIN . 'batchedit/interface.php');
 
-class BatcheditPageApplyException extends Exception {
-}
+class BatcheditException extends Exception {
 
-class BatcheditAccessControlException extends BatcheditPageApplyException {
-}
+    private $arguments;
 
-class BatcheditPageLockedException extends BatcheditPageApplyException {
+    /**
+     * Accepts message id followed by optional arguments.
+     */
+    public function __construct($messageId) {
+        parent::__construct($messageId);
 
-    public $lockedBy;
+        $this->arguments = func_get_args();
+    }
 
     /**
      *
      */
-    public function __construct($lockedBy) {
-        $this->lockedBy = $lockedBy;
+    public function getArguments() {
+        return $this->arguments;
+    }
+}
+
+class BatcheditPageApplyException extends BatcheditException {
+
+    /**
+     * Accepts message and page ids followed by optional arguments.
+     */
+    public function __construct($messageId, $pageId) {
+        call_user_func_array('parent::__construct', func_get_args());
+    }
+}
+
+class BatcheditAccessControlException extends BatcheditPageApplyException {
+
+    /**
+     *
+     */
+    public function __construct($pageId) {
+        parent::__construct('war_norights', $pageId);
+    }
+}
+
+class BatcheditPageLockedException extends BatcheditPageApplyException {
+
+    /**
+     *
+     */
+    public function __construct($pageId, $lockedBy) {
+        parent::__construct('war_pagelock', $pageId, $lockedBy);
     }
 }
 
@@ -192,7 +225,7 @@ class BatcheditPage implements Serializable {
         $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count === FALSE) {
-            throw new Exception('err_pregfailed');
+            throw new BatcheditException('err_pregfailed');
         }
 
         $interrupted = FALSE;
@@ -313,13 +346,13 @@ class BatcheditPage implements Serializable {
      */
     private function lock() {
         if (auth_quickaclcheck($this->id) < AUTH_EDIT) {
-            throw new BatcheditAccessControlException();
+            throw new BatcheditAccessControlException($this->id);
         }
 
         $lockedBy = checklock($this->id);
 
         if ($lockedBy != FALSE) {
-            throw new BatcheditPageLockedException($lockedBy);
+            throw new BatcheditPageLockedException($this->id, $lockedBy);
         }
 
         lock($this->id);
@@ -525,20 +558,25 @@ class BatcheditSession {
     }
 
     /**
-     * Accepts message id followed by optional arguments.
+     *
      */
-    public function setError($messageId) {
-        $this->error = new BatcheditErrorMessage(func_get_args());
+    public function setError($error) {
+        $this->error = new BatcheditErrorMessage($error->getArguments());
         $this->pages = array();
         $this->matches = 0;
         $this->edits = 0;
     }
 
     /**
-     * Accepts message id followed by optional arguments.
+     * Accepts BatcheditException instance or message id followed by optional arguments.
      */
-    public function addWarning($messageId) {
-        $this->warnings[] = new BatcheditWarningMessage(func_get_args());
+    public function addWarning($warning) {
+        if ($warning instanceof BatcheditException) {
+            $this->warnings[] = new BatcheditWarningMessage($warning->getArguments());
+        }
+        else {
+            $this->warnings[] = new BatcheditWarningMessage(func_get_args());
+        }
     }
 
     /**
@@ -716,7 +754,7 @@ class BatcheditEngine {
         global $conf;
 
         if (!@file_exists($conf['indexdir'] . '/page.idx')) {
-            throw new Exception('err_idxaccess');
+            throw new BatcheditException('err_idxaccess');
         }
 
         require_once(DOKU_INC . 'inc/indexer.php');
@@ -724,7 +762,7 @@ class BatcheditEngine {
         $index = idx_getIndex('page', '');
 
         if (count($index) == 0) {
-            throw new Exception('err_emptyidx');
+            throw new BatcheditException('err_emptyidx');
         }
 
         if ($namespace != '') {
