@@ -709,7 +709,13 @@ class BatcheditEngine {
             }
         }
 
-        return $interrupted;
+        if ($interrupted) {
+            $this->session->addWarning('war_searchlimit');
+        }
+
+        if ($this->session->getMatchCount() == 0) {
+            $this->session->addWarning('war_nomatches');
+        }
     }
 
     /**
@@ -731,20 +737,16 @@ class BatcheditEngine {
      *
      */
     public function applyMatches($summary, $minorEdit) {
-        $errors = array();
-
         foreach ($this->session->getPages() as $page) {
             if ($page->hasMarkedMatches()) {
                 try {
                     $this->session->addEdits($page->applyMatches($summary, $minorEdit));
                 }
                 catch (BatcheditPageApplyException $error) {
-                    $errors[$page->getId()] = $error;
+                    $this->session->addWarning($error);
                 }
             }
         }
-
-        return $errors;
     }
 
     /**

@@ -125,17 +125,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function findMatches() {
-        $interrupted = $this->engine->findMatches(
+        $this->engine->findMatches(
                 $this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement(),
                 $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : -1);
-
-        if ($interrupted) {
-            $this->session->addWarning('war_searchlimit');
-        }
-
-        if ($this->session->getMatchCount() == 0) {
-            $this->session->addWarning('war_nomatches');
-        }
     }
 
     /**
@@ -147,11 +139,6 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         $this->engine->markRequestedMatches($this->request->getAppliedMatches());
-
-        $errors = $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
-
-        foreach ($errors as $pageId => $error) {
-            $this->session->addWarning($error);
-        }
+        $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
     }
 }
