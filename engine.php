@@ -81,6 +81,7 @@ class BatcheditMatch implements Serializable {
     private $contextBefore;
     private $contextAfter;
     private $marked;
+    private $applied;
 
     /**
      *
@@ -92,6 +93,7 @@ class BatcheditMatch implements Serializable {
         $this->contextBefore = $this->cropContextBefore($pageText, $pageOffset);
         $this->contextAfter = $this->cropContextAfter($pageText, $pageOffset + strlen($text));
         $this->marked = FALSE;
+        $this->applied = FALSE;
     }
 
     /**
@@ -151,7 +153,23 @@ class BatcheditMatch implements Serializable {
         $before = substr($pageText, 0, $pageOffset);
         $after = substr($pageText, $pageOffset + strlen($this->originalText));
 
+        $this->applied = TRUE;
+
         return $before . $this->replacedText . $after;
+    }
+
+    /**
+     *
+     */
+    public function rollback() {
+        $this->applied = FALSE;
+    }
+
+    /**
+     *
+     */
+    public function isApplied() {
+        return $this->applied;
     }
 
     /**
@@ -159,7 +177,7 @@ class BatcheditMatch implements Serializable {
      */
     public function serialize() {
         return serialize(array($this->pageOffset, $this->originalText, $this->replacedText,
-                $this->contextBefore, $this->contextAfter, $this->marked));
+                $this->contextBefore, $this->contextAfter, $this->marked, $this->applied));
     }
 
     /**
@@ -167,7 +185,7 @@ class BatcheditMatch implements Serializable {
      */
     public function unserialize($data) {
         list($this->pageOffset, $this->originalText, $this->replacedText,
-                $this->contextBefore, $this->contextAfter, $this->marked) = unserialize($data);
+                $this->contextBefore, $this->contextAfter, $this->marked, $this->applied) = unserialize($data);
     }
 
     /**
@@ -303,6 +321,22 @@ class BatcheditPage implements Serializable {
     /**
      *
      */
+    public function hasUnappliedMatches() {
+        $result = FALSE;
+
+        foreach ($this->matches as $match) {
+            if (!$match->isApplied()) {
+                $result = TRUE;
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
     public function applyMatches($summary, $minorEdit) {
         try {
             $this->lock();
@@ -322,7 +356,7 @@ class BatcheditPage implements Serializable {
             unlock($this->id);
         }
         catch (Exception $error) {
-            $this->unmarkAllMatches();
+            $this->rollbackMatches();
 
             throw $error;
         }
@@ -371,9 +405,9 @@ class BatcheditPage implements Serializable {
     /**
      *
      */
-    private function unmarkAllMatches() {
+    private function rollbackMatches() {
         foreach ($this->matches as $match) {
-            $match->mark(FALSE);
+            $match->rollback();
         }
     }
 }

@@ -240,9 +240,11 @@ class BatcheditInterface {
     /**
      *
      */
-    private function printApplyCheckBox($id, $label, $title) {
+    private function printApplyCheckBox($id, $label, $title, $checked = FALSE) {
+        $checked = $checked ? ' checked="checked"' : '';
+
         $this->ptln('<span class="be-apply" title="' . $this->getLang($title) . '">', +2);
-        $this->ptln('<input type="checkbox" id="' . $id . '" />');
+        $this->ptln('<input type="checkbox" id="' . $id . '"' . $checked . ' />');
         $this->ptln('<label for="' . $id . '">' . $label . '</label>');
         $this->ptln('</span>', -2);
     }
@@ -255,8 +257,8 @@ class BatcheditInterface {
 
         $this->ptln('<div class="be-stats">', +2);
 
-        if ($page->hasUnmarkedMatches()) {
-            $this->printApplyCheckBox($page->getId(), $stats, 'ttl_applyfile');
+        if ($page->hasUnappliedMatches()) {
+            $this->printApplyCheckBox($page->getId(), $stats, 'ttl_applyfile', !$page->hasUnmarkedMatches());
         }
         else {
             $this->ptln($stats);
@@ -309,8 +311,8 @@ class BatcheditInterface {
 
         $this->ptln('<div class="be-matchid">', +2);
 
-        if (!$match->isMarked()) {
-            $this->printApplyCheckBox($id, $id, 'ttl_applymatch');
+        if (!$match->isApplied()) {
+            $this->printApplyCheckBox($id, $id, 'ttl_applymatch', $match->isMarked());
         }
         else {
             $this->ptln($id);
@@ -323,8 +325,8 @@ class BatcheditInterface {
      *
      */
     private function printMatchTable($match) {
-        $original = $this->prepareText($match->getOriginalText(), 'search_hit' . ($match->isMarked() ? ' be-replaced' : ''));
-        $replaced = $this->prepareText($match->getReplacedText(), 'search_hit' . ($match->isMarked() ? ' be-applied' : ''));
+        $original = $this->prepareText($match->getOriginalText(), 'search_hit' . ($match->isApplied() ? ' be-replaced' : ''));
+        $replaced = $this->prepareText($match->getReplacedText(), 'search_hit' . ($match->isApplied() ? ' be-applied' : ''));
         $before = $this->prepareText($match->getContextBefore());
         $after = $this->prepareText($match->getContextAfter());
 
