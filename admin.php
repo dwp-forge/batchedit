@@ -21,20 +21,18 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
     private static $instance = NULL;
 
-    private $request;
+    private $command;
     private $config;
     private $session;
-    private $engine;
 
     public static function getInstance() {
         return self::$instance;
     }
 
     public function __construct() {
-        $this->request = NULL;
+        $this->command = BatcheditRequest::COMMAND_WELCOME;
         $this->config = new BatcheditConfig();
         $this->session = new BatcheditSession();
-        $this->engine = new BatcheditEngine($this->session);
 
         self::$instance = $this;
     }
@@ -71,7 +69,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $interface->printMessages($this->session->getMessages());
 
         if ($this->session->getMatchCount() > 0) {
-            $interface->printTotalStats($this->request->getCommand(), $this->session->getMatchCount(),
+            $interface->printTotalStats($this->command, $this->session->getMatchCount(),
                     $this->session->getPageCount(), $this->session->getEditCount());
             $interface->printMatches($this->session->getPages());
         }
@@ -84,15 +82,17 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function handleRequest() {
-        $this->request = new BatcheditRequest($this->config);
+        $request = new BatcheditRequest($this->config);
 
-        switch ($this->request->getCommand()) {
+        $this->command = $request->getCommand();
+
+        switch ($this->command) {
             case BatcheditRequest::COMMAND_PREVIEW:
-                $this->handlePreview();
+                $this->handlePreview($request);
                 break;
 
             case BatcheditRequest::COMMAND_APPLY:
-                $this->handleApply();
+                $this->handleApply($request);
                 break;
         }
     }
@@ -100,21 +100,25 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    private function handlePreview() {
-        $this->session->setId($this->request->getSessionId());
-        $this->findMatches();
-        $this->session->save($this->request, $this->config);
+    private function handlePreview($request) {
+        $engine = new BatcheditEngine($this->session);
+
+        $this->session->setId($request->getSessionId());
+        $this->findMatches($engine, $request);
+        $this->session->save($request, $this->config);
     }
 
     /**
      *
      */
-    private function handleApply() {
-        if (!$this->session->load($this->request, $this->config)) {
-            $this->findMatches();
+    private function handleApply($request) {
+        $engine = new BatcheditEngine($this->session);
+
+        if (!$this->session->load($request, $this->config)) {
+            $this->findMatches($engine, $request);
         }
 
-        $this->applyMatches();
+        $this->applyMatches($engine, $request);
 
         if ($this->session->getEditCount() > 0) {
             $this->session->expire();
@@ -124,21 +128,20 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     /**
      *
      */
-    private function findMatches() {
-        $this->engine->findMatches(
-                $this->request->getNamespace(), $this->request->getRegexp(), $this->request->getReplacement(),
+    private function findMatches($engine, $request) {
+        $engine->findMatches($request->getNamespace(), $request->getRegexp(), $request->getReplacement(),
                 $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : -1);
     }
 
     /**
      *
      */
-    private function applyMatches() {
-        if ($this->session->getMatchCount() == 0 || empty($this->request->getAppliedMatches())) {
+    private function applyMatches($engine, $request) {
+        if ($this->session->getMatchCount() == 0 || empty($request->getAppliedMatches())) {
             return;
         }
 
-        $this->engine->markRequestedMatches($this->request->getAppliedMatches());
-        $this->engine->applyMatches($this->request->getSummary(), $this->request->getMinorEdit());
+        $engine->markRequestedMatches($request->getAppliedMatches());
+        $engine->applyMatches($request->getSummary(), $request->getMinorEdit());
     }
 }
