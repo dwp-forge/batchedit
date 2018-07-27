@@ -30,6 +30,16 @@ class BatcheditException extends Exception {
     }
 }
 
+class BatcheditEmptyNamespaceException extends BatcheditException {
+
+    /**
+     *
+     */
+    public function __construct($namespace) {
+        parent::__construct('err_emptyns', $namespace);
+    }
+}
+
 class BatcheditPageApplyException extends BatcheditException {
 
     /**
@@ -773,6 +783,10 @@ class BatcheditEngine {
             $index = array_filter($index, function ($pageId) use ($pattern) {
                 return preg_match($pattern, $pageId) == 1;
             });
+
+            if (count($index) == 0) {
+                throw new BatcheditEmptyNamespaceException($namespace);
+            }
         }
 
         return $index;
