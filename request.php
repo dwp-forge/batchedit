@@ -174,11 +174,7 @@ class BatcheditRequest {
         if ($namespace != '') {
             global $ID;
 
-            $namespace = resolve_id(getNS($ID), $namespace . ':');
-
-            if ($namespace != '') {
-                $namespace .= ':';
-            }
+            $namespace = resolve_id(getNS($ID), $namespace . ':') . ':';
         }
 
         return $namespace;

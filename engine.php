@@ -778,7 +778,12 @@ class BatcheditEngine {
         }
 
         if ($namespace != '') {
-            $pattern = "\033^" . $namespace . "\033";
+            if ($namespace == ':') {
+                $pattern = "\033^[^:]+$\033";
+            }
+            else {
+                $pattern = "\033^" . $namespace . "\033";
+            }
 
             $index = array_filter($index, function ($pageId) use ($pattern) {
                 return preg_match($pattern, $pageId) == 1;
