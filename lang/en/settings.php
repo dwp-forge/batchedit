@@ -8,3 +8,4 @@
  */
 
 $lang['timelimit'] = 'Time limit for plugin operations execution (seconds, 0 - PHP default)';
+$lang['sessionexp'] = 'Session expiration time (seconds)';

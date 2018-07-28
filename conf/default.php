@@ -8,3 +8,4 @@
  */
 
 $conf['timelimit'] = 0;
+$conf['sessionexp'] = 3600;

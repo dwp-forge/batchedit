@@ -8,3 +8,4 @@
  */
 
 $meta['timelimit'] = array('numeric', '_min' => 0);
+$meta['sessionexp'] = array('numeric', '_min' => 0);

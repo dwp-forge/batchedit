@@ -414,16 +414,18 @@ class BatcheditPage implements Serializable {
 
 class BatcheditSessionCache {
 
-    const EXPIRATION_TIME = 3600;
+    const PRUNE_PERIOD = 3600;
 
+    private $expirationTime;
     private $directory;
 
     /**
      *
      */
-    public function __construct() {
+    public function __construct($expirationTime) {
         global $conf;
 
+        $this->expirationTime = $expirationTime;
         $this->directory = $conf['cachedir'] . '/batchedit';
 
         io_mkdir_p($this->directory);
@@ -465,7 +467,7 @@ class BatcheditSessionCache {
 
         $now = time();
 
-        if ($propsTime + self::EXPIRATION_TIME < $now || $matchesTime + self::EXPIRATION_TIME < $now) {
+        if ($propsTime + $this->expirationTime < $now || $matchesTime + $this->expirationTime < $now) {
             return FALSE;
         }
 
@@ -501,7 +503,7 @@ class BatcheditSessionCache {
         $lastPrune = @filemtime($marker);
         $now = time();
 
-        if ($lastPrune !== FALSE && $lastPrune + self::EXPIRATION_TIME > $now) {
+        if ($lastPrune !== FALSE && $lastPrune + self::PRUNE_PERIOD > $now) {
             return;
         }
 
@@ -509,7 +511,7 @@ class BatcheditSessionCache {
         $expired = array();
 
         foreach ($directory as $fileInfo) {
-            if ($fileInfo->getMTime() + self::EXPIRATION_TIME < $now) {
+            if ($fileInfo->getMTime() + $this->expirationTime < $now) {
                 $expired[pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME)] = TRUE;
             }
         }
@@ -535,14 +537,14 @@ class BatcheditSession {
     /**
      *
      */
-    public function __construct() {
+    public function __construct($expirationTime) {
         $this->id = $this->generateId();
         $this->error = NULL;
         $this->warnings = array();
         $this->pages = array();
         $this->matches = 0;
         $this->edits = 0;
-        $this->cache = new BatcheditSessionCache();
+        $this->cache = new BatcheditSessionCache($expirationTime);
     }
 
     /**

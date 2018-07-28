@@ -32,7 +32,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     public function __construct() {
         $this->command = BatcheditRequest::COMMAND_WELCOME;
         $this->config = new BatcheditConfig();
-        $this->session = new BatcheditSession();
+        $this->session = new BatcheditSession($this->getConf('sessionexp'));
 
         self::$instance = $this;
     }
