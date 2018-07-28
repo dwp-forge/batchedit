@@ -437,18 +437,23 @@ class BatcheditSessionCache {
     const PRUNE_PERIOD = 3600;
 
     private $expirationTime;
-    private $directory;
+
+    /**
+     *
+     */
+    public static function getFileName($name, $ext = '') {
+        global $conf;
+
+        return $conf['cachedir'] . '/batchedit/' . $name . (!empty($ext) ? '.' . $ext : '');
+    }
 
     /**
      *
      */
     public function __construct($expirationTime) {
-        global $conf;
-
         $this->expirationTime = $expirationTime;
-        $this->directory = $conf['cachedir'] . '/batchedit';
 
-        io_mkdir_p($this->directory);
+        io_mkdir_p(dirname(self::getFileName('dummy')));
     }
 
     /**
@@ -462,14 +467,14 @@ class BatcheditSessionCache {
      *
      */
     public function save($id, $name, $data) {
-        file_put_contents($this->getFileName($id, $name), serialize($data));
+        file_put_contents(self::getFileName($id, $name), serialize($data));
     }
 
     /**
      *
      */
     public function load($id, $name) {
-        return @unserialize(file_get_contents($this->getFileName($id, $name)));
+        return @unserialize(file_get_contents(self::getFileName($id, $name)));
     }
 
     /**
@@ -478,8 +483,8 @@ class BatcheditSessionCache {
     public function isValid($id) {
         global $conf;
 
-        $propsTime = @filemtime($this->getFileName($id, 'props'));
-        $matchesTime = @filemtime($this->getFileName($id, 'matches'));
+        $propsTime = @filemtime(self::getFileName($id, 'props'));
+        $matchesTime = @filemtime(self::getFileName($id, 'matches'));
 
         if ($propsTime === FALSE || $matchesTime === FALSE) {
             return FALSE;
@@ -504,22 +509,16 @@ class BatcheditSessionCache {
      *
      */
     public function expire($id) {
-        @unlink($this->getFileName($id, 'props'));
-        @unlink($this->getFileName($id, 'matches'));
-    }
-
-    /**
-     *
-     */
-    private function getFileName($id, $ext) {
-        return $this->directory . '/' . $id . '.' . $ext;
+        @unlink(self::getFileName($id, 'props'));
+        @unlink(self::getFileName($id, 'matches'));
+        @unlink(self::getFileName($id, 'progress'));
     }
 
     /**
      *
      */
     private function prune() {
-        $marker = $this->directory . '/_prune';
+        $marker = self::getFileName('_prune');
         $lastPrune = @filemtime($marker);
         $now = time();
 
@@ -527,7 +526,7 @@ class BatcheditSessionCache {
             return;
         }
 
-        $directory = new GlobIterator($this->directory . '/*.*');
+        $directory = new GlobIterator(self::getFileName('*.*'));
         $expired = array();
 
         foreach ($directory as $fileInfo) {
@@ -752,6 +751,52 @@ class BatcheditSession {
     }
 }
 
+class BatcheditProgress {
+
+    const SEARCH = 1;
+    const APPLY = 2;
+    const SCALE = 1000;
+
+    private $fileName;
+    private $operation;
+    private $range;
+    private $progress;
+
+    /**
+     *
+     */
+    public function __construct($sessionId, $operation, $range) {
+        $this->fileName = BatcheditSessionCache::getFileName($sessionId, 'progress');
+        $this->operation = $operation;
+        $this->range = $range;
+        $this->progress = 0;
+
+        $this->save();
+    }
+
+    /**
+     *
+     */
+    public function update($progressDelta = 1) {
+        $this->progress += $progressDelta;
+
+        $this->save();
+    }
+
+    /**
+     *
+     */
+    private function save() {
+        $progress = max(round(self::SCALE * $this->progress / $this->range), 1);
+
+        if ($this->operation == self::APPLY) {
+            $progress += self::SCALE;
+        }
+
+        @file_put_contents($this->fileName, str_pad('', $progress, '.'));
+    }
+}
+
 class BatcheditEngine {
 
     // These constants are used to take into account the time that plugin spends outside
@@ -777,13 +822,18 @@ class BatcheditEngine {
      *
      */
     public function findMatches($namespace, $regexp, $replacement, $limit) {
-        foreach ($this->getPageIndex($namespace) as $pageId) {
+        $index = $this->getPageIndex($namespace);
+        $progress = new BatcheditProgress($this->session->getId(), BatcheditProgress::SEARCH, count($index));
+
+        foreach ($index as $pageId) {
             $page = new BatcheditPage(trim($pageId));
             $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount());
 
             if (count($page->getMatches()) > 0) {
                 $this->session->addPage($page);
             }
+
+            $progress->update();
 
             if ($interrupted) {
                 $this->session->addWarning('war_searchlimit');
@@ -820,6 +870,11 @@ class BatcheditEngine {
      *
      */
     public function applyMatches($summary, $minorEdit) {
+        $progress = new BatcheditProgress($this->session->getId(), BatcheditProgress::APPLY,
+                array_reduce($this->session->getPages(), function ($marks, $page) {
+                    return $marks + ($page->hasMarkedMatches() && $page->hasUnappliedMatches() ? 1 : 0);
+                }, 0));
+
         foreach ($this->session->getPages() as $page) {
             if ($page->hasMarkedMatches() && $page->hasUnappliedMatches()) {
                 try {
@@ -828,6 +883,8 @@ class BatcheditEngine {
                 catch (BatcheditPageApplyException $error) {
                     $this->session->addWarning($error);
                 }
+
+                $progress->update();
 
                 if ($this->isOperationTimedOut()) {
                     $this->session->addWarning('war_timeout');
