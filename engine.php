@@ -70,6 +70,16 @@ class BatcheditPageLockedException extends BatcheditPageApplyException {
     }
 }
 
+class BatcheditMatchApplyException extends BatcheditPageApplyException {
+
+    /**
+     *
+     */
+    public function __construct($matchId) {
+        parent::__construct('war_matchfail', $matchId);
+    }
+}
+
 class BatcheditMatch implements Serializable {
 
     const CONTEXT_LENGTH = 50;
@@ -150,6 +160,12 @@ class BatcheditMatch implements Serializable {
      */
     public function apply($pageText, $offsetDelta) {
         $pageOffset = $this->pageOffset + $offsetDelta;
+        $currentText = substr($pageText, $pageOffset, strlen($this->originalText));
+
+        if ($currentText != $this->originalText) {
+            throw new BatcheditMatchApplyException('#' . $this->pageOffset);
+        }
+
         $before = substr($pageText, 0, $pageOffset);
         $after = substr($pageText, $pageOffset + strlen($this->originalText));
 
@@ -358,6 +374,10 @@ class BatcheditPage implements Serializable {
         catch (Exception $error) {
             $this->rollbackMatches();
 
+            if ($error instanceof BatcheditMatchApplyException) {
+                $error = new BatcheditMatchApplyException($this->id . $error->getArguments()[1]);
+            }
+
             throw $error;
         }
 
@@ -534,6 +554,11 @@ class BatcheditSession {
     private $edits;
     private $cache;
 
+    private static $persistentWarnings = array(
+        'war_nomatches',
+        'war_searchlimit'
+    );
+
     /**
      *
      */
@@ -586,7 +611,7 @@ class BatcheditSession {
         list($warnings, $this->matches, $this->pages) = $matches;
 
         $this->warnings = array_filter($warnings, function ($message) {
-            return $message->getId() != 'war_timeout';
+            return in_array($message->getId(), self::$persistentWarnings);
         });
 
         return TRUE;
