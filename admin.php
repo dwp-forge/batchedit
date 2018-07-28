@@ -101,7 +101,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function handlePreview($request) {
-        $engine = new BatcheditEngine($this->session);
+        $engine = $this->createEngine();
 
         $this->session->setId($request->getSessionId());
         $this->findMatches($engine, $request);
@@ -112,7 +112,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      *
      */
     private function handleApply($request) {
-        $engine = new BatcheditEngine($this->session);
+        $engine = $this->createEngine();
 
         if (!$this->session->load($request, $this->config)) {
             $this->findMatches($engine, $request);
@@ -120,6 +120,17 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         $this->applyMatches($engine, $request);
         $this->session->save($request, $this->config);
+    }
+
+    /**
+     *
+     */
+    private function createEngine() {
+        if ($this->getConf('timelimit') > 0) {
+            set_time_limit($this->getConf('timelimit'));
+        }
+
+        return new BatcheditEngine($this->session);
     }
 
     /**

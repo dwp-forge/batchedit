@@ -727,13 +727,15 @@ class BatcheditSession {
 
 class BatcheditEngine {
 
-    // This constant is used to take into account the time that plugin spends outside
+    // These constants are used to take into account the time that plugin spends outside
     // of the engine. For example, this can be time spent by DokuWiki itself, time for
     // request parsing, session loading and saving, etc.
-    const NON_ENGINE_TIME = 5;
+    const NON_ENGINE_TIME_RATIO = 0.1;
+    const NON_ENGINE_TIME_MAX = 5;
 
     private $session;
     private $startTime;
+    private $timeLimit;
 
     /**
      *
@@ -741,6 +743,7 @@ class BatcheditEngine {
     public function __construct($session) {
         $this->session = $session;
         $this->startTime = time();
+        $this->timeLimit = $this->getTimeLimit();
     }
 
     /**
@@ -848,11 +851,21 @@ class BatcheditEngine {
     /**
      *
      */
+    private function getTimeLimit() {
+        $timeLimit = ini_get('max_execution_time');
+        $timeLimit -= ceil(min($timeLimit * self::NON_ENGINE_TIME_RATIO, self::NON_ENGINE_TIME_MAX));
+
+        return $timeLimit;
+    }
+
+    /**
+     *
+     */
     private function isOperationTimedOut() {
         // On different systems max_execution_time can be used in diffenent ways: it can track
         // either real time or only user time excluding all system calls. Here we enforce real
         // time limit, which could be more strict then what PHP would do, but is easier to
         // implement in a cross-platform way and easier for a user to understand.
-        return time() - $this->startTime >= ini_get('max_execution_time') - self::NON_ENGINE_TIME;
+        return time() - $this->startTime >= $this->timeLimit;
     }
 }
