@@ -45,6 +45,13 @@ class BatcheditMessage implements Serializable {
     /**
      *
      */
+    public function getId() {
+        return $this->data[0];
+    }
+
+    /**
+     *
+     */
     public function serialize() {
         return serialize(array($this->type, $this->data));
     }
@@ -118,7 +125,7 @@ class BatcheditInterface {
         $this->printJavascriptLang();
 
         $this->ptln('<form action="' . $_SERVER[REQUEST_URI] . '" method="post">');
-        $this->ptln('<input type="hidden" name="session" value="' . $sessionId . '">');
+        $this->ptln('<input type="hidden" name="session" value="' . $sessionId . '" />');
     }
 
     /**
@@ -211,7 +218,7 @@ class BatcheditInterface {
         // JSON-encoded list of all checked checkbox ids for single matches.
         // Consolidating these inputs into a single string variable avoids problems for
         // huge replacement sets exceeding `max_input_vars` in `php.ini`.
-        $this->ptln('<input type="hidden" name="apply" value="">');
+        $this->ptln('<input type="hidden" name="apply" value="" />');
 
         $this->printSubmitButton('cmd[preview]', 'btn_preview');
         $this->printSubmitButton('cmd[apply]', 'btn_apply', $enableApply);
@@ -315,6 +322,11 @@ class BatcheditInterface {
             $this->printApplyCheckBox($id, $id, 'ttl_applymatch', $match->isMarked());
         }
         else {
+            // Add hidden checked checkbox to ensure that marked status is not lost on
+            // applied matches if application is performed in multiple rounds. This can
+            // be the case when one apply command is timed out and user issues a second
+            // one to apply the remaining matches.
+            $this->ptln('<input type="checkbox" id="' . $id . '" checked="checked" style="display:none;" />');
             $this->ptln($id);
         }
 

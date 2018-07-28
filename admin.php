@@ -119,10 +119,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         }
 
         $this->applyMatches($engine, $request);
-
-        if ($this->session->getEditCount() > 0) {
-            $this->session->expire();
-        }
+        $this->session->save($request, $this->config);
     }
 
     /**

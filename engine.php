@@ -581,7 +581,11 @@ class BatcheditSession {
             return FALSE;
         }
 
-        list($this->warnings, $this->matches, $this->pages) = $matches;
+        list($warnings, $this->matches, $this->pages) = $matches;
+
+        $this->warnings = array_filter($warnings, function ($message) {
+            return $message->getId() != 'war_timeout';
+        });
 
         return TRUE;
     }
@@ -787,7 +791,7 @@ class BatcheditEngine {
      */
     public function applyMatches($summary, $minorEdit) {
         foreach ($this->session->getPages() as $page) {
-            if ($page->hasMarkedMatches()) {
+            if ($page->hasMarkedMatches() && $page->hasUnappliedMatches()) {
                 try {
                     $this->session->addEdits($page->applyMatches($summary, $minorEdit));
                 }
