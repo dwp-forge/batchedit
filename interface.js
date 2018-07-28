@@ -1,4 +1,4 @@
-var batchedit = (function () {
+var batcheditInterface = (function () {
     function debounce(callback, timeout) {
         var timeoutId = null;
 
@@ -265,5 +265,5 @@ var batchedit = (function () {
 })();
 
 jQuery(function () {
-    batchedit.initialize();
+    batcheditInterface.initialize();
 });
