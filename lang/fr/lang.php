@@ -1,6 +1,6 @@
 <?php
 /**
- * French language file
+ * Plugin BatchEdit: French language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Denis Gravel <dgravel@cegepthetford.ca>

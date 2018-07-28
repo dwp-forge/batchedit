@@ -1,10 +1,9 @@
 <?php
 /**
- * German language file
+ * Plugin BatchEdit: German language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-
 
 // settings must be present and set appropriately for the language
 $lang['encoding']   = 'utf-8';
