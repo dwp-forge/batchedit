@@ -208,15 +208,7 @@ class BatcheditMatch implements Serializable {
      *
      */
     private function cropContextBefore($pageText, $pageOffset) {
-        $length = self::CONTEXT_LENGTH;
-        $offset = $pageOffset - $length;
-
-        if ($offset < 0) {
-            $length += $offset;
-            $offset = 0;
-        }
-
-        $context = substr($pageText, $offset, $length);
+        $context = utf8_substr(substr($pageText, 0, $pageOffset), -self::CONTEXT_LENGTH);
         $count = preg_match_all('/\n/', $context, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count > self::CONTEXT_MAX_LINES) {
@@ -230,7 +222,7 @@ class BatcheditMatch implements Serializable {
      *
      */
     private function cropContextAfter($pageText, $pageOffset) {
-        $context = substr($pageText, $pageOffset, self::CONTEXT_LENGTH);
+        $context = utf8_substr(substr($pageText, $pageOffset), 0, self::CONTEXT_LENGTH);
         $count = preg_match_all('/\n/', $context, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count > self::CONTEXT_MAX_LINES) {
