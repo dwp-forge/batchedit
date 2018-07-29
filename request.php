@@ -201,7 +201,7 @@ class BatcheditRequest {
                 }
             }
             else {
-                $regexp = "\033" . $regexp . "\033";
+                $regexp = "\033" . $regexp . "\033u";
             }
         }
         else {
