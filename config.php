@@ -43,7 +43,7 @@ class BatcheditConfig {
      *
      */
     public function getConfig() {
-        return $this->config;
+        return array_merge(self::$defaults, $this->config);
     }
 
     /**
