@@ -29,6 +29,10 @@ class BatcheditServer {
             $this->verifyAdminRights();
 
             switch ($_REQUEST['command']) {
+                case 'cancel':
+                    $this->handleCancel();
+                    break;
+
                 case 'progress':
                     $this->handleProgress();
                     break;
@@ -53,10 +57,26 @@ class BatcheditServer {
     /**
      *
      */
-    private function handleProgress() {
-        if (!isset($_REQUEST['session'])) {
-            throw new Exception('Invalid request');
+    private function verifySession() {
+        if (!isset($_REQUEST['session']) || preg_match('/^[0-9a-f]+$/', $_REQUEST['session']) != 1) {
+            throw new Exception('Invalid session identifier');
         }
+    }
+
+    /**
+     *
+     */
+    private function handleCancel() {
+        $this->verifySession();
+
+        BatcheditEngine::cancelOperation($_REQUEST['session']);
+    }
+
+    /**
+     *
+     */
+    private function handleProgress() {
+        $this->verifySession();
 
         $progress = new BatcheditProgress($_REQUEST['session']);
 

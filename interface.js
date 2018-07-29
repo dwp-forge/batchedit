@@ -287,6 +287,12 @@ var batcheditInterface = (function () {
         });
     }
 
+    function initializeCancel() {
+        jQuery('input[name=cancel]').click(function() {
+            batcheditServer.cancelOperation();
+        });
+    }
+
     function initialize() {
         initializeTooltip();
         initializeApplyCheckboxes();
@@ -299,6 +305,7 @@ var batcheditInterface = (function () {
         initializeCheckSummary();
         initializePreview();
         initializeApply();
+        initializeCancel();
     }
 
     return {

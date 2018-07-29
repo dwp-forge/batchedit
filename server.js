@@ -46,7 +46,9 @@ var batcheditServer = (function () {
                     return;
                 }
 
-                onSuccess(data);
+                if (typeof onSuccess != 'undefined') {
+                    onSuccess(data);
+                }
             },
             error : function (xhr, status, message) {
                 errorHandler(transaction + '_failed', message);
@@ -72,9 +74,14 @@ var batcheditServer = (function () {
         return sendRequest('progress', new FormData(), onSuccess, onError);
     }
 
+    function cancelOperation(onSuccess, onError) {
+        return sendRequest('cancel', new FormData(), onSuccess, onError);
+    }
+
     return {
         initialize : initialize,
-        checkProgress : checkProgress
+        checkProgress : checkProgress,
+        cancelOperation : cancelOperation
     }
 })();
 

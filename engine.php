@@ -512,6 +512,7 @@ class BatcheditSessionCache {
         @unlink(self::getFileName($id, 'props'));
         @unlink(self::getFileName($id, 'matches'));
         @unlink(self::getFileName($id, 'progress'));
+        @unlink(self::getFileName($id, 'cancel'));
     }
 
     /**
@@ -576,6 +577,8 @@ class BatcheditSession {
      */
     public function setId($id) {
         $this->id = $id;
+
+        @unlink(BatcheditSessionCache::getFileName($id, 'cancel'));
     }
 
     /**
@@ -589,7 +592,7 @@ class BatcheditSession {
      *
      */
     public function load($request, $config) {
-        $this->id = $request->getSessionId();
+        $this->setId($request->getSessionId());
 
         if (!$this->cache->isValid($this->id)) {
             return FALSE;
@@ -832,6 +835,13 @@ class BatcheditEngine {
     /**
      *
      */
+    public static function cancelOperation($sessionId) {
+        @touch(BatcheditSessionCache::getFileName($sessionId, 'cancel'));
+    }
+
+    /**
+     *
+     */
     public function __construct($session) {
         $this->session = $session;
         $this->startTime = time();
@@ -862,6 +872,11 @@ class BatcheditEngine {
 
             if ($this->isOperationTimedOut()) {
                 $this->session->addWarning('war_timeout');
+                break;
+            }
+
+            if ($this->isOperationCancelled()) {
+                $this->session->addWarning('war_cancelled');
                 break;
             }
         }
@@ -896,20 +911,27 @@ class BatcheditEngine {
                 }, 0));
 
         foreach ($this->session->getPages() as $page) {
-            if ($page->hasMarkedMatches() && $page->hasUnappliedMatches()) {
-                try {
-                    $this->session->addEdits($page->applyMatches($summary, $minorEdit));
-                }
-                catch (BatcheditPageApplyException $error) {
-                    $this->session->addWarning($error);
-                }
+            if (!$page->hasMarkedMatches() || !$page->hasUnappliedMatches()) {
+                continue;
+            }
 
-                $progress->update();
+            try {
+                $this->session->addEdits($page->applyMatches($summary, $minorEdit));
+            }
+            catch (BatcheditPageApplyException $error) {
+                $this->session->addWarning($error);
+            }
 
-                if ($this->isOperationTimedOut()) {
-                    $this->session->addWarning('war_timeout');
-                    break;
-                }
+            $progress->update();
+
+            if ($this->isOperationTimedOut()) {
+                $this->session->addWarning('war_timeout');
+                break;
+            }
+
+            if ($this->isOperationCancelled()) {
+                $this->session->addWarning('war_cancelled');
+                break;
             }
         }
     }
@@ -971,5 +993,12 @@ class BatcheditEngine {
         // time limit, which could be more strict then what PHP would do, but is easier to
         // implement in a cross-platform way and easier for a user to understand.
         return time() - $this->startTime >= $this->timeLimit;
+    }
+
+    /**
+     *
+     */
+    private function isOperationCancelled() {
+        return file_exists(BatcheditSessionCache::getFileName($this->session->getId(), 'cancel'));
     }
 }

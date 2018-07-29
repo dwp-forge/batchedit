@@ -224,7 +224,8 @@ class BatcheditInterface {
         $this->printSubmitButton('cmd[preview]', 'btn_preview');
         $this->printSubmitButton('cmd[apply]', 'btn_apply', $enableApply);
         $this->ptln('<div id="be-progressbar">', +2);
-        $this->ptln('<div id="be-progress"></div>');
+        $this->ptln('<div id="be-progresswrap"><div id="be-progress"></div></div>');
+        $this->printButton('cancel', 'btn_cancel');
         $this->ptln('</div>', -2);
         $this->ptln('</div>', -2);
 
@@ -590,13 +591,20 @@ class BatcheditInterface {
      *
      */
     private function printSubmitButton($name, $label, $enabled = TRUE) {
-        $html = '<input type="submit" class="button be-submit" name="' . $name . '" value="' . $this->getLang($label) . '"';
+        $html = '<input type="submit" class="button be-button be-submit" name="' . $name . '" value="' . $this->getLang($label) . '"';
 
         if (!$enabled) {
             $html .= ' disabled="disabled"';
         }
 
         $this->ptln($html . ' />');
+    }
+
+    /**
+     *
+     */
+    private function printButton($name, $label) {
+        $this->ptln('<input type="button" class="button be-button" name="' . $name . '" value="' . $this->getLang($label) . '" />');
     }
 
     /**
