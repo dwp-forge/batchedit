@@ -236,7 +236,6 @@ var batcheditInterface = (function () {
 
     function startProgressMonitor() {
         var hidden = true;
-        var $bar = jQuery('#be-progressbar');
         var $progress = jQuery('#be-progress');
 
         function updateProgress(data) {
@@ -251,7 +250,9 @@ var batcheditInterface = (function () {
 
         function onProgressUpdate(data) {
             if (hidden && data.progress < 400) {
-                $bar.css('display', 'flex');
+                jQuery('#be-progressbar').css('display', 'flex');
+                jQuery('input[name^=cmd').prop('disabled', true);
+
                 hidden = false;
             }
 
