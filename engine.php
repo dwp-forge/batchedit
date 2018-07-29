@@ -753,6 +753,7 @@ class BatcheditSession {
 
 class BatcheditProgress {
 
+    const UNKNOWN = 0;
     const SEARCH = 1;
     const APPLY = 2;
     const SCALE = 1000;
@@ -765,13 +766,15 @@ class BatcheditProgress {
     /**
      *
      */
-    public function __construct($sessionId, $operation, $range) {
+    public function __construct($sessionId, $operation = self::UNKNOWN, $range = 0) {
         $this->fileName = BatcheditSessionCache::getFileName($sessionId, 'progress');
         $this->operation = $operation;
         $this->range = $range;
         $this->progress = 0;
 
-        $this->save();
+        if ($this->operation != self::UNKNOWN && $this->range > 0) {
+            $this->save();
+        }
     }
 
     /**
@@ -781,6 +784,23 @@ class BatcheditProgress {
         $this->progress += $progressDelta;
 
         $this->save();
+    }
+
+    /**
+     *
+     */
+    public function get() {
+        $progress = @filesize($this->fileName);
+
+        if ($progress === FALSE) {
+            return array(self::UNKNOWN, 0);
+        }
+
+        if ($progress <= self::SCALE) {
+            return array(self::SEARCH, $progress);
+        }
+
+        return array(self::APPLY, $progress - self::SCALE);
     }
 
     /**

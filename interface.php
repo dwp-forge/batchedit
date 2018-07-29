@@ -220,8 +220,13 @@ class BatcheditInterface {
         // huge replacement sets exceeding `max_input_vars` in `php.ini`.
         $this->ptln('<input type="hidden" name="apply" value="" />');
 
+        $this->ptln('<div id="be-submitbar">', +2);
         $this->printSubmitButton('cmd[preview]', 'btn_preview');
         $this->printSubmitButton('cmd[apply]', 'btn_apply', $enableApply);
+        $this->ptln('<div id="be-progressbar">', +2);
+        $this->ptln('<div id="be-progress"></div>');
+        $this->ptln('</div>', -2);
+        $this->ptln('</div>', -2);
 
         $this->ptln('</div>', -2);
     }

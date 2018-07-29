@@ -68,8 +68,13 @@ var batcheditServer = (function () {
         return true;
     }
 
+    function checkProgress(onSuccess, onError) {
+        return sendRequest('progress', new FormData(), onSuccess, onError);
+    }
+
     return {
-        initialize : initialize
+        initialize : initialize,
+        checkProgress : checkProgress
     }
 })();
 

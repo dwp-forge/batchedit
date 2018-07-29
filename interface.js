@@ -88,7 +88,7 @@ var batcheditInterface = (function () {
 
         var updateFloater = function() {
             if (window.pageYOffset > $anchor.offset().top) {
-                $floater.addClass('be-floater').css('width', $anchor.css('width'));
+                $floater.addClass('be-floater').width($anchor.css('width'));
             }
             else {
                 $floater.removeClass('be-floater');
@@ -234,15 +234,56 @@ var batcheditInterface = (function () {
         });
     }
 
-    function initializeApplyConfirmation() {
-        jQuery('input[name=cmd\\[apply\\]]').click(function() {
-            if (!jQuery('input[name=checksummary]').prop('checked')) {
-                return true;
+    function startProgressMonitor() {
+        var hidden = true;
+        var $bar = jQuery('#be-progressbar');
+        var $progress = jQuery('#be-progress');
+
+        function updateProgress(data) {
+            $progress.text(data.operation).width((data.progress / 10) + "%");
+        }
+
+        function checkProgress() {
+            setTimeout(function () {
+                batcheditServer.checkProgress(onProgressUpdate);
+            }, 500);
+        }
+
+        function onProgressUpdate(data) {
+            if (hidden && data.progress < 400) {
+                $bar.css('display', 'flex');
+                hidden = false;
             }
 
-            if (jQuery('input[name=summary]').val().replace(/\s+/, '') == '') {
-                return confirm(getLang('war_nosummary'));
+            if (!hidden) {
+                updateProgress(data);
+                checkProgress();
             }
+        }
+
+        checkProgress();
+    }
+
+    function initializePreview() {
+        jQuery('input[name=cmd\\[preview\\]]').click(function() {
+            startProgressMonitor();
+        });
+    }
+
+    function initializeApply() {
+        jQuery('input[name=cmd\\[apply\\]]').click(function() {
+            var proceed = true;
+
+            if (jQuery('input[name=checksummary]').prop('checked') &&
+                    jQuery('input[name=summary]').val().replace(/\s+/, '') == '') {
+                proceed = confirm(getLang('war_nosummary'));
+            }
+
+            if (proceed) {
+                startProgressMonitor();
+            }
+
+            return proceed;
         });
     }
 
@@ -256,7 +297,8 @@ var batcheditInterface = (function () {
         initializeAdvancedOptions();
         initializeSearchLimit();
         initializeCheckSummary();
-        initializeApplyConfirmation();
+        initializePreview();
+        initializeApply();
     }
 
     return {

@@ -194,9 +194,30 @@
     white-space: pre;
 }
 
+#batchedit #be-mainform #be-submitbar {
+    display: flex;
+}
+
+#batchedit #be-mainform #be-progressbar {
+    display: none;
+    flex-grow: 1;
+    align-self: center;
+    padding: 2px;
+    border: 1px solid var(--batchedit-border);
+}
+
+#batchedit #be-mainform #be-progress {
+    width: 0;
+    padding-left: 0.3em;
+    word-wrap: normal;
+    white-space: pre;
+    font-style: italic;
+    background-color: var(--batchedit-background-alt);
+}
+
 #batchedit #be-mainform .be-submit {
     padding: 0.5em 1.2em;
-    margin-right: 0.5em;
+    margin-right: 1em;
     font-weight: bold;
 }
 

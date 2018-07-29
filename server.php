@@ -27,6 +27,12 @@ class BatcheditServer {
     public function handle() {
         try {
             $this->verifyAdminRights();
+
+            switch ($_REQUEST['command']) {
+                case 'progress':
+                    $this->handleProgress();
+                    break;
+            }
         }
         catch (Exception $error) {
             $this->sendResponse(array('error' => 'server_error', 'message' => $error->getMessage()));
@@ -42,6 +48,40 @@ class BatcheditServer {
         if (auth_quickaclcheck($conf['start']) < AUTH_ADMIN) {
             throw new Exception('Access denied');
         }
+    }
+
+    /**
+     *
+     */
+    private function handleProgress() {
+        if (!isset($_REQUEST['session'])) {
+            throw new Exception('Invalid request');
+        }
+
+        $progress = new BatcheditProgress($_REQUEST['session']);
+
+        list($operation, $progress) = $progress->get();
+
+        if ($operation == BatcheditProgress::UNKNOWN) {
+            throw new Exception('Progress unknown');
+        }
+
+        $this->sendResponse(array('operation' => $this->getProgressLabel($operation), 'progress' => $progress));
+    }
+
+    /**
+     *
+     */
+    private function getProgressLabel($operation) {
+        switch ($operation) {
+            case BatcheditProgress::SEARCH:
+                return $this->plugin->getLang('lbl_searching');
+
+            case BatcheditProgress::APPLY:
+                return $this->plugin->getLang('lbl_applying');
+        }
+
+        return '';
     }
 
     /**

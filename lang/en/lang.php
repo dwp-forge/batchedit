@@ -55,6 +55,8 @@ $lang['lbl_multiline'] = 'Multiline';
 $lang['lbl_advregexp'] = 'Use regular expression syntax with modifiers';
 $lang['lbl_searchlimit'] = 'Stop search after finding first {1} matches';
 $lang['lbl_checksummary'] = 'Show confirmation on applying edits with no summary';
+$lang['lbl_searching'] = 'Searching...';
+$lang['lbl_applying'] = 'Applying...';
 
 $lang['sts_preview'] = 'Search results: {1} on {2}';
 $lang['sts_apply'] = 'Edit results: {1} on {2}, {3}';
