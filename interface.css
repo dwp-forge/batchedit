@@ -159,9 +159,14 @@
     margin-top: 1em;
 }
 
+#batchedit #be-mainform > div:first-child {
+    display: flex;
+    margin-bottom: 1.5em;
+}
+
 #batchedit #be-mainform table {
-    width: 75%;
-    border-right: 1px solid var(--batchedit-border);
+    flex-grow: 1;
+    margin: 0;
 }
 
 #batchedit #be-mainform td {
@@ -177,7 +182,7 @@
 }
 
 #batchedit #be-mainform td.be-edit {
-    width: 60%;
+    width: 99%;
     padding-right: 1em;
 }
 
@@ -235,14 +240,8 @@
  * Options
  */
 #batchedit #be-options {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 25%;
-}
-
-#batchedit #be-options > div {
     padding-left: 1em;
+    border-left: 1px solid var(--batchedit-border);
 }
 
 #batchedit #be-extoptions {
@@ -250,9 +249,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    height: 8em;
-    width: 50%;
-    padding: 0.5em 1em;
+    padding: 0.5em 1em 0.8em 1em;
     background-color: var(--batchedit-background);
     box-shadow: 0 0 0.5em #999;
 }

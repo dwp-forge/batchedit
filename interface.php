@@ -205,6 +205,8 @@ class BatcheditInterface {
     public function printMainForm($enableApply) {
         $this->ptln('<div id="be-mainform">', +2);
 
+        $this->ptln('<div>', +2);
+
         $this->ptln('<table>', +2);
         $this->printFormEdit('lbl_ns', 'namespace');
         $this->printFormEdit('lbl_search', 'search');
@@ -213,6 +215,8 @@ class BatcheditInterface {
         $this->ptln('</table>', -2);
 
         $this->printOptions();
+
+        $this->ptln('</div>', -2);
 
         // Value for this hidden input is set before submit through jQuery, containing
         // JSON-encoded list of all checked checkbox ids for single matches.
@@ -424,7 +428,9 @@ class BatcheditInterface {
      *
      */
     private function printOptions() {
-        $this->ptln('<div id="be-options"><div>', +2);
+        $style = 'min-width: ' . $this->getLang('dim_options') . ';';
+
+        $this->ptln('<div id="be-options" style="' . $style . '">', +2);
 
         $this->ptln('<div class="be-radiogroup">', +2);
         $this->ptln('<div>' . $this->getLang('lbl_searchmode') . '</div>');
@@ -435,13 +441,15 @@ class BatcheditInterface {
         $this->printCheckBox('matchcase', 'lbl_matchcase');
         $this->printCheckBox('multiline', 'lbl_multiline');
 
-        $this->ptln('</div></div>', -2);
+        $this->ptln('</div>', -2);
 
         $this->ptln('<div class="be-actions">', +2);
         $this->printAction('javascript:openAdvancedOptions();', 'ttl_extoptions', 'settings');
         $this->ptln('</div>', -2);
 
-        $this->ptln('<div id="be-extoptions">', +2);
+        $style = 'width: ' . $this->getLang('dim_extoptions') . ';';
+
+        $this->ptln('<div id="be-extoptions" style="' . $style . '">', +2);
         $this->ptln('<div class="be-actions">', +2);
         $this->printAction('javascript:closeAdvancedOptions();', '', 'close');
         $this->ptln('</div>', -2);
