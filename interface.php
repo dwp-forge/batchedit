@@ -597,12 +597,17 @@ class BatcheditInterface {
         if (substr($label, 0, 5) == 'print') {
             $this->$label();
         }
-        elseif (!empty($label)) {
+        else {
             if (substr($label, 0, 4) == 'lbl_') {
                 $label = $this->getLang($label);
             }
+            else {
+                $label = trim($label);
+            }
 
-            $this->ptln('<label for="be-' . $name . '">' . $label . '</label>');
+            if (!empty($label)) {
+                $this->ptln('<label for="be-' . $name . '">' . $label . '</label>');
+            }
         }
     }
 
