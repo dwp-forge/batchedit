@@ -82,9 +82,6 @@ class BatcheditMatchApplyException extends BatcheditPageApplyException {
 
 class BatcheditMatch implements Serializable {
 
-    const CONTEXT_LENGTH = 50;
-    const CONTEXT_MAX_LINES = 3;
-
     private $pageOffset;
     private $originalText;
     private $replacedText;
@@ -96,12 +93,12 @@ class BatcheditMatch implements Serializable {
     /**
      *
      */
-    public function __construct($pageText, $pageOffset, $text, $regexp, $replacement) {
+    public function __construct($pageText, $pageOffset, $text, $regexp, $replacement, $contextChars, $contextLines) {
         $this->pageOffset = $pageOffset;
         $this->originalText = $text;
         $this->replacedText = preg_replace($regexp, $replacement, $text);
-        $this->contextBefore = $this->cropContextBefore($pageText, $pageOffset);
-        $this->contextAfter = $this->cropContextAfter($pageText, $pageOffset + strlen($text));
+        $this->contextBefore = $this->cropContextBefore($pageText, $pageOffset, $contextChars, $contextLines);
+        $this->contextAfter = $this->cropContextAfter($pageText, $pageOffset + strlen($text), $contextChars, $contextLines);
         $this->marked = FALSE;
         $this->applied = FALSE;
     }
@@ -207,12 +204,16 @@ class BatcheditMatch implements Serializable {
     /**
      *
      */
-    private function cropContextBefore($pageText, $pageOffset) {
-        $context = utf8_substr(substr($pageText, 0, $pageOffset), -self::CONTEXT_LENGTH);
+    private function cropContextBefore($pageText, $pageOffset, $contextChars, $contextLines) {
+        if ($contextChars == 0) {
+            return '';
+        }
+
+        $context = utf8_substr(substr($pageText, 0, $pageOffset), -$contextChars);
         $count = preg_match_all('/\n/', $context, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-        if ($count > self::CONTEXT_MAX_LINES) {
-            $context = substr($context, $match[$count - self::CONTEXT_MAX_LINES - 1][0][1] + 1);
+        if ($count > $contextLines) {
+            $context = substr($context, $match[$count - $contextLines - 1][0][1] + 1);
         }
 
         return $context;
@@ -221,12 +222,16 @@ class BatcheditMatch implements Serializable {
     /**
      *
      */
-    private function cropContextAfter($pageText, $pageOffset) {
-        $context = utf8_substr(substr($pageText, $pageOffset), 0, self::CONTEXT_LENGTH);
+    private function cropContextAfter($pageText, $pageOffset, $contextChars, $contextLines) {
+        if ($contextChars == 0) {
+            return '';
+        }
+
+        $context = utf8_substr(substr($pageText, $pageOffset), 0, $contextChars);
         $count = preg_match_all('/\n/', $context, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-        if ($count > self::CONTEXT_MAX_LINES) {
-            $context = substr($context, 0, $match[self::CONTEXT_MAX_LINES][0][1]);
+        if ($count > $contextLines) {
+            $context = substr($context, 0, $match[$contextLines][0][1]);
         }
 
         return $context;
@@ -256,7 +261,7 @@ class BatcheditPage implements Serializable {
     /**
      *
      */
-    public function findMatches($regexp, $replacement, $limit) {
+    public function findMatches($regexp, $replacement, $limit, $contextChars, $contextLines) {
         $text = rawWiki($this->id);
         $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
@@ -272,7 +277,8 @@ class BatcheditPage implements Serializable {
         }
 
         for ($i = 0; $i < $count; $i++) {
-            $this->addMatch($text, $match[$i][0][1], $match[$i][0][0], $regexp, $replacement);
+            $this->addMatch($text, $match[$i][0][1], $match[$i][0][0], $regexp, $replacement,
+                    $contextChars, $contextLines);
         }
 
         return $interrupted;
@@ -393,8 +399,8 @@ class BatcheditPage implements Serializable {
     /**
      *
      */
-    private function addMatch($text, $offset, $matched, $regexp, $replacement) {
-        $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $regexp, $replacement);
+    private function addMatch($text, $offset, $matched, $regexp, $replacement, $contextChars, $contextLines) {
+        $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $regexp, $replacement, $contextChars, $contextLines);
     }
 
     /**
@@ -727,6 +733,7 @@ class BatcheditSession {
         $properties['regexp'] = $request->getRegexp();
         $properties['replacement'] = $request->getReplacement();
         $properties['searchlimit'] = $config->getConf('searchlimit') ? $config->getConf('searchmax') : 0;
+        $properties['matchctx'] = $config->getConf('matchctx') ? $config->getConf('ctxchars') . ',' . $config->getConf('ctxlines') : 0;
 
         return $properties;
     }
@@ -843,13 +850,14 @@ class BatcheditEngine {
     /**
      *
      */
-    public function findMatches($namespace, $regexp, $replacement, $limit) {
+    public function findMatches($namespace, $regexp, $replacement, $limit, $contextChars, $contextLines) {
         $index = $this->getPageIndex($namespace);
         $progress = new BatcheditProgress($this->session->getId(), BatcheditProgress::SEARCH, count($index));
 
         foreach ($index as $pageId) {
             $page = new BatcheditPage(trim($pageId));
-            $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount());
+            $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount(),
+                    $contextChars, $contextLines);
 
             if (count($page->getMatches()) > 0) {
                 $this->session->addPage($page);

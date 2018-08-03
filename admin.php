@@ -138,7 +138,9 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
      */
     private function findMatches($engine, $request) {
         $engine->findMatches($request->getNamespace(), $request->getRegexp(), $request->getReplacement(),
-                $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : -1);
+                $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : -1,
+                $this->config->getConf('matchctx') ? $this->config->getConf('ctxchars') : 0,
+                $this->config->getConf('ctxlines'));
     }
 
     /**

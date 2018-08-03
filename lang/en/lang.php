@@ -55,6 +55,7 @@ $lang['lbl_searchregexp'] = 'Regular expression';
 $lang['lbl_matchcase'] = 'Case sensitive';
 $lang['lbl_multiline'] = 'Multiline';
 $lang['lbl_advregexp'] = 'Use regular expression syntax with modifiers';
+$lang['lbl_matchctx'] = 'Show match context of {1} characters or {2} lines';
 $lang['lbl_searchlimit'] = 'Stop search after finding first {1} matches';
 $lang['lbl_checksummary'] = 'Show confirmation on applying edits with no summary';
 $lang['lbl_searching'] = 'Searching...';

@@ -387,7 +387,7 @@ class BatcheditInterface {
                 $multiline = isset($_REQUEST['multiline']);
                 $placeholder = $this->getLang($this->getPlaceholderId($name));
 
-                $this->printEditBox($name, FALSE, !$multiline, $placeholder);
+                $this->printEditBox($name, FALSE, TRUE, !$multiline, $placeholder);
                 $this->printTextArea($name, $multiline, $placeholder);
                 break;
 
@@ -447,7 +447,8 @@ class BatcheditInterface {
         $this->ptln('</div>', -2);
 
         $this->printCheckBox('advregexp', 'lbl_advregexp');
-        $this->printSearchLimit();
+        $this->printCheckBox('matchctx', 'printMatchContextLabel');
+        $this->printCheckBox('searchlimit', 'printSearchLimitLabel');
         $this->printCheckBox('checksummary', 'lbl_checksummary');
 
         $this->ptln('</div>', -2);
@@ -456,42 +457,32 @@ class BatcheditInterface {
     /**
      *
      */
-    private function printSearchLimit() {
-        $this->ptln('<div class="be-checkbox">', +2);
+    private function printMatchContextLabel() {
+        $label = preg_split('/(\{\d\})/', $this->getLang('lbl_matchctx'), -1, PREG_SPLIT_DELIM_CAPTURE);
+        $edits = array('{1}' => 'ctxchars', '{2}' => 'ctxlines');
 
-        $html = '<input type="checkbox" id="be-searchlimit" name="searchlimit" value="on"';
-
-        if (isset($_REQUEST['searchlimit'])) {
-            $html .= ' checked="checked"';
-        }
-
-        $this->ptln($html . ' />');
-
-        $label = explode('{1}', $this->getLang('lbl_searchlimit'));
-
-        $this->ptln('<label for="be-searchlimit">' . $label[0] . '</label>');
-
-        $html = '<input type="text" class="be-edit" id="be-searchmaxedit" name="searchmax"';
-
-        if (isset($_REQUEST['searchmax'])) {
-            $html .= ' value="' . $_REQUEST['searchmax'] . '"';
-        }
-
-        if (!isset($_REQUEST['searchlimit'])) {
-            $html .= ' disabled="disabled"';
-        }
-
-        $this->ptln($html . ' />');
-
-        $this->ptln('<label for="be-searchlimit">' . $label[1] . '</label>');
-
-        $this->ptln('</div>', -2);
+        $this->printLabel('matchctx', $label[0]);
+        $this->printEditBox($edits[$label[1]], TRUE, isset($_REQUEST['matchctx']));
+        $this->printLabel('matchctx', $label[2]);
+        $this->printEditBox($edits[$label[3]], TRUE, isset($_REQUEST['matchctx']));
+        $this->printLabel('matchctx', $label[4]);
     }
 
     /**
      *
      */
-    private function printEditBox($name, $submitted = TRUE, $visible = TRUE, $placeholder = '') {
+    private function printSearchLimitLabel() {
+        $label = explode('{1}', $this->getLang('lbl_searchlimit'));
+
+        $this->printLabel('searchlimit', $label[0]);
+        $this->printEditBox('searchmax', TRUE, isset($_REQUEST['searchlimit']));
+        $this->printLabel('searchlimit', $label[1]);
+    }
+
+    /**
+     *
+     */
+    private function printEditBox($name, $submitted = TRUE, $enabled = TRUE, $visible = TRUE, $placeholder = '') {
         $html = '<input type="text" class="be-edit" id="be-' . $name . 'edit"';
 
         if ($submitted) {
@@ -504,6 +495,10 @@ class BatcheditInterface {
 
         if (($submitted || $visible) && isset($_REQUEST[$name])) {
             $html .= ' value="' . $_REQUEST[$name] . '"';
+        }
+
+        if (!$enabled) {
+            $html .= ' disabled="disabled"';
         }
 
         if (!$visible) {
@@ -566,7 +561,7 @@ class BatcheditInterface {
 
         $this->ptln('<div class="be-checkbox">', +2);
         $this->ptln($html . ' />');
-        $this->ptln('<label for="be-' . $name . '">' . $this->getLang($label) . '</label>');
+        $this->printLabel($name, $label);
         $this->ptln('</div>', -2);
     }
 
@@ -583,8 +578,24 @@ class BatcheditInterface {
 
         $this->ptln('<div class="be-radiobtn">', +2);
         $this->ptln($html . ' />');
-        $this->ptln('<label for="be-' . $id . '">' . $this->getLang($label) . '</label>');
+        $this->printLabel($id, $label);
         $this->ptln('</div>', -2);
+    }
+
+    /**
+     *
+     */
+    private function printLabel($name, $label) {
+        if (substr($label, 0, 5) == 'print') {
+            $this->$label();
+        }
+        elseif (!empty($label)) {
+            if (substr($label, 0, 4) == 'lbl_') {
+                $label = $this->getLang($label);
+            }
+
+            $this->ptln('<label for="be-' . $name . '">' . $label . '</label>');
+        }
     }
 
     /**

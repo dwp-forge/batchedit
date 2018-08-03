@@ -139,12 +139,11 @@ class BatcheditRequest {
         $options['matchcase'] = isset($_REQUEST['matchcase']);
         $options['multiline'] = isset($_REQUEST['multiline']);
         $options['advregexp'] = isset($_REQUEST['advregexp']);
+        $options['matchctx'] = isset($_REQUEST['matchctx']);
+        $options['ctxchars'] = isset($_REQUEST['ctxchars']) ? $_REQUEST['ctxchars'] : '';
+        $options['ctxlines'] = isset($_REQUEST['ctxlines']) ? $_REQUEST['ctxlines'] : '';
         $options['searchlimit'] = isset($_REQUEST['searchlimit']);
-
-        if (isset($_REQUEST['searchmax'])) {
-            $options['searchmax'] = $_REQUEST['searchmax'];
-        }
-
+        $options['searchmax'] = isset($_REQUEST['searchmax']) ? $_REQUEST['searchmax'] : '';
         $options['checksummary'] = isset($_REQUEST['checksummary']);
 
         return $options;

@@ -215,6 +215,25 @@ var batcheditInterface = (function () {
         });
     }
 
+    function initializeMatchContext() {
+        var $contextChars = jQuery('input[name=ctxchars]');
+        var $contextLines = jQuery('input[name=ctxlines]');
+
+        jQuery('input[name=matchctx]').click(function() {
+            $contextChars.prop('disabled', !this.checked);
+            $contextLines.prop('disabled', !this.checked);
+            updateConfig('matchctx', this.checked);
+        });
+
+        $contextChars.change(function() {
+            updateConfig('ctxchars', this.value);
+        });
+
+        $contextLines.change(function() {
+            updateConfig('ctxlines', this.value);
+        });
+    }
+
     function initializeSearchLimit() {
         var $searchMax = jQuery('input[name=searchmax]');
 
@@ -302,6 +321,7 @@ var batcheditInterface = (function () {
         initializeMatchCase();
         initializeMultiline();
         initializeAdvancedOptions();
+        initializeMatchContext();
         initializeSearchLimit();
         initializeCheckSummary();
         initializePreview();

@@ -18,6 +18,9 @@ class BatcheditConfig {
         'matchcase' => FALSE,
         'multiline' => FALSE,
         'advregexp' => FALSE,
+        'matchctx' => TRUE,
+        'ctxchars' => 50,
+        'ctxlines' => 3,
         'searchlimit' => TRUE,
         'searchmax' => 100,
         'checksummary' => TRUE
@@ -96,6 +99,14 @@ class BatcheditConfig {
         $this->loadBoolean($options, 'matchcase');
         $this->loadBoolean($options, 'multiline');
         $this->loadBoolean($options, 'advregexp');
+        $this->loadBoolean($options, 'matchctx');
+        $this->loadInteger($options, 'ctxchars');
+        $this->loadInteger($options, 'ctxlines');
+
+        if ($this->config['ctxchars'] == 0) {
+            $this->config['matchctx'] = FALSE;
+        }
+
         $this->loadBoolean($options, 'searchlimit');
         $this->loadInteger($options, 'searchmax');
 
@@ -121,8 +132,8 @@ class BatcheditConfig {
      *
      */
     private function loadInteger($options, $id) {
-        if (array_key_exists($id, $options)) {
-            $this->config[$id] = intval($options[$id]);
+        if (array_key_exists($id, $options) && $options[$id] !== '') {
+            $this->config[$id] = max(intval($options[$id]), 0);
         }
     }
 }
