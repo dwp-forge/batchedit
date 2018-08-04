@@ -83,5 +83,5 @@ $lang['ttl_edit'] = 'Edit this page';
 $lang['ttl_mainform'] = 'Go to bottom';
 $lang['ttl_extoptions'] = 'Advanced options';
 
-$lang['dim_options'] = '15em';
-$lang['dim_extoptions'] = '30em';
+$lang['dim_options'] = '13em';
+$lang['dim_extoptions'] = '28em';
