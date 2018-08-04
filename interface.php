@@ -498,7 +498,7 @@ class BatcheditInterface {
         $this->printLabel('keepmarks', $label[0]);
         $this->ptln('<select name="markpolicy"' . $disabled . '>', +2);
 
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 4; $i++) {
             $selected = $_REQUEST['markpolicy'] == $i ? ' selected="selected"' : '';
 
             $this->ptln('<option value="' . $i . '"' . $selected . '>' . $this->getLang('lbl_keepmarks' . $i) . '</option>');

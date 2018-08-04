@@ -847,6 +847,52 @@ class BatcheditMarkPolicyVerifyOffset extends BatcheditMarkPolicy {
     }
 }
 
+class BatcheditMarkPolicyVerifyContext extends BatcheditMarkPolicy {
+
+    /**
+     *
+     */
+    public function markMatch($pageId, $offset) {
+        if (!array_key_exists($pageId, $this->pages)) {
+            return;
+        }
+
+        if (array_key_exists($offset, $this->pages[$pageId]->getMatches())) {
+            $this->pages[$pageId]->markMatch($offset);
+
+            return;
+        }
+
+        $minDelta = PHP_INT_MAX;
+        $minOffset = -1;
+
+        foreach ($this->pages[$pageId]->getMatches() as $match) {
+            $matchOffset = $match->getPageOffset();
+
+            if ($offset < $matchOffset - strlen($match->getContextBefore())) {
+                continue;
+            }
+
+            if ($offset >= $matchOffset + strlen($match->getOriginalText()) + strlen($match->getContextAfter())) {
+                continue;
+            }
+
+            $delta = abs($matchOffset - $offset);
+
+            if ($delta >= $minDelta) {
+                break;
+            }
+
+            $minDelta = $delta;
+            $minOffset = $matchOffset;
+        }
+
+        if ($minDelta != PHP_INT_MAX) {
+            $this->pages[$pageId]->markMatch($minOffset);
+        }
+    }
+}
+
 class BatcheditProgress {
 
     const UNKNOWN = 0;
@@ -918,6 +964,7 @@ class BatcheditEngine {
     const VERIFY_BOTH = 1;
     const VERIFY_MATCHED = 2;
     const VERIFY_OFFSET = 3;
+    const VERIFY_CONTEXT = 4;
 
     // These constants are used to take into account the time that plugin spends outside
     // of the engine. For example, this can be time spent by DokuWiki itself, time for
@@ -999,6 +1046,10 @@ class BatcheditEngine {
 
             case self::VERIFY_OFFSET:
                 $policy = new BatcheditMarkPolicyVerifyOffset($this->session->getPages());
+                break;
+
+            case self::VERIFY_CONTEXT:
+                $policy = new BatcheditMarkPolicyVerifyContext($this->session->getPages());
                 break;
         }
 
