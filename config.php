@@ -23,6 +23,8 @@ class BatcheditConfig {
         'ctxlines' => 3,
         'searchlimit' => TRUE,
         'searchmax' => 100,
+        'keepmarks' => FALSE,
+        'markpolicy' => 1,
         'checksummary' => TRUE
     );
 
@@ -114,6 +116,8 @@ class BatcheditConfig {
             $this->config['searchlimit'] = FALSE;
         }
 
+        $this->loadBoolean($options, 'keepmarks');
+        $this->loadInteger($options, 'markpolicy');
         $this->loadBoolean($options, 'checksummary');
         $this->loadInteger($options, 'searchheight');
         $this->loadInteger($options, 'replaceheight');

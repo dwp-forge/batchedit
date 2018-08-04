@@ -683,6 +683,19 @@ class BatcheditSession {
     /**
      *
      */
+    public function getCachedPages() {
+        if (!$this->cache->isValid($this->id)) {
+            return array();
+        }
+
+        $matches = $this->loadArray('matches');
+
+        return is_array($matches) ? $matches[2] : array();
+    }
+
+    /**
+     *
+     */
     public function getPageCount() {
         return count($this->pages);
     }
@@ -750,6 +763,87 @@ class BatcheditSession {
      */
     private function loadArray($name) {
         return $this->cache->load($this->id, $name);
+    }
+}
+
+abstract class BatcheditMarkPolicy {
+
+    protected $pages;
+
+    /**
+     *
+     */
+    public function __construct($pages) {
+        $this->pages = $pages;
+    }
+
+    /**
+     *
+     */
+    abstract public function markMatch($pageId, $offset);
+}
+
+class BatcheditMarkPolicyVerifyBoth extends BatcheditMarkPolicy {
+
+    protected $cache;
+
+    /**
+     *
+     */
+    public function __construct($pages, $cache) {
+        parent::__construct($pages);
+
+        $this->cache = $cache;
+    }
+
+    /**
+     *
+     */
+    public function markMatch($pageId, $offset) {
+        if (!array_key_exists($pageId, $this->pages) || !array_key_exists($pageId, $this->cache)) {
+            return;
+        }
+
+        $matches = $this->pages[$pageId]->getMatches();
+        $cache = $this->cache[$pageId]->getMatches();
+
+        if (!array_key_exists($offset, $matches) || !array_key_exists($offset, $cache)) {
+            return;
+        }
+
+        if ($this->compareMatches($matches[$offset], $cache[$offset])) {
+            $this->pages[$pageId]->markMatch($offset);
+        }
+    }
+
+    /**
+     *
+     */
+    protected function compareMatches($match, $cache) {
+        return $match->getOriginalText() == $cache->getOriginalText() &&
+                $match->getReplacedText() == $cache->getReplacedText();
+    }
+}
+
+class BatcheditMarkPolicyVerifyMatched extends BatcheditMarkPolicyVerifyBoth {
+
+    /**
+     *
+     */
+    protected function compareMatches($match, $cache) {
+        return $match->getOriginalText() == $cache->getOriginalText();
+    }
+}
+
+class BatcheditMarkPolicyVerifyOffset extends BatcheditMarkPolicy {
+
+    /**
+     *
+     */
+    public function markMatch($pageId, $offset) {
+        if (array_key_exists($pageId, $this->pages)) {
+            $this->pages[$pageId]->markMatch($offset);
+        }
     }
 }
 
@@ -821,6 +915,10 @@ class BatcheditProgress {
 
 class BatcheditEngine {
 
+    const VERIFY_BOTH = 1;
+    const VERIFY_MATCHED = 2;
+    const VERIFY_OFFSET = 3;
+
     // These constants are used to take into account the time that plugin spends outside
     // of the engine. For example, this can be time spent by DokuWiki itself, time for
     // request parsing, session loading and saving, etc.
@@ -889,15 +987,25 @@ class BatcheditEngine {
     /**
      *
      */
-    public function markRequestedMatches($request) {
-        $pages = $this->session->getPages();
+    public function markRequestedMatches($request, $policy = self::VERIFY_OFFSET) {
+        switch ($policy) {
+            case self::VERIFY_BOTH:
+                $policy = new BatcheditMarkPolicyVerifyBoth($this->session->getPages(), $this->session->getCachedPages());
+                break;
+
+            case self::VERIFY_MATCHED:
+                $policy = new BatcheditMarkPolicyVerifyMatched($this->session->getPages(), $this->session->getCachedPages());
+                break;
+
+            case self::VERIFY_OFFSET:
+                $policy = new BatcheditMarkPolicyVerifyOffset($this->session->getPages());
+                break;
+        }
 
         foreach ($request as $matchId) {
             list($pageId, $offset) = explode('#', $matchId);
 
-            if (array_key_exists($pageId, $pages)) {
-                $pages[$pageId]->markMatch($offset);
-            }
+            $policy->markMatch($pageId, $offset);
         }
     }
 

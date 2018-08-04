@@ -247,6 +247,19 @@ var batcheditInterface = (function () {
         });
     }
 
+    function initializeKeepMarks() {
+        var $markPolicy = jQuery('select[name=markpolicy]');
+
+        jQuery('input[name=keepmarks]').click(function() {
+            $markPolicy.prop('disabled', !this.checked);
+            updateConfig('keepmarks', this.checked);
+        });
+
+        $markPolicy.change(function() {
+            updateConfig('markpolicy', this.value);
+        });
+    }
+
     function initializeCheckSummary() {
         jQuery('input[name=checksummary]').click(function() {
             updateConfig('checksummary', this.checked);
@@ -323,6 +336,7 @@ var batcheditInterface = (function () {
         initializeAdvancedOptions();
         initializeMatchContext();
         initializeSearchLimit();
+        initializeKeepMarks();
         initializeCheckSummary();
         initializePreview();
         initializeApply();

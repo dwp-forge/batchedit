@@ -43,7 +43,7 @@ class BatcheditRequest {
         $this->summary = $this->parseSummary();
         $this->minorEdit = isset($_REQUEST['minor']);
 
-        if ($this->command == self::COMMAND_APPLY) {
+        if ($this->command == self::COMMAND_APPLY || $config->getConf('keepmarks')) {
             $this->appliedMatches = $this->parseAppliedMatches();
         }
     }
@@ -144,6 +144,8 @@ class BatcheditRequest {
         $options['ctxlines'] = isset($_REQUEST['ctxlines']) ? $_REQUEST['ctxlines'] : '';
         $options['searchlimit'] = isset($_REQUEST['searchlimit']);
         $options['searchmax'] = isset($_REQUEST['searchmax']) ? $_REQUEST['searchmax'] : '';
+        $options['keepmarks'] = isset($_REQUEST['keepmarks']);
+        $options['markpolicy'] = isset($_REQUEST['markpolicy']) ? $_REQUEST['markpolicy'] : '';
         $options['checksummary'] = isset($_REQUEST['checksummary']);
 
         return $options;

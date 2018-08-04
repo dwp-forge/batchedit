@@ -457,6 +457,7 @@ class BatcheditInterface {
         $this->printCheckBox('advregexp', 'lbl_advregexp');
         $this->printCheckBox('matchctx', 'printMatchContextLabel');
         $this->printCheckBox('searchlimit', 'printSearchLimitLabel');
+        $this->printCheckBox('keepmarks', 'printKeepMarksLabel');
         $this->printCheckBox('checksummary', 'lbl_checksummary');
 
         $this->ptln('</div>', -2);
@@ -485,6 +486,26 @@ class BatcheditInterface {
         $this->printLabel('searchlimit', $label[0]);
         $this->printEditBox('searchmax', TRUE, isset($_REQUEST['searchlimit']));
         $this->printLabel('searchlimit', $label[1]);
+    }
+
+    /**
+     *
+     */
+    private function printKeepMarksLabel() {
+        $label = explode('{1}', $this->getLang('lbl_keepmarks'));
+        $disabled = isset($_REQUEST['keepmarks']) ? '' : ' disabled="disabled"';
+
+        $this->printLabel('keepmarks', $label[0]);
+        $this->ptln('<select name="markpolicy"' . $disabled . '>', +2);
+
+        for ($i = 1; $i <= 3; $i++) {
+            $selected = $_REQUEST['markpolicy'] == $i ? ' selected="selected"' : '';
+
+            $this->ptln('<option value="' . $i . '"' . $selected . '>' . $this->getLang('lbl_keepmarks' . $i) . '</option>');
+        }
+
+        $this->ptln('</select>', -2);
+        $this->printLabel('keepmarks', $label[1]);
     }
 
     /**

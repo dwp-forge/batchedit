@@ -105,6 +105,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
 
         $this->session->setId($request->getSessionId());
         $this->findMatches($engine, $request);
+        $this->markMatches($engine, $request);
         $this->session->save($request, $this->config);
     }
 
@@ -141,6 +142,17 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
                 $this->config->getConf('searchlimit') ? $this->config->getConf('searchmax') : -1,
                 $this->config->getConf('matchctx') ? $this->config->getConf('ctxchars') : 0,
                 $this->config->getConf('ctxlines'));
+    }
+
+    /**
+     *
+     */
+    private function markMatches($engine, $request) {
+        if (!$this->config->getConf('keepmarks') || $this->session->getMatchCount() == 0 || empty($request->getAppliedMatches())) {
+            return;
+        }
+
+        $engine->markRequestedMatches($request->getAppliedMatches(), $this->config->getConf('markpolicy'));
     }
 
     /**
