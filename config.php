@@ -105,14 +105,14 @@ class BatcheditConfig {
         $this->loadInteger($options, 'ctxchars');
         $this->loadInteger($options, 'ctxlines');
 
-        if ($this->config['ctxchars'] == 0) {
+        if ($this->getConf('ctxchars') == 0) {
             $this->config['matchctx'] = FALSE;
         }
 
         $this->loadBoolean($options, 'searchlimit');
         $this->loadInteger($options, 'searchmax');
 
-        if ($this->config['searchmax'] == 0) {
+        if ($this->getConf('searchmax') == 0) {
             $this->config['searchlimit'] = FALSE;
         }
 
