@@ -347,8 +347,8 @@ class BatcheditInterface {
      *
      */
     private function printMatchTable($match) {
-        $original = $this->prepareText($match->getOriginalText(), 'search_hit' . ($match->isApplied() ? ' be-replaced' : ''));
-        $replaced = $this->prepareText($match->getReplacedText(), 'search_hit' . ($match->isApplied() ? ' be-applied' : ''));
+        $original = $this->prepareText($match->getOriginalText(), $match->isApplied() ? ' be-replaced' : 'be-preview');
+        $replaced = $this->prepareText($match->getReplacedText(), $match->isApplied() ? ' be-applied' : 'be-preview');
         $before = $this->prepareText($match->getContextBefore());
         $after = $this->prepareText($match->getContextAfter());
 

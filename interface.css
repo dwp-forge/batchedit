@@ -147,6 +147,14 @@
     stroke: var(--batchedit-text);
 }
 
+#batchedit .be-match .be-preview {
+    background-color: #ff9;
+}
+
+#batchedit .be-match .be-replaced {
+    background-color: #ff9;
+}
+
 #batchedit .be-match .be-applied {
     background-color: #6f9;
 }
