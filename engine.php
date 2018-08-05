@@ -899,11 +899,13 @@ class BatcheditProgress {
     const SEARCH = 1;
     const APPLY = 2;
     const SCALE = 1000;
+    const SAVE_PERIOD = 0.25;
 
     private $fileName;
     private $operation;
     private $range;
     private $progress;
+    private $lastSave;
 
     /**
      *
@@ -913,6 +915,7 @@ class BatcheditProgress {
         $this->operation = $operation;
         $this->range = $range;
         $this->progress = 0;
+        $this->lastSave = 0;
 
         if ($this->operation != self::UNKNOWN && $this->range > 0) {
             $this->save();
@@ -925,7 +928,9 @@ class BatcheditProgress {
     public function update($progressDelta = 1) {
         $this->progress += $progressDelta;
 
-        $this->save();
+        if (microtime(TRUE) > $this->lastSave + SAVE_PERIOD) {
+            $this->save();
+        }
     }
 
     /**
@@ -956,6 +961,8 @@ class BatcheditProgress {
         }
 
         @file_put_contents($this->fileName, str_pad('', $progress, '.'));
+
+        $this->lastSave = microtime(TRUE);
     }
 }
 
