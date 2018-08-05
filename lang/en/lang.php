@@ -12,7 +12,7 @@ $lang['direction']  = 'ltr';
 
 // For admin plugins, the menu prompt to be displayed in the admin menu
 // if set here, the plugin doesn't need to override the getMenuText() method
-$lang['menu'] = 'Batch Edit';
+$lang['menu'] = 'BatchEdit';
 
 $lang['err_invreq'] = 'Invalid request.';
 $lang['err_nosearch'] = 'Search expression is not specified.';
