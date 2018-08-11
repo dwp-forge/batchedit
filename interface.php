@@ -292,7 +292,7 @@ class BatcheditInterface {
 
         $this->ptln('<div class="be-actions">', +2);
         $this->printAction($link, 'ttl_view', 'file-document');
-        $this->printAction($link . '?do=edit', 'ttl_edit', 'pencil');
+        $this->printAction($link . (strpos($link, '?') === FALSE ? '?' : '&') . 'do=edit', 'ttl_edit', 'pencil');
         $this->printAction('#be-mainform', 'ttl_mainform', 'arrow-down');
         $this->ptln('</div>', -2);
     }
