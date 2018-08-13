@@ -928,7 +928,7 @@ class BatcheditProgress {
     public function update($progressDelta = 1) {
         $this->progress += $progressDelta;
 
-        if (microtime(TRUE) > $this->lastSave + SAVE_PERIOD) {
+        if (microtime(TRUE) > $this->lastSave + self::SAVE_PERIOD) {
             $this->save();
         }
     }
