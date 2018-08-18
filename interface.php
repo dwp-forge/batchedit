@@ -523,7 +523,7 @@ class BatcheditInterface {
         }
 
         if (($submitted || $visible) && isset($_REQUEST[$name])) {
-            $html .= ' value="' . $_REQUEST[$name] . '"';
+            $html .= ' value="' . htmlspecialchars($_REQUEST[$name]) . '"';
         }
 
         if (!$enabled) {
@@ -572,7 +572,7 @@ class BatcheditInterface {
                 $value = $match[1] . $value;
             }
 
-            $html .= $value;
+            $html .= htmlspecialchars($value);
         }
 
         $this->ptln($html . '</textarea>');
