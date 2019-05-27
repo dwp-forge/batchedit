@@ -397,11 +397,6 @@ class BatcheditInterface {
 
             case 'summary':
                 $this->printEditBox($name);
-                $this->ptln('</td>', -2);
-                $this->ptln('</tr>', -2);
-                $this->ptln('<tr>', +2);
-                $this->ptln('<td class="be-title"></td>');
-                $this->ptln('<td class="be-edit">', +2);
                 $this->printCheckBox('minor', 'lbl_minor');
                 break;
         }
