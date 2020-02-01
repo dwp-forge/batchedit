@@ -102,7 +102,7 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
 
             case 'js':
                 $type = 'script';
-                $data = array('type' => 'text/javascript', 'charset' => 'utf-8', 'src' => $fileName, '_data' => '');
+                $data = array('type' => 'text/javascript', 'charset' => 'utf-8', 'src' => $fileName, '_data' => '', 'defer' => 'defer');
                 break;
         }
 
