@@ -62,7 +62,7 @@ $lang['lbl_keepmarks1'] = 'Безопасный режим';
 $lang['lbl_keepmarks2'] = 'То же совпадение';
 $lang['lbl_keepmarks3'] = 'То же смещение';
 $lang['lbl_keepmarks4'] = 'Я чую удачу!';
-$lang['lbl_checksummary'] = 'Показsdать подтверждение о применении правок без сводки';
+$lang['lbl_checksummary'] = 'Показать подтверждение о применении правок без сводки';
 $lang['lbl_searching'] = 'Поиск...';
 $lang['lbl_applying'] = 'Применение...';
 
