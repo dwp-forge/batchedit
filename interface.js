@@ -44,7 +44,7 @@ var batcheditInterface = (function () {
         if (typeof config != 'undefined') {
             config[id] = value;
 
-            Cookies.set('BatchEditConfig', config, { path: '' });
+            Cookies.set('BatchEditConfig', config, { path: '', sameSite: 'Strict' });
         }
     }
 
