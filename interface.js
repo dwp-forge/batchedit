@@ -91,6 +91,10 @@ var batcheditInterface = (function () {
         var $floater = $anchor.children('div');
 
         var updateFloater = function() {
+            if ($anchor.length == 0) {
+                return;
+            }
+
             if (window.pageYOffset > $anchor.offset().top) {
                 $floater.addClass('be-floater').width($anchor.css('width'));
             }
