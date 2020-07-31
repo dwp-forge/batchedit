@@ -1,7 +1,7 @@
 base   batchedit
 author Mykola Ostrovskyy
 email  dwpforge@gmail.com
-date   2019-06-02
+date   2020-07-31
 name   BatchEdit Plugin
 desc   Edit wiki pages using regular expressions.
 url    http://www.dokuwiki.org/plugin:batchedit
