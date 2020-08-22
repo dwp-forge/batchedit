@@ -5,7 +5,7 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
- * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
+ * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author Denis Gravel <dgravel@cegepthetford.ca>
  */
 $lang['encoding']              = 'utf-8';
@@ -49,6 +49,8 @@ $lang['lbl_multiline']         = 'Multi-ligne';
 $lang['lbl_advregexp']         = 'Utiliser les délimiteurs et modificateurs dans les expressions régulières';
 $lang['lbl_matchctx']          = 'Montrer le contexte des résultats des  {1} caractères or {2} lignes';
 $lang['lbl_searchlimit']       = 'Arrêter la recherche après avoir trouvé les  {1} premiers résultats';
+$lang['lbl_keepmarks']         = 'Preserver la sélection lors de la prévisualisation de {1}';
+$lang['lbl_keepmarks1']        = 'Mode sécurisé';
 $lang['lbl_keepmarks2']        = 'Même occurrence';
 $lang['lbl_keepmarks3']        = 'Même décalage';
 $lang['lbl_keepmarks4']        = 'J\'ai de la chance !';
