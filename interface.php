@@ -124,7 +124,7 @@ class BatcheditInterface {
 
         $this->printJavascriptLang();
 
-        $this->ptln('<form action="' . $_SERVER['REQUEST_URI'] . '" method="post">');
+        $this->ptln('<form method="post">');
         $this->ptln('<input type="hidden" name="session" value="' . $sessionId . '" />');
     }
 
