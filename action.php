@@ -76,14 +76,15 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
      *
      */
     private function isBatchEditAjax() {
-        return $_REQUEST['call'] == 'batchedit';
+        return !empty($_REQUEST['call']) && $_REQUEST['call'] == 'batchedit';
     }
 
     /**
      *
      */
     private function isBatchEdit() {
-        return $_REQUEST['do'] == 'admin' && !empty($_REQUEST['page']) && $_REQUEST['page'] == 'batchedit';
+        return !empty($_REQUEST['do']) && $_REQUEST['do'] == 'admin' &&
+                !empty($_REQUEST['page']) && $_REQUEST['page'] == 'batchedit';
     }
 
     /**
