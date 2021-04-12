@@ -173,8 +173,11 @@
     margin-bottom: 1.5em;
 }
 
-#batchedit #be-mainform table {
+#batchedit #be-mainform #be-editboxes {
     flex-grow: 1;
+}
+
+#batchedit #be-mainform table {
     margin: 0;
 }
 

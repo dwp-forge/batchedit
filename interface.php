@@ -207,12 +207,14 @@ class BatcheditInterface {
 
         $this->ptln('<div>', +2);
 
+        $this->ptln('<div id="be-editboxes">', +2);
         $this->ptln('<table>', +2);
         $this->printFormEdit('lbl_ns', 'namespace');
         $this->printFormEdit('lbl_search', 'search');
         $this->printFormEdit('lbl_replace', 'replace');
         $this->printFormEdit('lbl_summary', 'summary');
         $this->ptln('</table>', -2);
+        $this->ptln('</div>', -2);
 
         $this->printOptions();
 
