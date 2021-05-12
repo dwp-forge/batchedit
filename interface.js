@@ -49,7 +49,8 @@ var batcheditInterface = (function () {
     }
 
     function initializeTooltip() {
-        jQuery('#batchedit').tooltip({
+        jQuery.widget.bridge('uitooltip', jQuery.ui.tooltip);
+        jQuery('#batchedit').uitooltip({
             tooltipClass: 'be-tooltip',
             show: {delay: 1000},
             track: true
