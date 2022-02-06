@@ -8,9 +8,15 @@
  * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author Denis Gravel <dgravel@cegepthetford.ca>
  */
+// Ces paramètres doivent être présents et définis correctement par rapport au language
 $lang['encoding']              = 'utf-8';
 $lang['direction']             = 'ltr';
+
+// Pour les administrateurs des plugins, nom du menu à afficher dans l'interface d'administration
+// s'il est défini ici, le plugin n'a pas besoin de surpasser la méthode getMenuText()
 $lang['menu']                  = 'BatchEdit';
+
+
 $lang['err_invreq']            = 'Requête invalide.';
 $lang['err_nosearch']          = 'Expression de recherche non précisée.';
 $lang['err_invregexp']         = 'Expression régulière invalide.';
@@ -18,6 +24,7 @@ $lang['err_emptyidx']          = 'L\'index de page est vide.';
 $lang['err_idxaccess']         = 'Ne peut accéder à l\'index de page.';
 $lang['err_emptyns']           = 'Aucune page trouvée dans la catégorie "{1}"';
 $lang['err_pregfailed']        = 'Aucune correspondance avec l\'expression régulière.';
+
 $lang['war_nomatches']         = 'Aucune correspondance trouvée.';
 $lang['war_norights']          = 'Vous n\'avez pas le droit de modifier la page {1}.';
 $lang['war_pagelock']          = '{2} a verrouillé la page {1}.';
@@ -26,16 +33,20 @@ $lang['war_searchlimit']       = 'La recherche s\'est interrompue après avoir a
 $lang['war_timeout']           = 'L\'opération a été interrompue car elle prend trop de temps.';
 $lang['war_cancelled']         = 'L\'opération a été interrompue  à la demande de l\'utilisateur.';
 $lang['war_nosummary']         = 'Le résumé des changements n\'est pas disponible. Voulez vous continuer sans ?';
+
 $lang['msg_error']             = '<b>Erreur :</b> {1}';
 $lang['msg_warning']           = '<b>Attention :</b> {1}';
+
 $lang['btn_preview']           = 'Voir';
 $lang['btn_apply']             = 'Appliquer';
 $lang['btn_cancel']            = 'Annuler';
+
 $lang['hnt_textsearch']        = 'ToutWiki';
 $lang['hnt_textreplace']       = 'DokuWiki';
 $lang['hnt_regexpsearch']      = '\w+(Wiki)';
 $lang['hnt_regexpreplace']     = 'Doku$1';
 $lang['hnt_advregexpsearch']   = '/\w+(Wiki)/m';
+
 $lang['lbl_ns']                = 'Catégorie';
 $lang['lbl_search']            = 'Rechercher';
 $lang['lbl_replace']           = 'Remplacement';
@@ -55,8 +66,10 @@ $lang['lbl_keepmarks2']        = 'Même occurrence';
 $lang['lbl_keepmarks3']        = 'Même décalage';
 $lang['lbl_keepmarks4']        = 'J\'ai de la chance !';
 $lang['lbl_checksummary']      = 'Demander confirmation pour appliquer les changements sans résumé';
+$lang['lbl_tplpatterns']       = 'Utiliser les motifs de remplacement des modèles de catégorie';
 $lang['lbl_searching']         = 'Recherche...';
 $lang['lbl_applying']          = 'Remplacements...';
+
 $lang['sts_preview']           = 'Résultats de recherche : {1} sur {2}';
 $lang['sts_apply']             = 'Résultat d\'édition : {1} sur {2}, {3}';
 $lang['sts_page']              = '{1} &ndash; {2}';
@@ -66,6 +79,7 @@ $lang['sts_pages#one']         = '{1} page';
 $lang['sts_pages#many']        = '{1} pages';
 $lang['sts_edits#one']         = '{1} replacement appliqué';
 $lang['sts_edits#many']        = '{1} replacements appliqués';
+
 $lang['ttl_applyall']          = 'Appliquer toutes les occurrences';
 $lang['ttl_applyfile']         = 'Appliquer toutes les occurrences dans ce fichier';
 $lang['ttl_applymatch']        = 'Appliquer cette occurrence';
@@ -73,5 +87,6 @@ $lang['ttl_view']              = 'Aller à cette page';
 $lang['ttl_edit']              = 'Modifier cette page';
 $lang['ttl_mainform']          = 'Aller en bas';
 $lang['ttl_extoptions']        = 'Options avancées';
+
 $lang['dim_options']           = '13em';
-$lang['dim_extoptions']        = '28em';
+$lang['dim_extoptions']        = '36em';
