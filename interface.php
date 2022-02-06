@@ -679,11 +679,40 @@ class BatcheditInterface {
      *
      */
     private function getLangPlural($id, $quantity) {
-        if ($quantity == 1) {
-            return $this->getLang($id . '#one', $quantity);
+        $lang = $this->getLang($id . $this->getPluralForm($quantity), $quantity);
+
+        if (!empty($lang)) {
+            return $lang;
         }
 
         return $this->getLang($id . '#many', $quantity);
+    }
+
+    /**
+     *
+     */
+    private function getPluralForm($quantity) {
+        global $conf;
+
+        if ($conf['lang'] == 'ru') {
+            $quantity %= 100;
+
+            if ($quantity >= 5 && $quantity <= 20) {
+                return '#many';
+            }
+
+            $quantity %= 10;
+
+            if ($quantity >= 2 && $quantity <= 4) {
+                return '#few';
+            }
+        }
+
+        if ($quantity == 1) {
+            return '#one';
+        }
+
+        return '#many';
     }
 
     /**
