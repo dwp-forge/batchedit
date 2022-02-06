@@ -261,7 +261,7 @@ class BatcheditPage implements Serializable {
     /**
      *
      */
-    public function findMatches($regexp, $replacement, $limit, $contextChars, $contextLines) {
+    public function findMatches($regexp, $replacement, $limit, $contextChars, $contextLines, $applyTemplatePatterns) {
         $text = rawWiki($this->id);
         $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
@@ -274,6 +274,17 @@ class BatcheditPage implements Serializable {
         if ($limit >= 0 && $count > $limit) {
             $count = $limit;
             $interrupted = TRUE;
+        }
+
+        if ($applyTemplatePatterns) {
+            $data = array(
+                'id' => $this->id,
+                'tpl' => $replacement,
+                'tplfile' => '',
+                'doreplace' => true
+            );
+
+            $replacement = parsePageTemplate($data);
         }
 
         for ($i = 0; $i < $count; $i++) {
@@ -747,6 +758,7 @@ class BatcheditSession {
         $properties['replacement'] = $request->getReplacement();
         $properties['searchlimit'] = $config->getConf('searchlimit') ? $config->getConf('searchmax') : 0;
         $properties['matchctx'] = $config->getConf('matchctx') ? $config->getConf('ctxchars') . ',' . $config->getConf('ctxlines') : 0;
+        $properties['tplpatterns'] = $config->getConf('tplpatterns');
 
         return $properties;
     }
@@ -1002,14 +1014,14 @@ class BatcheditEngine {
     /**
      *
      */
-    public function findMatches($namespace, $regexp, $replacement, $limit, $contextChars, $contextLines) {
+    public function findMatches($namespace, $regexp, $replacement, $limit, $contextChars, $contextLines, $applyTemplatePatterns) {
         $index = $this->getPageIndex($namespace);
         $progress = new BatcheditProgress($this->session->getId(), BatcheditProgress::SEARCH, count($index));
 
         foreach ($index as $pageId) {
             $page = new BatcheditPage(trim($pageId));
             $interrupted = $page->findMatches($regexp, $replacement, $limit - $this->session->getMatchCount(),
-                    $contextChars, $contextLines);
+                    $contextChars, $contextLines, $applyTemplatePatterns);
 
             if (count($page->getMatches()) > 0) {
                 $this->session->addPage($page);

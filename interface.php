@@ -460,6 +460,7 @@ class BatcheditInterface {
         $this->printCheckBox('matchctx', 'printMatchContextLabel');
         $this->printCheckBox('searchlimit', 'printSearchLimitLabel');
         $this->printCheckBox('keepmarks', 'printKeepMarksLabel');
+        $this->printCheckBox('tplpatterns', 'lbl_tplpatterns');
         $this->printCheckBox('checksummary', 'lbl_checksummary');
 
         $this->ptln('</div>', -2);

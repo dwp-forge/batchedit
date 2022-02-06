@@ -269,6 +269,12 @@ var batcheditInterface = (function () {
         });
     }
 
+    function initializeApplyTemplatePatterns() {
+        jQuery('input[name=tplpatterns]').click(function() {
+            updateConfig('tplpatterns', this.checked);
+        });
+    }
+
     function initializeCheckSummary() {
         jQuery('input[name=checksummary]').click(function() {
             updateConfig('checksummary', this.checked);
@@ -346,6 +352,7 @@ var batcheditInterface = (function () {
         initializeMatchContext();
         initializeSearchLimit();
         initializeKeepMarks();
+        initializeApplyTemplatePatterns();
         initializeCheckSummary();
         initializePreview();
         initializeApply();

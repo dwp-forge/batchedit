@@ -62,6 +62,7 @@ $lang['lbl_keepmarks1'] = 'Safe mode';
 $lang['lbl_keepmarks2'] = 'Same match';
 $lang['lbl_keepmarks3'] = 'Same offset';
 $lang['lbl_keepmarks4'] = 'I feel lucky!';
+$lang['lbl_tplpatterns'] = 'Apply namespace template replacement patterns';
 $lang['lbl_checksummary'] = 'Show confirmation on applying edits with no summary';
 $lang['lbl_searching'] = 'Searching...';
 $lang['lbl_applying'] = 'Applying...';

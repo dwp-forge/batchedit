@@ -53,6 +53,7 @@ $lang['lbl_keepmarks']         = 'Erhalte markierte Funde in der Voransicht {1}'
 $lang['lbl_keepmarks1']        = 'Sicherer Modus';
 $lang['lbl_keepmarks2']        = 'Gleicher Fund';
 $lang['lbl_keepmarks4']        = 'Ich bin erfreut!';
+$lang['lbl_tplpatterns']       = 'Wenden Sie Namensraumvorlagen-Ersetzungsmuster an';
 $lang['lbl_checksummary']      = 'Zeige Bestättigung der Durchführung von Änderungen ohne Zusammenfassung';
 $lang['lbl_searching']         = 'Suche...';
 $lang['lbl_applying']          = 'Wird durchgeführt...';

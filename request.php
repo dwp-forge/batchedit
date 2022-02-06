@@ -146,6 +146,7 @@ class BatcheditRequest {
         $options['searchmax'] = isset($_REQUEST['searchmax']) ? $_REQUEST['searchmax'] : '';
         $options['keepmarks'] = isset($_REQUEST['keepmarks']);
         $options['markpolicy'] = isset($_REQUEST['markpolicy']) ? $_REQUEST['markpolicy'] : '';
+        $options['tplpatterns'] = isset($_REQUEST['tplpatterns']);
         $options['checksummary'] = isset($_REQUEST['checksummary']);
 
         return $options;
