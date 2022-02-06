@@ -7,6 +7,7 @@
  *
  * @author Aleksandr Selivanov <alexgearbox@yandex.ru>
  * @author Rainbow-Spike <rainbow_spike@derpy.ru>
+ * @author Mykola Ostrovskyy <dwpforge@gmail.com>
  */
 $lang['encoding']              = 'utf-8';
 $lang['direction']             = 'ltr';
@@ -14,7 +15,7 @@ $lang['menu']                  = 'BatchEdit';
 $lang['err_invreq']            = 'Неверный запрос.';
 $lang['err_nosearch']          = 'Поисковое выражение не указано.';
 $lang['err_invregexp']         = 'Неверное регулярное выражение.';
-$lang['err_emptyidx']          = 'Индекс страницы пуст.';
+$lang['err_emptyidx']          = 'Индекс страниц пуст.';
 $lang['err_idxaccess']         = 'Индекс страницы недоступен.';
 $lang['err_emptyns']           = 'В папке "{1}" найдены страницы.';
 $lang['err_pregfailed']        = 'Ошибка сопоставления регулярного выражения.';
@@ -53,17 +54,17 @@ $lang['lbl_keepmarks']         = 'Сохранить отмеченные сов
 $lang['lbl_keepmarks1']        = 'Безопасный режим';
 $lang['lbl_keepmarks2']        = 'То же совпадение';
 $lang['lbl_keepmarks3']        = 'То же смещение';
-$lang['lbl_keepmarks4']        = 'Я чую удачу!';
+$lang['lbl_keepmarks4']        = 'Мне повезёт!';
 $lang['lbl_checksummary']      = 'Показать подтверждение о применении правок без сводки';
 $lang['lbl_searching']         = 'Поиск...';
 $lang['lbl_applying']          = 'Применение...';
-$lang['sts_preview']           = 'Результаты поиска: {1} в {2}';
-$lang['sts_apply']             = 'Результаты правок: {1} в {2}, {3}';
+$lang['sts_preview']           = 'Результаты поиска: {1} на {2}';
+$lang['sts_apply']             = 'Результаты правок: {1} на {2}, {3}';
 $lang['sts_page']              = '{1} &ndash; {2}';
 $lang['sts_matches#one']       = '{1} совпадение';
 $lang['sts_matches#many']      = '{1} совпадений';
-$lang['sts_pages#one']         = '{1} страница';
-$lang['sts_pages#many']        = '{1} страниц';
+$lang['sts_pages#one']         = '{1} странице';
+$lang['sts_pages#many']        = '{1} страницах';
 $lang['sts_edits#one']         = '{1} замена применена';
 $lang['sts_edits#many']        = '{1} замен применено';
 $lang['ttl_applyall']          = 'Применить все совпадения';
