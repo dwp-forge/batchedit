@@ -19,7 +19,7 @@ $lang['err_nosearch'] = 'Search expression is not specified.';
 $lang['err_invregexp'] = 'Invalid regular expression.';
 $lang['err_emptyidx'] = 'The page index is empty.';
 $lang['err_idxaccess'] = 'Cannot access the page index.';
-$lang['err_emptyns'] = 'The pages found in namespace "{1}".';
+$lang['err_emptyns'] = 'No pages found in namespace "{1}".';
 $lang['err_pregfailed'] = 'Regular expression matching has failed.';
 
 $lang['war_nomatches'] = 'No matches are found.';

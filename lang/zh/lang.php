@@ -19,7 +19,7 @@ $lang['err_nosearch'] = '未指定搜索条件。';
 $lang['err_invregexp'] = '无效的正则表达式。';
 $lang['err_emptyidx'] = '页面索引为空。';
 $lang['err_idxaccess'] = '无法访问页面索引。';
-$lang['err_emptyns'] = '命名空间 "{1}" 中没有页面。';
+$lang['err_emptyns'] = '在命名空间 "{1}" 中找不到页面。';
 $lang['err_pregfailed'] = '正则表达式错误。';
 
 $lang['war_nomatches'] = '找不到匹配文本。';
