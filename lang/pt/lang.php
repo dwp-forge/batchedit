@@ -70,5 +70,5 @@ $lang['ttl_view']              = 'Ir para a página';
 $lang['ttl_edit']              = 'Editar essa página';
 $lang['ttl_mainform']          = 'Ir para o rodapé';
 $lang['ttl_extoptions']        = 'Opções avançadas';
-$lang['dim_options']           = '13em';
-$lang['dim_extoptions']        = '28em';
+$lang['dim_options']           = '17em';
+$lang['dim_extoptions']        = '42em';
