@@ -25,7 +25,8 @@ class BatcheditConfig {
         'searchmax' => 100,
         'keepmarks' => FALSE,
         'markpolicy' => 1,
-        'checksummary' => TRUE
+        'checksummary' => TRUE,
+        'tplpatterns' => FALSE
     );
 
     /**
@@ -119,6 +120,7 @@ class BatcheditConfig {
         $this->loadBoolean($options, 'keepmarks');
         $this->loadInteger($options, 'markpolicy');
         $this->loadBoolean($options, 'checksummary');
+        $this->loadBoolean($options, 'tplpatterns');
         $this->loadInteger($options, 'searchheight');
         $this->loadInteger($options, 'replaceheight');
     }

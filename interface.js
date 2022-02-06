@@ -275,6 +275,12 @@ var batcheditInterface = (function () {
         });
     }
 
+    function initializeApplyTemplatePatterns() {
+        jQuery('input[name=tplpatterns]').click(function() {
+            updateConfig('tplpatterns', this.checked);
+        });
+    }
+
     function startProgressMonitor() {
         var hidden = true;
         var $progress = jQuery('#be-progress');
@@ -347,6 +353,7 @@ var batcheditInterface = (function () {
         initializeSearchLimit();
         initializeKeepMarks();
         initializeCheckSummary();
+        initializeApplyTemplatePatterns();
         initializePreview();
         initializeApply();
         initializeCancel();
