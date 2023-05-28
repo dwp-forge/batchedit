@@ -209,7 +209,7 @@ class BatcheditMatch implements Serializable {
             return '';
         }
 
-        $context = utf8_substr(substr($pageText, 0, $pageOffset), -$contextChars);
+        $context = \dokuwiki\Utf8\PhpString::substr(substr($pageText, 0, $pageOffset), -$contextChars);
         $count = preg_match_all('/\n/', $context, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count > $contextLines) {
@@ -227,7 +227,7 @@ class BatcheditMatch implements Serializable {
             return '';
         }
 
-        $context = utf8_substr(substr($pageText, $pageOffset), 0, $contextChars);
+        $context = \dokuwiki\Utf8\PhpString::substr(substr($pageText, $pageOffset), 0, $contextChars);
         $count = preg_match_all('/\n/', $context, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count > $contextLines) {

@@ -9,6 +9,14 @@
 
 require_once(DOKU_PLUGIN . 'batchedit/engine.php');
 
+/**
+ * As of DW 2023-04-04 the \dokuwiki\File\Resolver class is abstact with only
+ * two concrete implementations (PageResolver, MediaResolver). This child class
+ * is used to access basic namespace resolution from the abstract base.
+ */
+class BatcheditNamespaceResolver extends \dokuwiki\File\Resolver {
+}
+
 class BatcheditRequest {
 
     const COMMAND_WELCOME = 'welcome';
@@ -176,7 +184,7 @@ class BatcheditRequest {
         if ($namespace != '') {
             global $ID;
 
-            $namespace = resolve_id(getNS($ID), $namespace . ':') . ':';
+            $namespace = (new BatcheditNamespaceResolver($ID))->resolveId($namespace . ':');
         }
 
         return $namespace;
