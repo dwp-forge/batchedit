@@ -183,8 +183,21 @@ class BatcheditRequest {
 
         if ($namespace != '') {
             global $ID;
+            $resolver = new BatcheditNamespaceResolver($ID);
+            $resolved = array();
 
-            $namespace = (new BatcheditNamespaceResolver($ID))->resolveId($namespace . ':');
+            foreach (explode(',', $namespace) as $ns) {
+                $ns = trim($ns) . ':';
+
+                if ($ns[0] == '-') {
+                    $resolved[] = '-' . $resolver->resolveId(substr($ns, 1));
+                }
+                else {
+                    $resolved[] = $resolver->resolveId($ns);
+                }
+            }
+
+            $namespace = implode(',', $resolved);
         }
 
         return $namespace;

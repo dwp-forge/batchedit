@@ -1133,15 +1133,49 @@ class BatcheditEngine {
         }
 
         if ($namespace != '') {
-            if ($namespace == ':') {
-                $pattern = "\033^[^:]+$\033";
-            }
-            else {
-                $pattern = "\033^" . $namespace . "\033";
+            $positiveFilter = array();
+            $negativeFilter = array();
+
+            foreach (explode(',', $namespace) as $ns) {
+                $negative = false;
+
+                if ($ns[0] == '-') {
+                    $negative = true;
+                    $ns = substr($ns, 1);
+                }
+
+                if ($ns == ':') {
+                    $ns = "[^:]+$";
+                }
+
+                if ($negative) {
+                    $negativeFilter[] = $ns;
+                }
+                else {
+                    $positiveFilter[] = $ns;
+                }
             }
 
-            $index = array_filter($index, function ($pageId) use ($pattern) {
-                return preg_match($pattern, $pageId) == 1;
+            if (!empty($positiveFilter)) {
+                $positiveFilter = "\033^(?:" . implode('|', $positiveFilter) . ")\033";
+            }
+
+            if (!empty($negativeFilter)) {
+                $negativeFilter = "\033^(?:" . implode('|', $negativeFilter) . ")\033";
+            }
+
+            $index = array_filter($index, function ($pageId) use ($positiveFilter, $negativeFilter) {
+                $matched = true;
+
+                if (!empty($positiveFilter)) {
+                    $matched = preg_match($positiveFilter, $pageId) == 1;
+                }
+
+                if ($matched && !empty($negativeFilter)) {
+                    $matched = preg_match($negativeFilter, $pageId) == 0;
+                }
+
+                return $matched;
             });
 
             if (count($index) == 0) {
