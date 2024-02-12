@@ -119,22 +119,22 @@ class BatcheditInterface {
      *
      */
     public function printBeginning($sessionId) {
-        $this->ptln('<!-- batchedit -->');
-        $this->ptln('<div id="batchedit">');
+        print('<!-- batchedit -->');
+        print('<div id="batchedit">');
 
         $this->printJavascriptLang();
 
-        $this->ptln('<form method="post">');
-        $this->ptln('<input type="hidden" name="session" value="' . $sessionId . '" />');
+        print('<form method="post">');
+        print('<input type="hidden" name="session" value="' . $sessionId . '" />');
     }
 
     /**
      *
      */
     public function printEnding() {
-        $this->ptln('</form>');
-        $this->ptln('</div>');
-        $this->ptln('<!-- /batchedit -->');
+        print('</form>');
+        print('</div>');
+        print('<!-- /batchedit -->');
     }
 
     /**
@@ -145,15 +145,15 @@ class BatcheditInterface {
             return;
         }
 
-        $this->ptln('<div id="be-messages">', +2);
+        print('<div id="be-messages">');
 
         foreach ($messages as $message) {
-            $this->ptln('<div class="' . $message->getClass() . '">', +2);
-            $this->ptln($this->getLang($message->getFormatId(), call_user_func_array(array($this, 'getLang'), $message->data)));
-            $this->ptln('</div>', -2);
+            print('<div class="' . $message->getClass() . '">');
+            print($this->getLang($message->getFormatId(), call_user_func_array(array($this, 'getLang'), $message->data)));
+            print('</div>');
         }
 
-        $this->ptln('</div>', -2);
+        print('</div>');
     }
 
     /**
@@ -174,16 +174,16 @@ class BatcheditInterface {
                 break;
         }
 
-        $this->ptln('<div id="be-totalstats"><div>', +2);
+        print('<div id="be-totalstats"><div>');
 
         if ($editCount < $matchCount) {
             $this->printApplyCheckBox('be-applyall', $stats, 'ttl_applyall');
         }
         else {
-            $this->ptln($stats);
+            print($stats);
         }
 
-        $this->ptln('</div></div>', -2);
+        print('</div></div>');
     }
 
     /**
@@ -191,11 +191,13 @@ class BatcheditInterface {
      */
     public function printMatches($pages) {
         foreach ($pages as $page) {
-            $this->ptln('<div class="be-file">', +2);
+            print('<div class="be-file">');
+
             $this->printPageStats($page);
             $this->printPageActions($page->getId());
             $this->printPageMatches($page);
-            $this->ptln('</div>', -2);
+
+            print('</div>');
         }
     }
 
@@ -203,46 +205,52 @@ class BatcheditInterface {
      *
      */
     public function printMainForm($enableApply) {
-        $this->ptln('<div id="be-mainform">', +2);
+        print('<div id="be-mainform">');
 
-        $this->ptln('<div>', +2);
+        print('<div>');
 
-        $this->ptln('<div id="be-editboxes">', +2);
-        $this->ptln('<table>', +2);
+        print('<div id="be-editboxes">');
+        print('<table>');
+
         $this->printFormEdit('lbl_ns', 'namespace');
         $this->printFormEdit('lbl_search', 'search');
         $this->printFormEdit('lbl_replace', 'replace');
         $this->printFormEdit('lbl_summary', 'summary');
-        $this->ptln('</table>', -2);
-        $this->ptln('</div>', -2);
+
+        print('</table>');
+        print('</div>');
 
         $this->printOptions();
 
-        $this->ptln('</div>', -2);
+        print('</div>');
 
         // Value for this hidden input is set before submit through jQuery, containing
         // JSON-encoded list of all checked checkbox ids for single matches.
         // Consolidating these inputs into a single string variable avoids problems for
         // huge replacement sets exceeding `max_input_vars` in `php.ini`.
-        $this->ptln('<input type="hidden" name="apply" value="" />');
+        print('<input type="hidden" name="apply" value="" />');
 
-        $this->ptln('<div id="be-submitbar">', +2);
+        print('<div id="be-submitbar">');
+
         $this->printSubmitButton('cmd[preview]', 'btn_preview');
         $this->printSubmitButton('cmd[apply]', 'btn_apply', $enableApply);
-        $this->ptln('<div id="be-progressbar">', +2);
-        $this->ptln('<div id="be-progresswrap"><div id="be-progress"></div></div>');
-        $this->printButton('cancel', 'btn_cancel');
-        $this->ptln('</div>', -2);
-        $this->ptln('</div>', -2);
 
-        $this->ptln('</div>', -2);
+        print('<div id="be-progressbar">');
+        print('<div id="be-progresswrap"><div id="be-progress"></div></div>');
+
+        $this->printButton('cancel', 'btn_cancel');
+
+        print('</div>');
+        print('</div>');
+
+        print('</div>');
     }
 
     /**
      *
      */
     private function printJavascriptLang() {
-        $this->ptln('<script type="text/javascript">');
+        print('<script type="text/javascript">');
 
         $langIds = array('hnt_textsearch', 'hnt_textreplace', 'hnt_regexpsearch', 'hnt_regexpreplace',
                 'hnt_advregexpsearch', 'war_nosummary');
@@ -252,8 +260,8 @@ class BatcheditInterface {
             $lang[$id] = $this->getLang($id);
         }
 
-        $this->ptln('var batcheditLang = ' . json_encode($lang) . ';');
-        $this->ptln('</script>');
+        print('var batcheditLang = ' . json_encode($lang) . ';');
+        print('</script>');
     }
 
     /**
@@ -262,10 +270,10 @@ class BatcheditInterface {
     private function printApplyCheckBox($id, $label, $title, $checked = FALSE) {
         $checked = $checked ? ' checked="checked"' : '';
 
-        $this->ptln('<span class="be-apply" title="' . $this->getLang($title) . '">', +2);
-        $this->ptln('<input type="checkbox" id="' . $id . '"' . $checked . ' />');
-        $this->ptln('<label for="' . $id . '">' . $label . '</label>');
-        $this->ptln('</span>', -2);
+        print('<span class="be-apply" title="' . $this->getLang($title) . '">');
+        print('<input type="checkbox" id="' . $id . '"' . $checked . ' />');
+        print('<label for="' . $id . '">' . $label . '</label>');
+        print('</span>');
     }
 
     /**
@@ -274,16 +282,16 @@ class BatcheditInterface {
     private function printPageStats($page) {
         $stats = $this->getLang('sts_page', $page->getId(), $this->getLangPlural('sts_matches', count($page->getMatches())));
 
-        $this->ptln('<div class="be-stats">', +2);
+        print('<div class="be-stats">');
 
         if ($page->hasUnappliedMatches()) {
             $this->printApplyCheckBox($page->getId(), $stats, 'ttl_applyfile', !$page->hasUnmarkedMatches());
         }
         else {
-            $this->ptln($stats);
+            print($stats);
         }
 
-        $this->ptln('</div>', -2);
+        print('</div>');
     }
 
     /**
@@ -292,11 +300,13 @@ class BatcheditInterface {
     private function printPageActions($pageId) {
         $link = wl($pageId);
 
-        $this->ptln('<div class="be-actions">', +2);
+        print('<div class="be-actions">');
+
         $this->printAction($link, 'ttl_view', 'file-document');
         $this->printAction($link . (strpos($link, '?') === FALSE ? '?' : '&') . 'do=edit', 'ttl_edit', 'pencil');
         $this->printAction('#be-mainform', 'ttl_mainform', 'arrow-down');
-        $this->ptln('</div>', -2);
+
+        print('</div>');
     }
 
     /**
@@ -307,7 +317,7 @@ class BatcheditInterface {
         $action .= $this->getSvg($iconId);
         $action .= '</a>';
 
-        $this->ptln($action);
+        print($action);
     }
 
     /**
@@ -315,10 +325,12 @@ class BatcheditInterface {
      */
     private function printPageMatches($page) {
         foreach ($page->getMatches() as $match) {
-            $this->ptln('<div class="be-match">', +2);
+            print('<div class="be-match">');
+
             $this->printMatchHeader($page->getId(), $match);
             $this->printMatchTable($match);
-            $this->ptln('</div>', -2);
+
+            print('</div>');
         }
     }
 
@@ -328,7 +340,7 @@ class BatcheditInterface {
     private function printMatchHeader($pageId, $match) {
         $id = $pageId . '#' . $match->getPageOffset();
 
-        $this->ptln('<div class="be-matchid">', +2);
+        print('<div class="be-matchid">');
 
         if (!$match->isApplied()) {
             $this->printApplyCheckBox($id, $id, 'ttl_applymatch', $match->isMarked());
@@ -338,11 +350,11 @@ class BatcheditInterface {
             // applied matches if application is performed in multiple rounds. This can
             // be the case when one apply command is timed out and user issues a second
             // one to apply the remaining matches.
-            $this->ptln('<input type="checkbox" id="' . $id . '" checked="checked" style="display:none;" />');
-            $this->ptln($id);
+            print('<input type="checkbox" id="' . $id . '" checked="checked" style="display:none;" />');
+            print($id);
         }
 
-        $this->ptln('</div>', -2);
+        print('</div>');
     }
 
     /**
@@ -354,11 +366,11 @@ class BatcheditInterface {
         $before = $this->prepareText($match->getContextBefore());
         $after = $this->prepareText($match->getContextAfter());
 
-        $this->ptln('<table><tr>', +2);
-        $this->ptln('<td class="be-text">' . $before . $original . $after . '</td>');
-        $this->ptln('<td class="be-arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
-        $this->ptln('<td class="be-text">' . $before . $replaced . $after . '</td>');
-        $this->ptln('</tr></table>', -2);
+        print('<table><tr>');
+        print('<td class="be-text">' . $before . $original . $after . '</td>');
+        print('<td class="be-arrow">' . $this->getSvg('slide-arrow-right') . '</td>');
+        print('<td class="be-text">' . $before . $replaced . $after . '</td>');
+        print('</tr></table>');
     }
 
     /**
@@ -379,9 +391,9 @@ class BatcheditInterface {
      *
      */
     private function printFormEdit($title, $name) {
-        $this->ptln('<tr>', +2);
-        $this->ptln('<td class="be-title">' . $this->getLang($title) . '</td>');
-        $this->ptln('<td class="be-edit">', +2);
+        print('<tr>');
+        print('<td class="be-title">' . $this->getLang($title) . '</td>');
+        print('<td class="be-edit">');
 
         switch ($name) {
             case 'namespace':
@@ -403,8 +415,8 @@ class BatcheditInterface {
                 break;
         }
 
-        $this->ptln('</td>', -2);
-        $this->ptln('</tr>', -2);
+        print('</td>');
+        print('</tr>');
     }
 
     /**
@@ -432,29 +444,35 @@ class BatcheditInterface {
     private function printOptions() {
         $style = 'min-width: ' . $this->getLang('dim_options') . ';';
 
-        $this->ptln('<div id="be-options" style="' . $style . '">', +2);
+        print('<div id="be-options" style="' . $style . '">');
 
-        $this->ptln('<div class="be-radiogroup">', +2);
-        $this->ptln('<div>' . $this->getLang('lbl_searchmode') . '</div>');
+        print('<div class="be-radiogroup">');
+        print('<div>' . $this->getLang('lbl_searchmode') . '</div>');
+
         $this->printRadioButton('searchmode', 'text', 'lbl_searchtext');
         $this->printRadioButton('searchmode', 'regexp', 'lbl_searchregexp');
-        $this->ptln('</div>', -2);
+
+        print('</div>');
 
         $this->printCheckBox('matchcase', 'lbl_matchcase');
         $this->printCheckBox('multiline', 'lbl_multiline');
 
-        $this->ptln('</div>', -2);
+        print('</div>');
 
-        $this->ptln('<div class="be-actions">', +2);
+        print('<div class="be-actions">');
+
         $this->printAction('javascript:openAdvancedOptions();', 'ttl_extoptions', 'settings');
-        $this->ptln('</div>', -2);
+
+        print('</div>');
 
         $style = 'width: ' . $this->getLang('dim_extoptions') . ';';
 
-        $this->ptln('<div id="be-extoptions" style="' . $style . '">', +2);
-        $this->ptln('<div class="be-actions">', +2);
+        print('<div id="be-extoptions" style="' . $style . '">');
+        print('<div class="be-actions">');
+
         $this->printAction('javascript:closeAdvancedOptions();', '', 'close');
-        $this->ptln('</div>', -2);
+
+        print('</div>');
 
         $this->printCheckBox('advregexp', 'lbl_advregexp');
         $this->printCheckBox('matchctx', 'printMatchContextLabel');
@@ -463,7 +481,7 @@ class BatcheditInterface {
         $this->printCheckBox('tplpatterns', 'lbl_tplpatterns');
         $this->printCheckBox('checksummary', 'lbl_checksummary');
 
-        $this->ptln('</div>', -2);
+        print('</div>');
     }
 
     /**
@@ -499,15 +517,17 @@ class BatcheditInterface {
         $disabled = isset($_REQUEST['keepmarks']) ? '' : ' disabled="disabled"';
 
         $this->printLabel('keepmarks', $label[0]);
-        $this->ptln('<select name="markpolicy"' . $disabled . '>', +2);
+
+        print('<select name="markpolicy"' . $disabled . '>');
 
         for ($i = 1; $i <= 4; $i++) {
             $selected = $_REQUEST['markpolicy'] == $i ? ' selected="selected"' : '';
 
-            $this->ptln('<option value="' . $i . '"' . $selected . '>' . $this->getLang('lbl_keepmarks' . $i) . '</option>');
+            print('<option value="' . $i . '"' . $selected . '>' . $this->getLang('lbl_keepmarks' . $i) . '</option>');
         }
 
-        $this->ptln('</select>', -2);
+        print('</select>');
+
         $this->printLabel('keepmarks', $label[1]);
     }
 
@@ -537,7 +557,7 @@ class BatcheditInterface {
             $html .= ' style="display: none;"';
         }
 
-        $this->ptln($html . ' />');
+        print($html . ' />');
     }
 
     /**
@@ -578,7 +598,7 @@ class BatcheditInterface {
             $html .= htmlspecialchars($value);
         }
 
-        $this->ptln($html . '</textarea>');
+        print($html . '</textarea>');
     }
 
     /**
@@ -591,10 +611,12 @@ class BatcheditInterface {
             $html .= ' checked="checked"';
         }
 
-        $this->ptln('<div class="be-checkbox">', +2);
-        $this->ptln($html . ' />');
+        print('<div class="be-checkbox">');
+        print($html . ' />');
+
         $this->printLabel($name, $label);
-        $this->ptln('</div>', -2);
+
+        print('</div>');
     }
 
     /**
@@ -608,10 +630,12 @@ class BatcheditInterface {
             $html .= ' checked="checked"';
         }
 
-        $this->ptln('<div class="be-radiobtn">', +2);
-        $this->ptln($html . ' />');
+        print('<div class="be-radiobtn">');
+        print($html . ' />');
+
         $this->printLabel($id, $label);
-        $this->ptln('</div>', -2);
+
+        print('</div>');
     }
 
     /**
@@ -630,7 +654,7 @@ class BatcheditInterface {
             }
 
             if (!empty($label)) {
-                $this->ptln('<label for="be-' . $name . '">' . $label . '</label>');
+                print('<label for="be-' . $name . '">' . $label . '</label>');
             }
         }
     }
@@ -645,14 +669,14 @@ class BatcheditInterface {
             $html .= ' disabled="disabled"';
         }
 
-        $this->ptln($html . ' />');
+        print($html . ' />');
     }
 
     /**
      *
      */
     private function printButton($name, $label) {
-        $this->ptln('<input type="button" class="button be-button" name="' . $name . '" value="' . $this->getLang($label) . '" />');
+        print('<input type="button" class="button be-button" name="' . $name . '" value="' . $this->getLang($label) . '" />');
     }
 
     /**
@@ -714,21 +738,6 @@ class BatcheditInterface {
         }
 
         return '#many';
-    }
-
-    /**
-     *
-     */
-    private function ptln($string, $indentDelta = 0) {
-        if ($indentDelta < 0) {
-            $this->indent += $indentDelta;
-        }
-
-        ptln($string, $this->indent);
-
-        if ($indentDelta > 0) {
-            $this->indent += $indentDelta;
-        }
     }
 
     /**
