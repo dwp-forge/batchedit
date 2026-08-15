@@ -1124,9 +1124,8 @@ class BatcheditEngine {
             throw new BatcheditException('err_idxaccess');
         }
 
-        require_once(DOKU_INC . 'inc/indexer.php');
-
-        $index = idx_getIndex('page', '');
+        $indexer = new \dokuwiki\Search\Indexer();
+        $index = $indexer->getAllPages(true);
 
         if (count($index) == 0) {
             throw new BatcheditException('err_emptyidx');
