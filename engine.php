@@ -378,6 +378,14 @@ class BatcheditPage implements Serializable {
             }
 
             saveWikiText($this->id, $text, $summary, $minorEdit);
+
+            require_once(DOKU_INC . 'inc/indexer.php');
+            if (class_exists('\dokuwiki\Search\Indexer')) {
+                \dokuwiki\Search\Indexer::addPage($this->id);
+            } else {
+                @idx_addPage($this->id);
+            }
+
             unlock($this->id);
         }
         catch (Exception $error) {
