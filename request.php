@@ -120,11 +120,14 @@ class BatcheditRequest {
             return self::COMMAND_WELCOME;
         }
 
-        if (!is_array($_REQUEST['cmd'])) {
+        $token = $_POST['sectok'] ?? null;
+        $expected = getSecurityToken();
+        if (!is_array($_POST['cmd'] ?? null) || !is_string($token) || $expected === '' ||
+                !hash_equals($expected, $token)) {
             throw new BatcheditException('err_invreq');
         }
 
-        $command = key($_REQUEST['cmd']);
+        $command = key($_POST['cmd']);
 
         if (($command != 'preview') && ($command != 'apply')) {
             throw new BatcheditException('err_invreq');

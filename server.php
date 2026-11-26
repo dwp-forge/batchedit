@@ -67,6 +67,12 @@ class BatcheditServer {
      *
      */
     private function handleCancel() {
+        $token = $_POST['sectok'] ?? null;
+        $expected = getSecurityToken();
+        if (!is_string($token) || $expected === '' || !hash_equals($expected, $token)) {
+            throw new Exception('Invalid security token');
+        }
+
         $this->verifySession();
 
         BatcheditEngine::cancelOperation($_REQUEST['session']);

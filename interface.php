@@ -125,6 +125,7 @@ class BatcheditInterface {
         $this->printJavascriptLang();
 
         print('<form method="post">');
+        formSecurityToken();
         print('<input type="hidden" name="session" value="' . $sessionId . '" />');
     }
 
