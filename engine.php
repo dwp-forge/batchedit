@@ -93,10 +93,10 @@ class BatcheditMatch implements Serializable {
     /**
      *
      */
-    public function __construct($pageText, $pageOffset, $text, $regexp, $replacement, $contextChars, $contextLines) {
+    public function __construct($pageText, $pageOffset, $text, $replacement, $contextChars, $contextLines) {
         $this->pageOffset = $pageOffset;
         $this->originalText = $text;
-        $this->replacedText = preg_replace($regexp, $replacement, $text);
+        $this->replacedText = $replacement;
         $this->contextBefore = $this->cropContextBefore($pageText, $pageOffset, $contextChars, $contextLines);
         $this->contextAfter = $this->cropContextAfter($pageText, $pageOffset + strlen($text), $contextChars, $contextLines);
         $this->marked = FALSE;
@@ -290,7 +290,21 @@ class BatcheditPage implements Serializable {
         }
 
         for ($i = 0; $i < $count; $i++) {
-            $this->addMatch($text, $match[$i][0][1], $match[$i][0][0], $regexp, $replacement,
+            $captures = $match[$i];
+            list($matched, $offset) = $captures[0];
+            $replaced = preg_replace_callback(
+                '~\x5c([\x5c$])|(?:\x5c|\$)([0-9]{1,2})|\$\{([0-9]{1,2})\}~',
+                static function ($reference) use ($captures) {
+                    if ($reference[1] !== '') {
+                        return $reference[1];
+                    }
+
+                    $group = (int) ($reference[3] ?? $reference[2]);
+                    return $captures[$group][0] ?? '';
+                },
+                $replacement
+            );
+            $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $replaced,
                     $contextChars, $contextLines);
         }
 
@@ -415,13 +429,6 @@ class BatcheditPage implements Serializable {
         $page = unserialize($data);
         list($this->id, $this->matches) = $page;
         $this->previewHash = $page[2] ?? null;
-    }
-
-    /**
-     *
-     */
-    private function addMatch($text, $offset, $matched, $regexp, $replacement, $contextChars, $contextLines) {
-        $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $regexp, $replacement, $contextChars, $contextLines);
     }
 
     /**
