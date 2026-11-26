@@ -242,6 +242,7 @@ class BatcheditPage implements Serializable {
 
     private $id;
     private $matches;
+    private $previewHash;
 
     /**
      *
@@ -263,6 +264,7 @@ class BatcheditPage implements Serializable {
      */
     public function findMatches($regexp, $replacement, $limit, $contextChars, $contextLines, $applyTemplatePatterns) {
         $text = rawWiki($this->id);
+        $this->previewHash = hash('sha256', $text);
         $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count === FALSE) {
@@ -363,22 +365,25 @@ class BatcheditPage implements Serializable {
      *
      */
     public function applyMatches($summary, $minorEdit) {
-        try {
-            $this->lock();
+        $this->lock();
 
+        try {
             $text = rawWiki($this->id);
+            if ($this->previewHash !== hash('sha256', $text)) {
+                throw new BatcheditPageApplyException('war_stalepage', $this->id);
+            }
+
             $originalLength = strlen($text);
             $count = 0;
 
             foreach ($this->matches as $match) {
-                if ($match->isMarked()) {
+                if ($match->isMarked() && !$match->isApplied()) {
                     $text = $match->apply($text, strlen($text) - $originalLength);
                     $count++;
                 }
             }
 
             saveWikiText($this->id, $text, $summary, $minorEdit);
-            unlock($this->id);
         }
         catch (Exception $error) {
             $this->rollbackMatches();
@@ -389,6 +394,9 @@ class BatcheditPage implements Serializable {
 
             throw $error;
         }
+        finally {
+            unlock($this->id);
+        }
 
         return $count;
     }
@@ -397,14 +405,16 @@ class BatcheditPage implements Serializable {
      *
      */
     public function serialize() {
-        return serialize(array($this->id, $this->matches));
+        return serialize(array($this->id, $this->matches, $this->previewHash));
     }
 
     /**
      *
      */
     public function unserialize($data) {
-        list($this->id, $this->matches) = unserialize($data);
+        $page = unserialize($data);
+        list($this->id, $this->matches) = $page;
+        $this->previewHash = $page[2] ?? null;
     }
 
     /**
@@ -613,13 +623,13 @@ class BatcheditSession {
 
         $properties = $this->loadArray('props');
 
-        if (!is_array($properties) || !empty(array_diff_assoc($properties, $this->getProperties($request, $config)))) {
+        if ($properties !== $this->getProperties($request, $config)) {
             return FALSE;
         }
 
         $matches = $this->loadArray('matches');
 
-        if (!is_array($matches)) {
+        if (!is_array($matches) || ($matches[3] ?? null) !== $properties) {
             return FALSE;
         }
 
@@ -636,8 +646,9 @@ class BatcheditSession {
      *
      */
     public function save($request, $config) {
-        $this->saveArray('props', $this->getProperties($request, $config));
-        $this->saveArray('matches', array($this->warnings, $this->matches, $this->pages));
+        $properties = $this->getProperties($request, $config);
+        $this->saveArray('props', $properties);
+        $this->saveArray('matches', array($this->warnings, $this->matches, $this->pages, $properties));
     }
 
     /**
