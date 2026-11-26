@@ -167,8 +167,8 @@ class BatcheditRequest {
      *
      */
     private function parseSessionId() {
-        if (!isset($_REQUEST['session'])) {
-            return '';
+        if (!BatcheditSession::isValidId($_REQUEST['session'] ?? null)) {
+            throw new BatcheditException('err_invreq');
         }
 
         return $_REQUEST['session'];

@@ -58,7 +58,7 @@ class BatcheditServer {
      *
      */
     private function verifySession() {
-        if (!isset($_REQUEST['session']) || preg_match('/^[0-9a-f]+$/', $_REQUEST['session']) != 1) {
+        if (!BatcheditSession::isValidId($_REQUEST['session'] ?? null)) {
             throw new Exception('Invalid session identifier');
         }
     }

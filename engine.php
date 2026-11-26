@@ -568,6 +568,10 @@ class BatcheditSession {
         'war_searchlimit'
     );
 
+    public static function isValidId($id) {
+        return is_string($id) && preg_match('/\A[0-9a-f]{32}\z/', $id) === 1;
+    }
+
     /**
      *
      */
@@ -736,11 +740,7 @@ class BatcheditSession {
      *
      */
     private function generateId() {
-        global $USERINFO;
-
-        $time = gettimeofday();
-
-        return md5($time['sec'] . $time['usec'] . $USERINFO['name'] . $USERINFO['mail']);
+        return bin2hex(random_bytes(16));
     }
 
     /**
