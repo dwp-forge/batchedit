@@ -1124,7 +1124,7 @@ class BatcheditEngine {
             throw new BatcheditException('err_idxaccess');
         }
 
-        if (class_exists(\dokuwiki\Search\Indexer::class)) {
+        if (method_exists(\dokuwiki\Search\Indexer::class, 'getAllPages')) {
             $index = (new \dokuwiki\Search\Indexer())->getAllPages(true);
         }
         else {
