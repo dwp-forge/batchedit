@@ -1124,8 +1124,15 @@ class BatcheditEngine {
             throw new BatcheditException('err_idxaccess');
         }
 
-        $indexer = new \dokuwiki\Search\Indexer();
-        $index = $indexer->getAllPages(true);
+        if (class_exists(\dokuwiki\Search\Indexer::class)) {
+            $index = (new \dokuwiki\Search\Indexer())->getAllPages(true);
+        }
+        else {
+            require_once(DOKU_INC . 'inc/indexer.php');
+            $index = array_filter(array_map('trim', idx_getIndex('page', '')), function ($pageId) {
+                return $pageId !== '' && page_exists($pageId, '', false);
+            });
+        }
 
         if (count($index) == 0) {
             throw new BatcheditException('err_emptyidx');
