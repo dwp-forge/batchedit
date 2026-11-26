@@ -1162,9 +1162,7 @@ class BatcheditEngine {
                     $ns = substr($ns, 1);
                 }
 
-                if ($ns == ':') {
-                    $ns = "[^:]+$";
-                }
+                $ns = $ns === ':' ? '[^:]+$' : preg_quote($ns, "\033");
 
                 if ($negative) {
                     $negativeFilter[] = $ns;
