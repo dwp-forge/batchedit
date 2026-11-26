@@ -1220,7 +1220,7 @@ class BatcheditEngine {
         // either real time or only user time excluding all system calls. Here we enforce real
         // time limit, which could be more strict then what PHP would do, but is easier to
         // implement in a cross-platform way and easier for a user to understand.
-        return time() - $this->startTime >= $this->timeLimit;
+        return $this->timeLimit > 0 && time() - $this->startTime >= $this->timeLimit;
     }
 
     /**
