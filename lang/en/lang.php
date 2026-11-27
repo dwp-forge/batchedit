@@ -21,11 +21,13 @@ $lang['err_emptyidx'] = 'The page index is empty.';
 $lang['err_idxaccess'] = 'Cannot access the page index.';
 $lang['err_emptyns'] = 'No pages found in namespace "{1}".';
 $lang['err_pregfailed'] = 'Regular expression matching has failed.';
+$lang['err_stalepreview'] = 'The preview is no longer valid. Run Preview again before applying changes.';
 
 $lang['war_nomatches'] = 'No matches are found.';
 $lang['war_norights'] = 'You have no rights to edit page {1}.';
 $lang['war_pagelock'] = 'Page {1} is locked by {2}.';
 $lang['war_matchfail'] = 'Failed to apply match {1}.';
+$lang['war_stalepage'] = 'Page {1} has changed since the preview. Run Preview again before editing it.';
 $lang['war_searchlimit'] = 'The search was interrupted after reaching maximal number of matches.';
 $lang['war_timeout'] = 'The operation was interrupted because it is taking too much time.';
 $lang['war_cancelled'] = 'The operation was interrupted on user\'s request.';

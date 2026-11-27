@@ -93,10 +93,10 @@ class BatcheditMatch implements Serializable {
     /**
      *
      */
-    public function __construct($pageText, $pageOffset, $text, $regexp, $replacement, $contextChars, $contextLines) {
+    public function __construct($pageText, $pageOffset, $text, $replacement, $contextChars, $contextLines) {
         $this->pageOffset = $pageOffset;
         $this->originalText = $text;
-        $this->replacedText = preg_replace($regexp, $replacement, $text);
+        $this->replacedText = $replacement;
         $this->contextBefore = $this->cropContextBefore($pageText, $pageOffset, $contextChars, $contextLines);
         $this->contextAfter = $this->cropContextAfter($pageText, $pageOffset + strlen($text), $contextChars, $contextLines);
         $this->marked = FALSE;
@@ -242,6 +242,7 @@ class BatcheditPage implements Serializable {
 
     private $id;
     private $matches;
+    private $previewHash;
 
     /**
      *
@@ -263,6 +264,7 @@ class BatcheditPage implements Serializable {
      */
     public function findMatches($regexp, $replacement, $limit, $contextChars, $contextLines, $applyTemplatePatterns) {
         $text = rawWiki($this->id);
+        $this->previewHash = hash('sha256', $text);
         $count = @preg_match_all($regexp, $text, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         if ($count === FALSE) {
@@ -288,7 +290,21 @@ class BatcheditPage implements Serializable {
         }
 
         for ($i = 0; $i < $count; $i++) {
-            $this->addMatch($text, $match[$i][0][1], $match[$i][0][0], $regexp, $replacement,
+            $captures = $match[$i];
+            list($matched, $offset) = $captures[0];
+            $replaced = preg_replace_callback(
+                '~\x5c([\x5c$])|(?:\x5c|\$)([0-9]{1,2})|\$\{([0-9]{1,2})\}~',
+                static function ($reference) use ($captures) {
+                    if ($reference[1] !== '') {
+                        return $reference[1];
+                    }
+
+                    $group = (int) ($reference[3] ?? $reference[2]);
+                    return $captures[$group][0] ?? '';
+                },
+                $replacement
+            );
+            $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $replaced,
                     $contextChars, $contextLines);
         }
 
@@ -363,22 +379,25 @@ class BatcheditPage implements Serializable {
      *
      */
     public function applyMatches($summary, $minorEdit) {
-        try {
-            $this->lock();
+        $this->lock();
 
+        try {
             $text = rawWiki($this->id);
+            if ($this->previewHash !== hash('sha256', $text)) {
+                throw new BatcheditPageApplyException('war_stalepage', $this->id);
+            }
+
             $originalLength = strlen($text);
             $count = 0;
 
             foreach ($this->matches as $match) {
-                if ($match->isMarked()) {
+                if ($match->isMarked() && !$match->isApplied()) {
                     $text = $match->apply($text, strlen($text) - $originalLength);
                     $count++;
                 }
             }
 
             saveWikiText($this->id, $text, $summary, $minorEdit);
-            unlock($this->id);
         }
         catch (Exception $error) {
             $this->rollbackMatches();
@@ -389,6 +408,9 @@ class BatcheditPage implements Serializable {
 
             throw $error;
         }
+        finally {
+            unlock($this->id);
+        }
 
         return $count;
     }
@@ -397,21 +419,16 @@ class BatcheditPage implements Serializable {
      *
      */
     public function serialize() {
-        return serialize(array($this->id, $this->matches));
+        return serialize(array($this->id, $this->matches, $this->previewHash));
     }
 
     /**
      *
      */
     public function unserialize($data) {
-        list($this->id, $this->matches) = unserialize($data);
-    }
-
-    /**
-     *
-     */
-    private function addMatch($text, $offset, $matched, $regexp, $replacement, $contextChars, $contextLines) {
-        $this->matches[$offset] = new BatcheditMatch($text, $offset, $matched, $regexp, $replacement, $contextChars, $contextLines);
+        $page = unserialize($data);
+        list($this->id, $this->matches) = $page;
+        $this->previewHash = $page[2] ?? null;
     }
 
     /**
@@ -568,6 +585,10 @@ class BatcheditSession {
         'war_searchlimit'
     );
 
+    public static function isValidId($id) {
+        return is_string($id) && preg_match('/\A[0-9a-f]{32}\z/', $id) === 1;
+    }
+
     /**
      *
      */
@@ -609,13 +630,13 @@ class BatcheditSession {
 
         $properties = $this->loadArray('props');
 
-        if (!is_array($properties) || !empty(array_diff_assoc($properties, $this->getProperties($request, $config)))) {
+        if ($properties !== $this->getProperties($request, $config)) {
             return FALSE;
         }
 
         $matches = $this->loadArray('matches');
 
-        if (!is_array($matches)) {
+        if (!is_array($matches) || ($matches[3] ?? null) !== $properties) {
             return FALSE;
         }
 
@@ -632,8 +653,9 @@ class BatcheditSession {
      *
      */
     public function save($request, $config) {
-        $this->saveArray('props', $this->getProperties($request, $config));
-        $this->saveArray('matches', array($this->warnings, $this->matches, $this->pages));
+        $properties = $this->getProperties($request, $config);
+        $this->saveArray('props', $properties);
+        $this->saveArray('matches', array($this->warnings, $this->matches, $this->pages, $properties));
     }
 
     /**
@@ -736,11 +758,7 @@ class BatcheditSession {
      *
      */
     private function generateId() {
-        global $USERINFO;
-
-        $time = gettimeofday();
-
-        return md5($time['sec'] . $time['usec'] . $USERINFO['name'] . $USERINFO['mail']);
+        return bin2hex(random_bytes(16));
     }
 
     /**
@@ -1144,9 +1162,7 @@ class BatcheditEngine {
                     $ns = substr($ns, 1);
                 }
 
-                if ($ns == ':') {
-                    $ns = "[^:]+$";
-                }
+                $ns = $ns === ':' ? '[^:]+$' : preg_quote($ns, "\033");
 
                 if ($negative) {
                     $negativeFilter[] = $ns;
@@ -1204,7 +1220,7 @@ class BatcheditEngine {
         // either real time or only user time excluding all system calls. Here we enforce real
         // time limit, which could be more strict then what PHP would do, but is easier to
         // implement in a cross-platform way and easier for a user to understand.
-        return time() - $this->startTime >= $this->timeLimit;
+        return $this->timeLimit > 0 && time() - $this->startTime >= $this->timeLimit;
     }
 
     /**

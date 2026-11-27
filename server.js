@@ -15,6 +15,9 @@ var batcheditServer = (function () {
         data.append('call', 'batchedit');
         data.append('session', jQuery('input[name=session]').val());
         data.append('command', request);
+        if (request === 'cancel') {
+            data.append('sectok', jQuery('#batchedit input[name=sectok]').val());
+        }
 
         transaction = request;
 

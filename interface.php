@@ -125,6 +125,7 @@ class BatcheditInterface {
         $this->printJavascriptLang();
 
         print('<form method="post">');
+        formSecurityToken();
         print('<input type="hidden" name="session" value="' . $sessionId . '" />');
     }
 
@@ -149,7 +150,13 @@ class BatcheditInterface {
 
         foreach ($messages as $message) {
             print('<div class="' . $message->getClass() . '">');
-            print($this->getLang($message->getFormatId(), call_user_func_array(array($this, 'getLang'), $message->data)));
+            $arguments = $message->data;
+            foreach ($arguments as $index => $argument) {
+                if ($index > 0) {
+                    $arguments[$index] = htmlspecialchars((string) $argument, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                }
+            }
+            print($this->getLang($message->getFormatId(), call_user_func_array(array($this, 'getLang'), $arguments)));
             print('</div>');
         }
 

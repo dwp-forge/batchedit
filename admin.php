@@ -111,7 +111,7 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
         $engine = $this->createEngine();
 
         if (!$this->session->load($request, $this->config)) {
-            $this->findMatches($engine, $request);
+            throw new BatcheditException('err_stalepreview');
         }
 
         $this->applyMatches($engine, $request);
@@ -156,6 +156,12 @@ class admin_plugin_batchedit extends DokuWiki_Admin_Plugin {
     private function applyMatches($engine, $request) {
         if ($this->session->getMatchCount() == 0 || empty($request->getAppliedMatches())) {
             return;
+        }
+
+        foreach ($this->session->getPages() as $page) {
+            foreach ($page->getMatches() as $match) {
+                $match->mark(FALSE);
+            }
         }
 
         $engine->markRequestedMatches($request->getAppliedMatches());

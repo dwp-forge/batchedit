@@ -59,7 +59,7 @@ class action_plugin_batchedit extends DokuWiki_Action_Plugin {
         // Use header() function instead until PHP 7.2 is still supported.
         // setcookie(BatcheditConfig::COOKIE, $admin->getConfig()->serialize(), time() + self::YEAR_IN_SECONDS);
         header('Set-Cookie: ' . BatcheditConfig::COOKIE . '=' . urlencode($admin->getConfig()->serialize()) .
-                '; SameSite=Strict; Max-Age=' . self::YEAR_IN_SECONDS);
+                '; SameSite=Strict; Max-Age=' . self::YEAR_IN_SECONDS, false);
     }
 
     /**

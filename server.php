@@ -58,7 +58,7 @@ class BatcheditServer {
      *
      */
     private function verifySession() {
-        if (!isset($_REQUEST['session']) || preg_match('/^[0-9a-f]+$/', $_REQUEST['session']) != 1) {
+        if (!BatcheditSession::isValidId($_REQUEST['session'] ?? null)) {
             throw new Exception('Invalid session identifier');
         }
     }
@@ -67,6 +67,12 @@ class BatcheditServer {
      *
      */
     private function handleCancel() {
+        $token = $_POST['sectok'] ?? null;
+        $expected = getSecurityToken();
+        if (!is_string($token) || $expected === '' || !hash_equals($expected, $token)) {
+            throw new Exception('Invalid security token');
+        }
+
         $this->verifySession();
 
         BatcheditEngine::cancelOperation($_REQUEST['session']);
